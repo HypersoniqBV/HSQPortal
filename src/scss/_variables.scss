@@ -3,3 +3,25 @@
 // If you want to customize your project please add your variables below.
 
 $enable-deprecation-messages: false !default;
+
+$primary:       #c40000;
+$secondary:     #9da5b1;
+$success:       #2eb85c;
+$info:          #c40000;
+$warning:       rgb(251, 205, 0);
+$danger:        #ff9900;
+$light:         #f3f4f7;
+$dark:          #1c1e20;
+
+$theme-colors: (
+  "primary":    $primary,
+  "secondary":  $secondary,
+  "success":    $success,
+  "info":       $info,
+  "warning":    $warning,
+  "danger":     $danger,
+  "light":      $light,
+  "dark":       $dark
+);
+
+ 

@@ -39,9 +39,12 @@ const AppSidebar = () => {
         dispatch({ type: 'set', sidebarShow: visible })
       }}
     >
-      <CSidebarHeader className="border-bottom">
-        <CSidebarBrand to="/">
-          <CIcon customClassName="sidebar-brand-full" icon={logo} height={32} />
+      <CSidebarHeader
+        style={{ justifyContent: 'center' }}
+        className="border-bottom align-items-center"
+      >
+        <CSidebarBrand className="align-items-center" to="/">
+          <CIcon customClassName="align-self-center sidebar-brand-full" icon={logo} height={32} />
           <CIcon customClassName="sidebar-brand-narrow" icon={sygnet} height={32} />
         </CSidebarBrand>
         <CCloseButton

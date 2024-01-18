@@ -30,8 +30,6 @@ const AppSidebar = () => {
 
   return (
     <CSidebar
-      className="border-end"
-      colorScheme="dark"
       position="fixed"
       unfoldable={unfoldable}
       visible={sidebarShow}
@@ -39,13 +37,10 @@ const AppSidebar = () => {
         dispatch({ type: 'set', sidebarShow: visible })
       }}
     >
-      <CSidebarHeader
-        style={{ justifyContent: 'center' }}
-        className="border-bottom align-items-center"
-      >
+      <CSidebarHeader style={{ justifyContent: 'center' }} className="align-items-center">
         <CSidebarBrand className="align-items-center" to="/">
-          <CIcon customClassName="align-self-center sidebar-brand-full" icon={logo} height={32} />
-          <CIcon customClassName="sidebar-brand-narrow" icon={sygnet} height={32} />
+          <CIcon customClassName="align-self-center sidebar-brand-full" icon={logo} height={20} />
+          <CIcon customClassName="sidebar-brand-narrow" icon={sygnet} height={20} />
         </CSidebarBrand>
         <CCloseButton
           className="d-lg-none"
@@ -55,14 +50,13 @@ const AppSidebar = () => {
       </CSidebarHeader>
 
       <CSidebarNav>
-        <SimpleBar>
+        <SimpleBar className="rounded-3 bg-dark m-0">
           <AppSidebarNav items={navigation} />
         </SimpleBar>
       </CSidebarNav>
-      <CSidebarFooter className="border-top d-none d-lg-flex">
-        <CSidebarToggler
-          onClick={() => dispatch({ type: 'set', sidebarUnfoldable: !unfoldable })}
-        />
+
+      <CSidebarFooter style={{ fontSize: 12, color: 'gray' }} className="m-2 p-2 rounded-2">
+        Hypersoniq Tech© 2024
       </CSidebarFooter>
     </CSidebar>
   )

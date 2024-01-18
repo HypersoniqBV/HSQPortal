@@ -4,14 +4,24 @@
 
 $enable-deprecation-messages: false !default;
 
-$primary:       #c40000;
+$fresh-red   : #A41F13;
+$white-fog   : #FAF5F1;
+$light-gray  : #E0DBD8;
+$carbon-gray : #292F36;
+$soft-brown  : #8F7A6E;
+
+
+//
+//
+//
+$primary:       $fresh-red;
 $secondary:     #9da5b1;
 $success:       #2eb85c;
-$info:          #c40000;
+$info:          $fresh-red;
 $warning:       rgb(251, 205, 0);
 $danger:        #ff9900;
 $light:         #f3f4f7;
-$dark:          #1c1e20;
+$dark:          mix($carbon-gray, #333);
 
 $theme-colors: (
   "primary":    $primary,
@@ -23,5 +33,33 @@ $theme-colors: (
   "light":      $light,
   "dark":       $dark
 );
+
+$theme-colors-dark: (
+  "primary":    $primary,
+  "secondary":  $secondary,
+  "success":    $success,
+  "info":       $info,
+  "warning":    $warning,
+  "danger":     $danger,
+  "light":      $light,
+  "dark":       $dark
+);
+
+//$body-bg: #000;
+//$body-color: #111;
+//$body-bg:           $dark;
+//$body-color-dark:   $dark;
+//$body-bg-dark:      #141414;
+//$body-secondary-bg-dark: #fff;
+//$body-secondary-color-dark: #fff;
+//$body-tertiary-bg-dark: #fff;
+//$body-tertiary-color-dark: #fff;
+
+$header-bg-dark: mix($carbon-gray, #444); //mix($soft-brown, #000000);
+$body-bg-dark: mix($carbon-gray, #444);
+$dark-bg-subtle-dark: mix($carbon-gray, #333);;
+$body-tertiary-bg-dark: mix($fresh-red, #000000);
+//$border-color-dark: $white-fog;
+
 
  

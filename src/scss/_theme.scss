@@ -45,7 +45,7 @@ body {
 }
 
 .header > .container-fluid + .container-fluid {
-  min-height: 3rem;
+  min-height: 3rem; 
 }
 
 .footer {
@@ -56,6 +56,10 @@ body {
   @include color-mode(dark) {
     body {
       background-color: var(--cui-dark-bg-subtle);
+    }
+
+    .header {
+      background-color: $header-bg-dark;
     }
 
     .footer {

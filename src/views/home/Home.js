@@ -1,4 +1,4 @@
-import { React, useState, useReducer, useRef } from 'react'
+import { React, useState, useReducer, useRef, useEffect } from 'react'
 import classNames from 'classnames'
 
 import {
@@ -33,11 +33,33 @@ import {
   CToastHeader,
   CToastBody,
   CBadge,
+  CSpinner,
 } from '@coreui/react'
 import CIcon from '@coreui/icons-react'
 import { XYPlot, XAxis, YAxis, HorizontalGridLines, VerticalGridLines, LineSeries } from 'react-vis'
 
-import { cilTriangle, cilMagnifyingGlass } from '@coreui/icons'
+import {
+  Chart as ChartJS,
+  LinearScale,
+  PointElement,
+  LogarithmicScale,
+  LineElement,
+  Legend,
+  Title,
+} from 'chart.js'
+import { Scatter } from 'react-chartjs-2'
+import zoomPlugin from 'chartjs-plugin-zoom'
+import faker from 'faker'
+
+import {
+  cilTriangle,
+  cilMagnifyingGlass,
+  cilArrowThickLeft,
+  cilArrowThickRight,
+  cilChevronDoubleRight,
+  cilChevronRight,
+  cilChevronLeft,
+} from '@coreui/icons'
 
 import avatar1 from 'src/assets/images/avatars/1.jpg'
 import avatar2 from 'src/assets/images/avatars/2.jpg'
@@ -49,14 +71,486 @@ import avatar6 from 'src/assets/images/avatars/6.jpg'
 import WidgetsBrand from '../widgets/WidgetsBrand'
 import WidgetsDropdown from '../widgets/WidgetsDropdown'
 import MainChart from './MainChart'
-import { left } from '@popperjs/core'
+import { bottom, left } from '@popperjs/core'
+
+ChartJS.register(LinearScale, PointElement, LogarithmicScale, LineElement, Title, zoomPlugin)
+
+export const nyquist_options = {
+  maintainAspectRatio: false,
+  plugins: {
+    title: {
+      display: true,
+      text: 'Nyquist Diagram',
+      color: '#FFF',
+      font: {
+        size: 20,
+      },
+      padding: {
+        top: 10,
+        bottom: 30,
+      },
+    },
+    zoom: {
+      pan: {
+        enabled: true,
+        modifierKey: 'ctrl',
+      },
+      limits: {
+        y: { min: 'original', max: 'original' },
+        x: { min: 'original', max: 'original' },
+      },
+      zoom: {
+        wheel: {
+          enabled: true,
+          modifierKey: 'ctrl',
+        },
+        pinch: {
+          enabled: true,
+        },
+        drag: {
+          enabled: true,
+          borderColor: 'rgb(54, 162, 235)',
+          borderWidth: 1,
+          backgroundColor: 'rgba(54, 162, 235, 0.3)',
+        },
+        mode: 'xy',
+      },
+    },
+  },
+  animation: {
+    duration: 1000,
+  },
+  responsive: true,
+  scales: {
+    x: {
+      grid: {
+        display: true,
+        color: '#444',
+      },
+      beginAtZero: true,
+      type: 'linear',
+      title: {
+        display: true,
+        text: 'Real-Axis',
+        color: 'white',
+      },
+      ticks: {
+        color: '#FFF',
+        callback: function (value) {
+          if (Math.floor(value) === value) {
+            return value.toExponential()
+          }
+        },
+      },
+    },
+    y: {
+      grid: {
+        display: true,
+        color: '#444',
+      },
+      beginAtZero: true,
+      type: 'linear',
+      title: {
+        display: true,
+        text: 'Imaginary-Axis',
+        color: 'white',
+      },
+      ticks: {
+        color: '#FFF',
+        callback: function (value) {
+          if (Math.floor(value) === value) {
+            return value.toExponential()
+          }
+        },
+      },
+      /*
+      ticks: {
+        callback: (val) => {
+          if (Math.log10(val) % 1 === 0) {
+            return val.toExponential()
+          } else {
+            return ' '
+          }
+        },
+      },
+      */
+    },
+  },
+}
+
+export const bode_options_gain = {
+  maintainAspectRatio: false,
+  plugins: {
+    title: {
+      display: true,
+      text: 'Bode Diagram',
+      color: '#FFF',
+      font: {
+        size: 20,
+      },
+      padding: {
+        top: 10,
+        bottom: 30,
+      },
+    },
+    zoom: {
+      pan: {
+        enabled: true,
+        modifierKey: 'ctrl',
+      },
+      limits: {
+        y: { min: 'original', max: 'original' },
+        x: { min: 'original', max: 'original' },
+      },
+      zoom: {
+        wheel: {
+          enabled: true,
+          modifierKey: 'ctrl',
+        },
+        pinch: {
+          enabled: true,
+        },
+        drag: {
+          enabled: true,
+          borderColor: 'rgb(54, 162, 235)',
+          borderWidth: 1,
+          backgroundColor: 'rgba(54, 162, 235, 0.3)',
+        },
+        mode: 'xy',
+      },
+    },
+  },
+  animation: {
+    duration: 1000,
+  },
+  responsive: true,
+  scales: {
+    x: {
+      grid: {
+        display: true,
+        color: '#444',
+      },
+      beginAtZero: true,
+      type: 'logarithmic',
+      title: {
+        display: true,
+        text: 'Real-Axis',
+        color: 'white',
+      },
+      ticks: {
+        color: '#FFF',
+        callback: function (value) {
+          if (Math.floor(value) === value) {
+            if (Math.log10(value) % 1 === 0) {
+              return Math.round(value).toExponential()
+            } else {
+              return ' '
+            }
+          }
+        },
+      },
+    },
+    y: {
+      grid: {
+        display: true,
+        color: '#444',
+      },
+      beginAtZero: true,
+      type: 'logarithmic',
+      title: {
+        display: true,
+        text: 'Imaginary-Axis',
+        color: 'white',
+      },
+      ticks: {
+        color: '#FFF',
+        callback: function (value) {
+          if (Math.floor(value) === value) {
+            if (Math.log10(value) % 1 === 0) {
+              return Math.round(value).toExponential()
+            }
+          }
+        },
+      },
+      /*
+      ticks: {
+        callback: (val) => {
+          if (Math.log10(val) % 1 === 0) {
+            return val.toExponential()
+          } else {
+            return ' '
+          }
+        },
+      },
+      */
+    },
+  },
+}
+
+export const bode_options_phase = {
+  maintainAspectRatio: false,
+  plugins: {
+    zoom: {
+      pan: {
+        enabled: true,
+        modifierKey: 'ctrl',
+      },
+      limits: {
+        y: { min: 'original', max: 'original' },
+        x: { min: 'original', max: 'original' },
+      },
+      zoom: {
+        wheel: {
+          enabled: true,
+          modifierKey: 'ctrl',
+        },
+        pinch: {
+          enabled: true,
+        },
+        drag: {
+          enabled: true,
+          borderColor: 'rgb(54, 162, 235)',
+          borderWidth: 1,
+          backgroundColor: 'rgba(54, 162, 235, 0.3)',
+        },
+        mode: 'xy',
+      },
+    },
+  },
+  animation: {
+    duration: 1000,
+  },
+  responsive: true,
+  scales: {
+    x: {
+      grid: {
+        display: true,
+        color: '#444',
+      },
+      beginAtZero: true,
+      type: 'logarithmic',
+      title: {
+        display: true,
+        text: 'Real-Axis',
+        color: 'white',
+      },
+      ticks: {
+        color: '#FFF',
+        callback: function (value) {
+          if (Math.floor(value) === value) {
+            if (Math.log10(value) % 1 === 0) {
+              return Math.round(value).toExponential()
+            }
+          }
+        },
+      },
+    },
+    y: {
+      grid: {
+        display: true,
+        color: '#444',
+      },
+      beginAtZero: true,
+      type: 'linear',
+      title: {
+        display: true,
+        text: 'Imaginary-Axis',
+        color: 'white',
+      },
+      ticks: {
+        color: '#FFF',
+        callback: function (value) {
+          if (Math.floor(value) === value) {
+            return value.toExponential()
+          }
+        },
+      },
+      /*
+      ticks: {
+        callback: (val) => {
+          if (Math.log10(val) % 1 === 0) {
+            return val.toExponential()
+          } else {
+            return ' '
+          }
+        },
+      },
+      */
+    },
+  },
+}
+
+function dataSet(values) {
+  return {
+    datasets: [
+      {
+        data: values,
+        backgroundColor: 'rgba(204, 57, 57, 1)',
+        pointRadius: 2,
+        pointHoverRadius: 2,
+      },
+    ],
+  }
+}
 
 const Home = () => {
   const [toast, addToast] = useState(0)
   const toaster = useRef()
 
+  const [currentPage, setCurrentPage] = useState(1)
+
   const [ignored, forceUpdate] = useReducer((x) => x + 1, 0)
   const [row, setRow] = useState([
+    { height: 0, rotation: '90deg', isOpen: false, color: '' },
+    { height: 0, rotation: '90deg', isOpen: false, color: '' },
+    { height: 0, rotation: '90deg', isOpen: false, color: '' },
+    { height: 0, rotation: '90deg', isOpen: false, color: '' },
+    { height: 0, rotation: '90deg', isOpen: false, color: '' },
+    { height: 0, rotation: '90deg', isOpen: false, color: '' },
+    { height: 0, rotation: '90deg', isOpen: false, color: '' },
+    { height: 0, rotation: '90deg', isOpen: false, color: '' },
+    { height: 0, rotation: '90deg', isOpen: false, color: '' },
+    { height: 0, rotation: '90deg', isOpen: false, color: '' },
+    { height: 0, rotation: '90deg', isOpen: false, color: '' },
+    { height: 0, rotation: '90deg', isOpen: false, color: '' },
+    { height: 0, rotation: '90deg', isOpen: false, color: '' },
+    { height: 0, rotation: '90deg', isOpen: false, color: '' },
+    { height: 0, rotation: '90deg', isOpen: false, color: '' },
+    { height: 0, rotation: '90deg', isOpen: false, color: '' },
+    { height: 0, rotation: '90deg', isOpen: false, color: '' },
+    { height: 0, rotation: '90deg', isOpen: false, color: '' },
+    { height: 0, rotation: '90deg', isOpen: false, color: '' },
+    { height: 0, rotation: '90deg', isOpen: false, color: '' },
+    { height: 0, rotation: '90deg', isOpen: false, color: '' },
+    { height: 0, rotation: '90deg', isOpen: false, color: '' },
+    { height: 0, rotation: '90deg', isOpen: false, color: '' },
+    { height: 0, rotation: '90deg', isOpen: false, color: '' },
+    { height: 0, rotation: '90deg', isOpen: false, color: '' },
+    { height: 0, rotation: '90deg', isOpen: false, color: '' },
+    { height: 0, rotation: '90deg', isOpen: false, color: '' },
+    { height: 0, rotation: '90deg', isOpen: false, color: '' },
+    { height: 0, rotation: '90deg', isOpen: false, color: '' },
+    { height: 0, rotation: '90deg', isOpen: false, color: '' },
+    { height: 0, rotation: '90deg', isOpen: false, color: '' },
+    { height: 0, rotation: '90deg', isOpen: false, color: '' },
+    { height: 0, rotation: '90deg', isOpen: false, color: '' },
+    { height: 0, rotation: '90deg', isOpen: false, color: '' },
+    { height: 0, rotation: '90deg', isOpen: false, color: '' },
+    { height: 0, rotation: '90deg', isOpen: false, color: '' },
+    { height: 0, rotation: '90deg', isOpen: false, color: '' },
+    { height: 0, rotation: '90deg', isOpen: false, color: '' },
+    { height: 0, rotation: '90deg', isOpen: false, color: '' },
+    { height: 0, rotation: '90deg', isOpen: false, color: '' },
+    { height: 0, rotation: '90deg', isOpen: false, color: '' },
+    { height: 0, rotation: '90deg', isOpen: false, color: '' },
+    { height: 0, rotation: '90deg', isOpen: false, color: '' },
+    { height: 0, rotation: '90deg', isOpen: false, color: '' },
+    { height: 0, rotation: '90deg', isOpen: false, color: '' },
+    { height: 0, rotation: '90deg', isOpen: false, color: '' },
+    { height: 0, rotation: '90deg', isOpen: false, color: '' },
+    { height: 0, rotation: '90deg', isOpen: false, color: '' },
+    { height: 0, rotation: '90deg', isOpen: false, color: '' },
+    { height: 0, rotation: '90deg', isOpen: false, color: '' },
+    { height: 0, rotation: '90deg', isOpen: false, color: '' },
+    { height: 0, rotation: '90deg', isOpen: false, color: '' },
+    { height: 0, rotation: '90deg', isOpen: false, color: '' },
+    { height: 0, rotation: '90deg', isOpen: false, color: '' },
+    { height: 0, rotation: '90deg', isOpen: false, color: '' },
+    { height: 0, rotation: '90deg', isOpen: false, color: '' },
+    { height: 0, rotation: '90deg', isOpen: false, color: '' },
+    { height: 0, rotation: '90deg', isOpen: false, color: '' },
+    { height: 0, rotation: '90deg', isOpen: false, color: '' },
+    { height: 0, rotation: '90deg', isOpen: false, color: '' },
+    { height: 0, rotation: '90deg', isOpen: false, color: '' },
+    { height: 0, rotation: '90deg', isOpen: false, color: '' },
+    { height: 0, rotation: '90deg', isOpen: false, color: '' },
+    { height: 0, rotation: '90deg', isOpen: false, color: '' },
+    { height: 0, rotation: '90deg', isOpen: false, color: '' },
+    { height: 0, rotation: '90deg', isOpen: false, color: '' },
+    { height: 0, rotation: '90deg', isOpen: false, color: '' },
+    { height: 0, rotation: '90deg', isOpen: false, color: '' },
+    { height: 0, rotation: '90deg', isOpen: false, color: '' },
+    { height: 0, rotation: '90deg', isOpen: false, color: '' },
+    { height: 0, rotation: '90deg', isOpen: false, color: '' },
+    { height: 0, rotation: '90deg', isOpen: false, color: '' },
+    { height: 0, rotation: '90deg', isOpen: false, color: '' },
+    { height: 0, rotation: '90deg', isOpen: false, color: '' },
+    { height: 0, rotation: '90deg', isOpen: false, color: '' },
+    { height: 0, rotation: '90deg', isOpen: false, color: '' },
+    { height: 0, rotation: '90deg', isOpen: false, color: '' },
+    { height: 0, rotation: '90deg', isOpen: false, color: '' },
+    { height: 0, rotation: '90deg', isOpen: false, color: '' },
+    { height: 0, rotation: '90deg', isOpen: false, color: '' },
+    { height: 0, rotation: '90deg', isOpen: false, color: '' },
+    { height: 0, rotation: '90deg', isOpen: false, color: '' },
+    { height: 0, rotation: '90deg', isOpen: false, color: '' },
+    { height: 0, rotation: '90deg', isOpen: false, color: '' },
+    { height: 0, rotation: '90deg', isOpen: false, color: '' },
+    { height: 0, rotation: '90deg', isOpen: false, color: '' },
+    { height: 0, rotation: '90deg', isOpen: false, color: '' },
+    { height: 0, rotation: '90deg', isOpen: false, color: '' },
+    { height: 0, rotation: '90deg', isOpen: false, color: '' },
+    { height: 0, rotation: '90deg', isOpen: false, color: '' },
+    { height: 0, rotation: '90deg', isOpen: false, color: '' },
+    { height: 0, rotation: '90deg', isOpen: false, color: '' },
+    { height: 0, rotation: '90deg', isOpen: false, color: '' },
+    { height: 0, rotation: '90deg', isOpen: false, color: '' },
+    { height: 0, rotation: '90deg', isOpen: false, color: '' },
+    { height: 0, rotation: '90deg', isOpen: false, color: '' },
+    { height: 0, rotation: '90deg', isOpen: false, color: '' },
+    { height: 0, rotation: '90deg', isOpen: false, color: '' },
+    { height: 0, rotation: '90deg', isOpen: false, color: '' },
+    { height: 0, rotation: '90deg', isOpen: false, color: '' },
+    { height: 0, rotation: '90deg', isOpen: false, color: '' },
+    { height: 0, rotation: '90deg', isOpen: false, color: '' },
+    { height: 0, rotation: '90deg', isOpen: false, color: '' },
+    { height: 0, rotation: '90deg', isOpen: false, color: '' },
+    { height: 0, rotation: '90deg', isOpen: false, color: '' },
+    { height: 0, rotation: '90deg', isOpen: false, color: '' },
+    { height: 0, rotation: '90deg', isOpen: false, color: '' },
+    { height: 0, rotation: '90deg', isOpen: false, color: '' },
+    { height: 0, rotation: '90deg', isOpen: false, color: '' },
+    { height: 0, rotation: '90deg', isOpen: false, color: '' },
+    { height: 0, rotation: '90deg', isOpen: false, color: '' },
+    { height: 0, rotation: '90deg', isOpen: false, color: '' },
+    { height: 0, rotation: '90deg', isOpen: false, color: '' },
+    { height: 0, rotation: '90deg', isOpen: false, color: '' },
+    { height: 0, rotation: '90deg', isOpen: false, color: '' },
+    { height: 0, rotation: '90deg', isOpen: false, color: '' },
+    { height: 0, rotation: '90deg', isOpen: false, color: '' },
+    { height: 0, rotation: '90deg', isOpen: false, color: '' },
+    { height: 0, rotation: '90deg', isOpen: false, color: '' },
+    { height: 0, rotation: '90deg', isOpen: false, color: '' },
+    { height: 0, rotation: '90deg', isOpen: false, color: '' },
+    { height: 0, rotation: '90deg', isOpen: false, color: '' },
+    { height: 0, rotation: '90deg', isOpen: false, color: '' },
+    { height: 0, rotation: '90deg', isOpen: false, color: '' },
+    { height: 0, rotation: '90deg', isOpen: false, color: '' },
+    { height: 0, rotation: '90deg', isOpen: false, color: '' },
+    { height: 0, rotation: '90deg', isOpen: false, color: '' },
+    { height: 0, rotation: '90deg', isOpen: false, color: '' },
+    { height: 0, rotation: '90deg', isOpen: false, color: '' },
+    { height: 0, rotation: '90deg', isOpen: false, color: '' },
+    { height: 0, rotation: '90deg', isOpen: false, color: '' },
+    { height: 0, rotation: '90deg', isOpen: false, color: '' },
+    { height: 0, rotation: '90deg', isOpen: false, color: '' },
+    { height: 0, rotation: '90deg', isOpen: false, color: '' },
+    { height: 0, rotation: '90deg', isOpen: false, color: '' },
+    { height: 0, rotation: '90deg', isOpen: false, color: '' },
+    { height: 0, rotation: '90deg', isOpen: false, color: '' },
+    { height: 0, rotation: '90deg', isOpen: false, color: '' },
+    { height: 0, rotation: '90deg', isOpen: false, color: '' },
+    { height: 0, rotation: '90deg', isOpen: false, color: '' },
+    { height: 0, rotation: '90deg', isOpen: false, color: '' },
+    { height: 0, rotation: '90deg', isOpen: false, color: '' },
+    { height: 0, rotation: '90deg', isOpen: false, color: '' },
+    { height: 0, rotation: '90deg', isOpen: false, color: '' },
+    { height: 0, rotation: '90deg', isOpen: false, color: '' },
+    { height: 0, rotation: '90deg', isOpen: false, color: '' },
+    { height: 0, rotation: '90deg', isOpen: false, color: '' },
+    { height: 0, rotation: '90deg', isOpen: false, color: '' },
+    { height: 0, rotation: '90deg', isOpen: false, color: '' },
+    { height: 0, rotation: '90deg', isOpen: false, color: '' },
     { height: 0, rotation: '90deg', isOpen: false, color: '' },
     { height: 0, rotation: '90deg', isOpen: false, color: '' },
     { height: 0, rotation: '90deg', isOpen: false, color: '' },
@@ -105,242 +599,12 @@ const Home = () => {
     return [pad(d.getDate()), pad(d.getMonth() + 1), d.getFullYear()].join('/')
   }
 
-  const operators = ['Sanam', 'Maria', 'Amir', 'Majid', 'Patrick']
+  const operators = ['Sanam', 'Maria', 'Zahra', 'Ursa']
 
   var tableData = []
 
-  const tableExample = [
-    // eslint-disable-next-line prettier/prettier
-    { id: 1, date: randomDate(start, end), operator: operators[Math.floor(Math.random()*operators.length)], sensor: '-', chip: '-' },
-    {
-      id: 2,
-      date: randomDate(start, end),
-      operator: operators[Math.floor(Math.random() * operators.length)],
-      sensor: '-',
-      chip: '-',
-    },
-    {
-      id: 3,
-      date: randomDate(start, end),
-      operator: operators[Math.floor(Math.random() * operators.length)],
-      sensor: '-',
-      chip: '-',
-    },
-    {
-      id: 4,
-      date: randomDate(start, end),
-      operator: operators[Math.floor(Math.random() * operators.length)],
-      sensor: '-',
-      chip: '-',
-    },
-    {
-      id: 5,
-      date: randomDate(start, end),
-      operator: operators[Math.floor(Math.random() * operators.length)],
-      sensor: '-',
-      chip: '-',
-    },
-    {
-      id: 6,
-      date: randomDate(start, end),
-      operator: operators[Math.floor(Math.random() * operators.length)],
-      sensor: '-',
-      chip: '-',
-    },
-    {
-      id: 7,
-      date: randomDate(start, end),
-      operator: operators[Math.floor(Math.random() * operators.length)],
-      sensor: '-',
-      chip: '-',
-    },
-    {
-      id: 8,
-      date: randomDate(start, end),
-      operator: operators[Math.floor(Math.random() * operators.length)],
-      sensor: '-',
-      chip: '-',
-    },
-    {
-      id: 9,
-      date: randomDate(start, end),
-      operator: operators[Math.floor(Math.random() * operators.length)],
-      sensor: '-',
-      chip: '-',
-    },
-    {
-      id: 10,
-      date: randomDate(start, end),
-      operator: operators[Math.floor(Math.random() * operators.length)],
-      sensor: '-',
-      chip: '-',
-    },
-    {
-      id: 11,
-      date: randomDate(start, end),
-      operator: operators[Math.floor(Math.random() * operators.length)],
-      sensor: '-',
-      chip: '-',
-    },
-    {
-      id: 12,
-      date: randomDate(start, end),
-      operator: operators[Math.floor(Math.random() * operators.length)],
-      sensor: '-',
-      chip: '-',
-    },
-    {
-      id: 13,
-      date: randomDate(start, end),
-      operator: operators[Math.floor(Math.random() * operators.length)],
-      sensor: '-',
-      chip: '-',
-    },
-    {
-      id: 14,
-      date: randomDate(start, end),
-      operator: operators[Math.floor(Math.random() * operators.length)],
-      sensor: '-',
-      chip: '-',
-    },
-    {
-      id: 15,
-      date: randomDate(start, end),
-      operator: operators[Math.floor(Math.random() * operators.length)],
-      sensor: '-',
-      chip: '-',
-    },
-    {
-      id: 16,
-      date: randomDate(start, end),
-      operator: operators[Math.floor(Math.random() * operators.length)],
-      sensor: '-',
-      chip: '-',
-    },
-    {
-      id: 17,
-      date: randomDate(start, end),
-      operator: operators[Math.floor(Math.random() * operators.length)],
-      sensor: '-',
-      chip: '-',
-    },
-    {
-      id: 18,
-      date: randomDate(start, end),
-      operator: operators[Math.floor(Math.random() * operators.length)],
-      sensor: '-',
-      chip: '-',
-    },
-    {
-      id: 19,
-      date: randomDate(start, end),
-      operator: operators[Math.floor(Math.random() * operators.length)],
-      sensor: '-',
-      chip: '-',
-    },
-    {
-      id: 20,
-      date: randomDate(start, end),
-      operator: operators[Math.floor(Math.random() * operators.length)],
-      sensor: '-',
-      chip: '-',
-    },
-    {
-      id: 22,
-      date: randomDate(start, end),
-      operator: operators[Math.floor(Math.random() * operators.length)],
-      sensor: '-',
-      chip: '-',
-    },
-    {
-      id: 23,
-      date: randomDate(start, end),
-      operator: operators[Math.floor(Math.random() * operators.length)],
-      sensor: '-',
-      chip: '-',
-    },
-    {
-      id: 23,
-      date: randomDate(start, end),
-      operator: operators[Math.floor(Math.random() * operators.length)],
-      sensor: '-',
-      chip: '-',
-    },
-    {
-      id: 24,
-      date: randomDate(start, end),
-      operator: operators[Math.floor(Math.random() * operators.length)],
-      sensor: '-',
-      chip: '-',
-    },
-    {
-      id: 25,
-      date: randomDate(start, end),
-      operator: operators[Math.floor(Math.random() * operators.length)],
-      sensor: '-',
-      chip: '-',
-    },
-    {
-      id: 26,
-      date: randomDate(start, end),
-      operator: operators[Math.floor(Math.random() * operators.length)],
-      sensor: '-',
-      chip: '-',
-    },
-    {
-      id: 27,
-      date: randomDate(start, end),
-      operator: operators[Math.floor(Math.random() * operators.length)],
-      sensor: '-',
-      chip: '-',
-    },
-    {
-      id: 28,
-      date: randomDate(start, end),
-      operator: operators[Math.floor(Math.random() * operators.length)],
-      sensor: '-',
-      chip: '-',
-    },
-    {
-      id: 29,
-      date: randomDate(start, end),
-      operator: operators[Math.floor(Math.random() * operators.length)],
-      sensor: '-',
-      chip: '-',
-    },
-    {
-      id: 30,
-      date: randomDate(start, end),
-      operator: operators[Math.floor(Math.random() * operators.length)],
-      sensor: '-',
-      chip: '-',
-    },
-  ]
-
-  const tableExample2 = [
-    { id: 11, date: '20/12/2023', operator: 'Sanam', sensor: 'Cell', chip: 'Cell' },
-    { id: 12, date: '20/12/2023', operator: 'Sanam', sensor: 'Cell', chip: 'Cell' },
-    { id: 13, date: '20/12/2023', operator: 'Sanam', sensor: 'Cell', chip: 'Cell' },
-    { id: 14, date: '20/12/2023', operator: 'Sanam', sensor: 'Cell', chip: 'Cell' },
-    { id: 15, date: '20/12/2023', operator: 'Sanam', sensor: 'Cell', chip: 'Cell' },
-    { id: 16, date: '20/12/2023', operator: 'Sanam', sensor: 'Cell', chip: 'Cell' },
-    { id: 17, date: '20/12/2023', operator: 'Sanam', sensor: 'Cell', chip: 'Cell' },
-    { id: 18, date: '20/12/2023', operator: 'Sanam', sensor: 'Cell', chip: 'Cell' },
-    { id: 19, date: '20/12/2023', operator: 'Sanam', sensor: 'Cell', chip: 'Cell' },
-    { id: 20, date: '20/12/2023', operator: 'Sanam', sensor: 'Cell', chip: 'Cell' },
-  ]
-
-  tableData = tableExample
-
-  /*
-  function addRow(i) {
-    let newRow = row;
-    newRow.push({
-      height: 30
-    })
-
-  }
-  */
+  const [hasData, setData] = useState(false)
+  const [table, setTable] = useState([])
 
   const exampleToast = (
     <CToast>
@@ -385,12 +649,23 @@ const Home = () => {
     forceUpdate()
   }
 
-  function buttonClicked() {
-    tableData = tableExample2
+  function buttonClicked(i) {
+    //tableData = tableExample2
+    //setTable(tableDate2)
     forceUpdate()
 
     console.log(tableData)
   }
+
+  useEffect(() => {
+    fetch('https://10.8.0.1:5000/api/portal')
+      .then((response) => response.json())
+      .then((data) => {
+        console.log(data)
+        setTable(data)
+        setData(true)
+      })
+  }, [])
 
   return (
     <>
@@ -419,7 +694,7 @@ const Home = () => {
       </CRow>
       <CRow>
         <CCol xs={4}>
-          <CCard className="mb-4 position-sticky" style={{ top: '100px' }}>
+          <CCard className="mb-4 position-sticky" style={{ top: '100px', width: '100%' }}>
             <CCardHeader>Filters</CCardHeader>
             <CCardBody>
               <CRow className="m-0">
@@ -484,30 +759,38 @@ const Home = () => {
                 <CTableHead className="text-nowrap">
                   <CTableRow>
                     <CTableHeaderCell
-                      className="bg-body-tertiary justify-content-center"
-                      style={{ width: 50 }}
+                      className="justify-content-center"
+                      style={{
+                        borderTopLeftRadius: '10px',
+                        backgroundColor: '#571f1f',
+                        width: 50,
+                      }}
                     />
                     <CTableHeaderCell
-                      className="bg-body-tertiary text-center"
-                      style={{ width: 50 }}
+                      className="text-center"
+                      style={{ backgroundColor: '#571f1f', width: 50 }}
                     >
                       #
                     </CTableHeaderCell>
-                    <CTableHeaderCell className="bg-body-tertiary" style={{ width: 150 }}>
+                    <CTableHeaderCell style={{ backgroundColor: '#571f1f', width: 100 }}>
                       Date
                     </CTableHeaderCell>
-                    <CTableHeaderCell className="bg-body-tertiary" style={{ width: 150 }}>
+                    <CTableHeaderCell style={{ backgroundColor: '#571f1f', width: 100 }}>
                       Operator
                     </CTableHeaderCell>
-                    <CTableHeaderCell className="bg-body-tertiary" style={{ width: 150 }}>
+                    <CTableHeaderCell style={{ backgroundColor: '#571f1f', width: 100 }}>
                       Sensor
                     </CTableHeaderCell>
-                    <CTableHeaderCell className="bg-body-tertiary">Chip</CTableHeaderCell>
+                    <CTableHeaderCell
+                      style={{ backgroundColor: '#571f1f', borderTopRightRadius: '10px' }}
+                    >
+                      Chip
+                    </CTableHeaderCell>
                   </CTableRow>
                 </CTableHead>
 
                 <CTableBody>
-                  {tableData.map((item, index) => (
+                  {table.map((item, index) => (
                     <>
                       <CTableRow
                         v-for="item in tableItems"
@@ -528,21 +811,21 @@ const Home = () => {
                         <CTableDataCell className="text-center">{item.id}</CTableDataCell>
                         <CTableDataCell>{item.date}</CTableDataCell>
                         <CTableDataCell>{item.operator}</CTableDataCell>
-                        <CTableDataCell>{item.sensor}</CTableDataCell>
-                        <CTableDataCell>{item.chip}</CTableDataCell>
+                        <CTableDataCell>{item.sensor_type}</CTableDataCell>
+                        <CTableDataCell>{item.chip_type}</CTableDataCell>
                       </CTableRow>
                       {row[index].isOpen ? (
                         <CTableRow className="border">
                           <CTableDataCell
                             className="rounded-bottom-3"
-                            style={{ boxShadow: 'none' }}
+                            style={{ boxShadow: 'none', overflow: 'hidden' }}
                             colSpan={6}
                           >
                             <CRow className="m-1 mt-4">
                               <CCol xs={2}>Experiment ID</CCol>
                               <CCol>
-                                <CFormTextarea disabled rows={1}>
-                                  {'#0000' + item.id}
+                                <CFormTextarea disabled rows={1} style={{ resize: 'none' }}>
+                                  {'EXP#0000' + item.id}
                                 </CFormTextarea>
                               </CCol>
                             </CRow>
@@ -550,7 +833,7 @@ const Home = () => {
                             <CRow className="m-1">
                               <CCol xs={2}>Date</CCol>
                               <CCol>
-                                <CFormTextarea disabled rows={1}>
+                                <CFormTextarea disabled rows={1} style={{ resize: 'none' }}>
                                   {item.date}
                                 </CFormTextarea>
                               </CCol>
@@ -559,7 +842,7 @@ const Home = () => {
                             <CRow className="m-1">
                               <CCol xs={2}>Operator</CCol>
                               <CCol>
-                                <CFormTextarea disabled rows={1}>
+                                <CFormTextarea disabled rows={1} style={{ resize: 'none' }}>
                                   {item.operator}
                                 </CFormTextarea>
                               </CCol>
@@ -567,16 +850,16 @@ const Home = () => {
                             <CRow className="m-1">
                               <CCol xs={2}>Sensor</CCol>
                               <CCol>
-                                <CFormTextarea disabled rows={1}>
-                                  {item.sensor}
+                                <CFormTextarea disabled rows={1} style={{ resize: 'none' }}>
+                                  {item.sensor_type}
                                 </CFormTextarea>
                               </CCol>
                             </CRow>
                             <CRow className="m-1">
                               <CCol xs={2}>Chip</CCol>
                               <CCol>
-                                <CFormTextarea disabled rows={1}>
-                                  {item.chip}
+                                <CFormTextarea disabled rows={1} style={{ resize: 'none' }}>
+                                  {item.chip_type}
                                 </CFormTextarea>
                               </CCol>
                             </CRow>
@@ -584,11 +867,8 @@ const Home = () => {
                               <CCol xs={2}>Remark: </CCol>
                               <CCol>
                                 <CForm>
-                                  <CFormTextarea rows={3}>
-                                    DI water after measurement and cleaning with IPA and DI water.
-                                    Soaked in IPA for 5 minutes, then in DI water for 5 minutes.
-                                    Results differ from DI water before measurement, but consistent
-                                    with exp 0004
+                                  <CFormTextarea disabled rows={3}>
+                                    {item.remarks}
                                   </CFormTextarea>
                                 </CForm>
                               </CCol>
@@ -598,8 +878,8 @@ const Home = () => {
                                 T<sub>start</sub>
                               </CCol>
                               <CCol>
-                                <CFormTextarea disabled rows={1}>
-                                  15:01:02
+                                <CFormTextarea disabled rows={1} style={{ resize: 'none' }}>
+                                  {item.start_time}
                                 </CFormTextarea>
                               </CCol>
                             </CRow>
@@ -608,12 +888,63 @@ const Home = () => {
                                 T<sub>end</sub>
                               </CCol>
                               <CCol>
-                                <CFormTextarea disabled rows={1}>
-                                  15:32:58
+                                <CFormTextarea disabled rows={1} style={{ resize: 'none' }}>
+                                  {item.finish_time}
                                 </CFormTextarea>
                               </CCol>
                             </CRow>
-                            <CRow>
+                            <CRow style={{ position: 'relative' }} className="m-1">
+                              <CCol xs={12} className="" style={{ height: '600px' }}>
+                                <Scatter
+                                  options={nyquist_options}
+                                  data={dataSet(item.nyquist_graph)}
+                                  style={{ marginBottom: '25px' }}
+                                />
+                              </CCol>
+                              {/*
+                              <CCol
+                                className=""
+                                style={{
+                                  padding: '0px',
+                                  textAlign: 'center',
+                                  verticalAlign: 'text-bottom',
+                                }}
+                                xs={2}
+                              >
+                                <CButton
+                                  color="primary m-3"
+                                  style={{ width: '40%', aspectRatio: '1/1' }}
+                                >
+                                  1
+                                </CButton>
+                                <CButton
+                                  color="primary m-3"
+                                  style={{ width: '40%', aspectRatio: '1/1' }}
+                                >
+                                  2
+                                </CButton>
+                                <CButton
+                                  color="primary m-3"
+                                  style={{ width: '40%', aspectRatio: '1/1' }}
+                                >
+                                  3
+                                </CButton>
+                                <CButton
+                                  color="primary m-3"
+                                  style={{ width: '40%', aspectRatio: '1/1' }}
+                                >
+                                  4
+                                </CButton>
+                                <CButton
+                                  color="primary m-3"
+                                  style={{ width: '40%', aspectRatio: '1/1' }}
+                                >
+                                  5
+                                </CButton>
+                              </CCol>
+                              */}
+                            </CRow>
+                            <CRow className="mb-4">
                               <CCol>
                                 <CButton className="bg-dark w-100">Edit</CButton>
                               </CCol>
@@ -628,19 +959,136 @@ const Home = () => {
                       )}
                     </>
                   ))}
+                  {!hasData ? (
+                    <CTableRow style={{ height: '170px', pointerEvents: 'none' }}>
+                      <CTableDataCell
+                        colSpan={6}
+                        style={{ textAlign: 'center', verticalAlign: 'middle' }}
+                      >
+                        <CSpinner
+                          size="sm"
+                          color="primary"
+                          style={{ width: '4rem', height: '4rem' }}
+                        />
+                      </CTableDataCell>
+                    </CTableRow>
+                  ) : (
+                    <></>
+                  )}
                 </CTableBody>
               </CTable>
               <CRow>
-                <CCol className="" xs={1}>
-                  <CButton onClick={buttonClicked} color="primary w-75">
+                <CCol style={{ marginTop: '25px', textAlign: 'center', padding: '0px' }}>
+                  <CButton
+                    onClick={buttonClicked}
+                    color="dark"
+                    style={{
+                      width: '40px',
+                      height: '40px',
+                      margin: '0px',
+                      borderRadius: '0px',
+                      borderTopLeftRadius: '10px',
+                      borderBottomLeftRadius: '10px',
+                    }}
+                  >
+                    <CIcon icon={cilChevronLeft} />
+                  </CButton>
+                  <CButton
+                    onClick={buttonClicked}
+                    //color="light"
+                    style={{
+                      width: '35px',
+                      height: '40px',
+                      margin: '0px',
+                      padding: '0px',
+                      fontSize: '15px',
+                      borderRadius: '0px',
+                      borderWidth: '1px',
+                      borderColor: '',
+                      backgroundColor: 'rgb(92,52,52)',
+                    }}
+                  >
                     1
                   </CButton>
-                </CCol>
-                <CCol>
-                  <CButton color="primary">2</CButton>
-                </CCol>
-                <CCol>
-                  <CButton color="primary">3</CButton>
+                  <CButton
+                    onClick={buttonClicked}
+                    color="dark"
+                    style={{
+                      width: '35px',
+                      height: '40px',
+                      margin: '0px',
+                      padding: '0px',
+                      fontSize: '15px',
+                      borderRadius: '0px',
+                      borderWidth: '1px',
+                      borderColor: '',
+                    }}
+                  >
+                    2
+                  </CButton>
+                  <CButton
+                    onClick={buttonClicked}
+                    color="dark"
+                    disabled
+                    style={{
+                      width: '35px',
+                      height: '40px',
+                      margin: '0px',
+                      padding: '0px',
+                      fontSize: '15px',
+                      borderRadius: '0px',
+                      borderWidth: '1px',
+                      borderColor: '',
+                    }}
+                  >
+                    ...
+                  </CButton>
+                  <CButton
+                    onClick={buttonClicked}
+                    color="dark"
+                    style={{
+                      width: '35px',
+                      height: '40px',
+                      margin: '0px',
+                      padding: '0px',
+                      fontSize: '15px',
+                      borderRadius: '0px',
+                      borderWidth: '1px',
+                      borderColor: '',
+                    }}
+                  >
+                    8
+                  </CButton>
+                  <CButton
+                    onClick={buttonClicked}
+                    color="dark"
+                    style={{
+                      width: '35px',
+                      height: '40px',
+                      margin: '0px',
+                      padding: '0px',
+                      fontSize: '15px',
+                      borderRadius: '0px',
+                      borderWidth: '1px',
+                      borderColor: '',
+                    }}
+                  >
+                    9
+                  </CButton>
+                  <CButton
+                    onClick={buttonClicked}
+                    color="dark"
+                    style={{
+                      width: '40px',
+                      height: '40px',
+                      margin: '0px',
+                      borderRadius: '0px',
+                      borderTopRightRadius: '10px',
+                      borderBottomRightRadius: '10px',
+                    }}
+                  >
+                    <CIcon icon={cilChevronRight} />
+                  </CButton>
                 </CCol>
               </CRow>
             </CCardBody>

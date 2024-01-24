@@ -20,7 +20,7 @@ $success:       #2eb85c;
 $info:          $fresh-red;
 $warning:       rgb(251, 205, 0);
 $danger:        #ff9900;
-$light:         #f3f4f7;
+$light:         #646464;
 $dark:          mix($carbon-gray, #333);
 
 $theme-colors: (
@@ -31,7 +31,7 @@ $theme-colors: (
   "warning":    $warning,
   "danger":     $danger,
   "light":      $light,
-  "dark":       $dark
+  "dark":       $dark,
 );
 
 $theme-colors-dark: (
@@ -42,7 +42,7 @@ $theme-colors-dark: (
   "warning":    $warning,
   "danger":     $danger,
   "light":      $light,
-  "dark":       $dark
+  "dark":       $dark,
 );
 
 //$body-bg: #000;
@@ -61,5 +61,12 @@ $dark-bg-subtle-dark: mix($carbon-gray, #333);;
 $body-tertiary-bg-dark: mix($fresh-red, #000000);
 //$border-color-dark: $white-fog;
 
+$input-bg: mix($carbon-gray, #444);
+$input-border-color: #202020;
+$input-disabled-border-color: rgba(0,0,0,0);
+$input-disabled-bg: mix($carbon-gray, #333);
+
+//$table-bg: #000;
+$table-color-state: #000;
 
  

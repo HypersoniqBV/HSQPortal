@@ -1,3 +1,4 @@
+/* eslint-disable react/no-unescaped-entities */
 import { React, useState, useReducer, useRef, useEffect } from 'react'
 import classNames from 'classnames'
 
@@ -34,6 +35,8 @@ import {
   CToastBody,
   CBadge,
   CSpinner,
+  CModalBody,
+  CModalFooter,
 } from '@coreui/react'
 import CIcon from '@coreui/icons-react'
 import { XYPlot, XAxis, YAxis, HorizontalGridLines, VerticalGridLines, LineSeries } from 'react-vis'
@@ -59,6 +62,7 @@ import {
   cilChevronDoubleRight,
   cilChevronRight,
   cilChevronLeft,
+  cilCloudUpload,
 } from '@coreui/icons'
 
 import avatar1 from 'src/assets/images/avatars/1.jpg'
@@ -667,13 +671,15 @@ const Home = () => {
       })
   }, [])
 
+  const [visible, setVisible] = useState(false)
+
   return (
     <>
       <CRow>
         <CToaster ref={toaster} push={toast} className="p-4" placement="bottom-start" />
-        <CCol>
+        <CCol xs={6} style={{ display: 'flex', flexDirection: 'column' }}>
           <CCard className="mb-4">
-            <CCardHeader>Filters</CCardHeader>
+            <CCardHeader>Quick Select</CCardHeader>
             <CCardBody>
               Welcome to the EIS Data Submission Platform, a dedicated portal for efficiently
               submitting your Electrochemical Impedance Spectroscopy (EIS) measurements. This
@@ -688,7 +694,63 @@ const Home = () => {
               appreciate your commitment to enhancing our EIS database through the use of our
               platform.
             </CCardBody>
-            <CButton onClick={() => addToast(exampleToast)}>Send a toast</CButton>
+            <CModal
+              visible={visible}
+              onClose={() => setVisible(false)}
+              aria-labelledby="LiveDemoExampleLabel"
+            >
+              <CModalHeader onClose={() => setVisible(false)}>
+                <CModalTitle id="LiveDemoExampleLabel">Submit current experiment</CModalTitle>
+              </CModalHeader>
+              <CModalBody>
+                <p>Woohoo, you're reading this text in a modal!</p>
+              </CModalBody>
+              <CModalFooter>
+                <CButton color="secondary" onClick={() => setVisible(false)}>
+                  Close
+                </CButton>
+                <CButton color="primary">Confirm</CButton>
+              </CModalFooter>
+            </CModal>
+          </CCard>
+        </CCol>
+        <CCol xs={6} style={{ display: 'flex', flexDirection: 'column' }}>
+          <CCard className="mb-4 h-100">
+            <CCardHeader>Upload Data</CCardHeader>
+            <CCardBody style={{ display: 'flex', flexDirection: 'column' }}>
+              <div
+                style={{
+                  width: '100%',
+                  height: '100%',
+                  marginBottom: '20px',
+                  padding: '15px',
+                  backgroundColor: 'rgba(50, 50, 50, 20)',
+                }}
+              >
+                <div className="block" style={{ position: 'relative' }}>
+                  <div
+                    style={{
+                      position: 'absolute',
+                      left: '50%',
+                      top: '50%',
+                      transform: 'translate(-50%, -50%)',
+                      alignItems: 'center',
+                      textAlign: 'center',
+                    }}
+                  >
+                    <CIcon icon={cilCloudUpload} size={'lg'} />
+                    <div>Upload Data</div>
+                  </div>
+                </div>
+              </div>
+              <CButton
+                color="primary"
+                style={{ bottom: '0px' }}
+                onClick={() => setVisible(!visible)}
+              >
+                Submit
+              </CButton>
+            </CCardBody>
           </CCard>
         </CCol>
       </CRow>
@@ -1012,24 +1074,8 @@ const Home = () => {
                   </CButton>
                   <CButton
                     onClick={buttonClicked}
-                    color="dark"
-                    style={{
-                      width: '35px',
-                      height: '40px',
-                      margin: '0px',
-                      padding: '0px',
-                      fontSize: '15px',
-                      borderRadius: '0px',
-                      borderWidth: '1px',
-                      borderColor: '',
-                    }}
-                  >
-                    2
-                  </CButton>
-                  <CButton
-                    onClick={buttonClicked}
-                    color="dark"
                     disabled
+                    color="dark"
                     style={{
                       width: '35px',
                       height: '40px',
@@ -1057,7 +1103,7 @@ const Home = () => {
                       borderColor: '',
                     }}
                   >
-                    8
+                    5
                   </CButton>
                   <CButton
                     onClick={buttonClicked}
@@ -1073,7 +1119,23 @@ const Home = () => {
                       borderColor: '',
                     }}
                   >
-                    9
+                    6
+                  </CButton>
+                  <CButton
+                    onClick={buttonClicked}
+                    color="dark"
+                    style={{
+                      width: '35px',
+                      height: '40px',
+                      margin: '0px',
+                      padding: '0px',
+                      fontSize: '15px',
+                      borderRadius: '0px',
+                      borderWidth: '1px',
+                      borderColor: '',
+                    }}
+                  >
+                    7
                   </CButton>
                   <CButton
                     onClick={buttonClicked}
@@ -1087,6 +1149,23 @@ const Home = () => {
                       borderBottomRightRadius: '10px',
                     }}
                   >
+                    <CButton
+                      onClick={buttonClicked}
+                      disabled
+                      color="dark"
+                      style={{
+                        width: '35px',
+                        height: '40px',
+                        margin: '0px',
+                        padding: '0px',
+                        fontSize: '15px',
+                        borderRadius: '0px',
+                        borderWidth: '1px',
+                        borderColor: '',
+                      }}
+                    >
+                      ...
+                    </CButton>
                     <CIcon icon={cilChevronRight} />
                   </CButton>
                 </CCol>

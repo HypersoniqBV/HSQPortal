@@ -61,12 +61,20 @@ $dark-bg-subtle-dark: mix($carbon-gray, #333);;
 $body-tertiary-bg-dark: mix($fresh-red, #000000);
 //$border-color-dark: $white-fog;
 
-$input-bg: mix($carbon-gray, #444);
+$input-bg: mix($carbon-gray, #666);
+$input-bg-search: mix($carbon-gray, #444);
+$input-bg-search-focus: rgba(mix($fresh-red, #444), 0.3);
 $input-border-color: #202020;
 $input-disabled-border-color: rgba(0,0,0,0);
 $input-disabled-bg: mix($carbon-gray, #333);
 
+$input-padding: 100;
+$input-padding-x-sm: 100;
+$input-padding-x-lg: 100;
+$input-font-size: 100;
+
 //$table-bg: #000;
 $table-color-state: #000;
+
 
  

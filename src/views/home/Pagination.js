@@ -1,7 +1,12 @@
 import { CButton, CCol, CRow } from '@coreui/react'
 import CIcon from '@coreui/icons-react'
-import { cilChevronLeft, cilChevronRight } from '@coreui/icons'
-import { useState } from 'react'
+import {
+  cilChevronLeft,
+  cilChevronRight,
+  cilChevronDoubleLeft,
+  cilChevronDoubleRight,
+} from '@coreui/icons'
+import { useEffect, useState } from 'react'
 
 // < 1 2 3 4 5 >
 // < 1 2 .. 8 9 >
@@ -15,7 +20,6 @@ function Pagination({ length, onPageChange }) {
     if (currentPage > 1) {
       setPage(currentPage - 1)
     }
-    console.log(currentPage)
     onPageChange(currentPage)
   }
 
@@ -23,7 +27,6 @@ function Pagination({ length, onPageChange }) {
     if (currentPage < length) {
       setPage(currentPage + 1)
     }
-    console.log(currentPage)
     onPageChange(currentPage)
   }
 
@@ -35,12 +38,72 @@ function Pagination({ length, onPageChange }) {
     }
   }
 
+  const visiblePaginationButtons = 7
+
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  function getPaginationArray(pos) {
+    let median = Math.floor(visiblePaginationButtons / 2)
+    console.log(median, pos, visiblePaginationButtons)
+
+    // We are on the beginning of the page
+    if (pos <= median) {
+      var temp = []
+      console.log('length is ', length)
+      if (length >= visiblePaginationButtons) {
+        for (var i = 1; i <= visiblePaginationButtons; i++) {
+          temp.push(i)
+        }
+      } else {
+        for (var i = 1; i <= length; i++) {
+          temp.push(i)
+        }
+      }
+      return temp
+    }
+
+    /*
+    console.log('test')
+
+    // We are on the end of the page
+    if (pos >= length - median) {
+      var temp = []
+      for (var i = length - visiblePaginationButtons; i <= length; i++) {
+        temp.push(i)
+      }
+      return temp
+    }
+    */
+  }
+
+  const arr = getPaginationArray(1)
+  const [currentArray, setArray] = useState(arr)
+  //setArray(getPaginationArray(1))
+
+  useEffect(() => {
+    console.log(getPaginationArray(1))
+    console.log('This is the current array', currentArray)
+  }, [currentArray, getPaginationArray])
+
   //Test
   // eslint-disable-next-line react/react-in-jsx-scope
   return (
     <>
       <CRow>
-        <CCol style={{ marginTop: '25px', textAlign: 'center', padding: '0px' }}>
+        <CCol>
+          <CButton
+            onClick={() => paginateLeft()}
+            color="dark"
+            style={{
+              width: '40px',
+              height: '40px',
+              margin: '0px',
+              borderRadius: '10px',
+            }}
+          >
+            <CIcon icon={cilChevronDoubleLeft} />
+          </CButton>
+        </CCol>
+        <CCol xs={10} style={{ textAlign: 'center', padding: '0px' }}>
           <CButton
             onClick={() => paginateLeft()}
             color="dark"
@@ -55,157 +118,24 @@ function Pagination({ length, onPageChange }) {
           >
             <CIcon icon={cilChevronLeft} />
           </CButton>
-          <CButton
-            //onClick={buttonClicked}
-            //color="light"
-            style={{
-              width: '35px',
-              height: '40px',
-              margin: '0px',
-              padding: '0px',
-              fontSize: '15px',
-              borderRadius: '0px',
-              borderWidth: '1px',
-              borderColor: '',
-              ...buttonColor(1),
-            }}
-          >
-            1
-          </CButton>
-          <CButton
-            //onClick={buttonClicked}
-            disabled
-            color="dark"
-            style={{
-              width: '35px',
-              height: '40px',
-              margin: '0px',
-              padding: '0px',
-              fontSize: '15px',
-              borderRadius: '0px',
-              borderWidth: '1px',
-              borderColor: '',
-            }}
-          >
-            ...
-          </CButton>
-          <CButton
-            //onClick={buttonClicked}
-            color="dark"
-            style={{
-              width: '35px',
-              height: '40px',
-              margin: '0px',
-              padding: '0px',
-              fontSize: '15px',
-              borderRadius: '0px',
-              borderWidth: '1px',
-              borderColor: '',
-              ...buttonColor(5),
-            }}
-          >
-            5
-          </CButton>
-          <CButton
-            //onClick={buttonClicked}
-            color="dark"
-            style={{
-              width: '35px',
-              height: '40px',
-              margin: '0px',
-              padding: '0px',
-              fontSize: '15px',
-              borderRadius: '0px',
-              borderWidth: '1px',
-              borderColor: '',
-              ...buttonColor(6),
-            }}
-          >
-            6
-          </CButton>
-          <CButton
-            //onClick={buttonClicked}
-            color="dark"
-            style={{
-              width: '35px',
-              height: '40px',
-              margin: '0px',
-              padding: '0px',
-              fontSize: '15px',
-              borderRadius: '0px',
-              borderWidth: '1px',
-              borderColor: '',
-              ...buttonColor(7),
-            }}
-          >
-            7
-          </CButton>
-          <CButton
-            //onClick={buttonClicked}
-            color="dark"
-            style={{
-              width: '35px',
-              height: '40px',
-              margin: '0px',
-              padding: '0px',
-              fontSize: '15px',
-              borderRadius: '0px',
-              borderWidth: '1px',
-              borderColor: '',
-              ...buttonColor(8),
-            }}
-          >
-            8
-          </CButton>
-          <CButton
-            //onClick={buttonClicked}
-            color="dark"
-            style={{
-              width: '35px',
-              height: '40px',
-              margin: '0px',
-              padding: '0px',
-              fontSize: '15px',
-              borderRadius: '0px',
-              borderWidth: '1px',
-              borderColor: '',
-            }}
-          >
-            9
-          </CButton>
-          <CButton
-            //onClick={buttonClicked}
-            disabled
-            color="dark"
-            style={{
-              width: '35px',
-              height: '40px',
-              margin: '0px',
-              padding: '0px',
-              fontSize: '15px',
-              borderRadius: '0px',
-              borderWidth: '1px',
-              borderColor: '',
-            }}
-          >
-            ...
-          </CButton>
-          <CButton
-            //onClick={buttonClicked}
-            color="dark"
-            style={{
-              width: '35px',
-              height: '40px',
-              margin: '0px',
-              padding: '0px',
-              fontSize: '15px',
-              borderRadius: '0px',
-              borderWidth: '1px',
-              borderColor: '',
-            }}
-          >
-            18
-          </CButton>
+          {currentArray.map((item, index) => (
+            // eslint-disable-next-line react/jsx-key
+            <CButton
+              style={{
+                width: '35px',
+                height: '40px',
+                margin: '0px',
+                padding: '0px',
+                fontSize: '15px',
+                borderRadius: '0px',
+                borderWidth: '1px',
+                borderColor: '',
+                ...buttonColor(item),
+              }}
+            >
+              {item}
+            </CButton>
+          ))}
           <CButton
             onClick={() => paginateRight()}
             color="dark"
@@ -219,6 +149,20 @@ function Pagination({ length, onPageChange }) {
             }}
           >
             <CIcon icon={cilChevronRight} />
+          </CButton>
+        </CCol>
+        <CCol>
+          <CButton
+            onClick={() => paginateRight()}
+            color="dark"
+            style={{
+              width: '40px',
+              height: '40px',
+              margin: '0px',
+              borderRadius: '10px',
+            }}
+          >
+            <CIcon icon={cilChevronDoubleRight} />
           </CButton>
         </CCol>
       </CRow>

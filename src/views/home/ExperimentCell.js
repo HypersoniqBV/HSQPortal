@@ -393,7 +393,11 @@ function ExperimentCell({ data }) {
         <CTableRow className="border">
           <CTableDataCell
             className="rounded-bottom-3"
-            style={{ boxShadow: 'none', overflow: 'hidden' }}
+            style={{
+              boxSizing: 'border-box',
+              boxShadow: 'none',
+              overflow: 'hidden',
+            }}
             colSpan={6}
           >
             <CRow className="m-1 mt-4">

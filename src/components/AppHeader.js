@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from 'react'
-import { NavLink } from 'react-router-dom'
+import { NavLink, useLocation } from 'react-router-dom'
 import { useSelector, useDispatch } from 'react-redux'
 import {
   CContainer,
@@ -13,6 +13,8 @@ import {
   CNavLink,
   CNavItem,
   useColorModes,
+  CButton,
+  CRow,
 } from '@coreui/react'
 import CIcon from '@coreui/icons-react'
 import {
@@ -29,6 +31,8 @@ import {
 
 import { AppBreadcrumb } from './index'
 import { AppHeaderDropdown } from './header/index'
+import { publish } from 'src/event'
+import AppHeaderData from 'src/views/home/AppHeaderData'
 
 const AppHeader = () => {
   const headerRef = useRef()
@@ -44,8 +48,10 @@ const AppHeader = () => {
     })
   }, [])
 
+  const path = useLocation().pathname
+
   return (
-    <CHeader position="sticky" className="mb-2 p-1" ref={headerRef}>
+    <CHeader position="sticky" className="mb-2 p-1 shadow-lg" ref={headerRef}>
       <CContainer className="px-4" fluid>
         <CHeaderToggler
           onClick={() => dispatch({ type: 'set', sidebarShow: !sidebarShow })}
@@ -54,11 +60,12 @@ const AppHeader = () => {
           <CIcon icon={cilMenu} size="lg" />
         </CHeaderToggler>
         <CHeaderNav>
+          {path === '/home' ? <AppHeaderData /> : <></>}
           {/*
           <li className="nav-item py-1">
             <div className="vr h-100 mx-2 text-body text-opacity-75"></div>
           </li>
-          */}
+
 
           {/*<AppHeaderDropdown />*/}
         </CHeaderNav>

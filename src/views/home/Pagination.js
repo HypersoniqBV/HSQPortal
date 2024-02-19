@@ -43,12 +43,10 @@ function Pagination({ length, onPageChange }) {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   function getPaginationArray(pos) {
     let median = Math.floor(visiblePaginationButtons / 2)
-    console.log(median, pos, visiblePaginationButtons)
 
     // We are on the beginning of the page
     if (pos <= median) {
       var temp = []
-      console.log('length is ', length)
       if (length >= visiblePaginationButtons) {
         for (var i = 1; i <= visiblePaginationButtons; i++) {
           temp.push(i)
@@ -61,9 +59,6 @@ function Pagination({ length, onPageChange }) {
       return temp
     }
 
-    /*
-    console.log('test')
-
     // We are on the end of the page
     if (pos >= length - median) {
       var temp = []
@@ -72,17 +67,17 @@ function Pagination({ length, onPageChange }) {
       }
       return temp
     }
-    */
+
   }
 
-  const arr = getPaginationArray(1)
-  const [currentArray, setArray] = useState(arr)
+  const [currentArray, setArray] = useState([])
+  const [isUpdated, setUpdate] = useState(false)
   //setArray(getPaginationArray(1))
 
   useEffect(() => {
-    console.log(getPaginationArray(1))
-    console.log('This is the current array', currentArray)
-  }, [currentArray, getPaginationArray])
+    setArray(getPaginationArray(1))
+    //console.log('Hello World')
+  }, [getPaginationArray])
 
   //Test
   // eslint-disable-next-line react/react-in-jsx-scope

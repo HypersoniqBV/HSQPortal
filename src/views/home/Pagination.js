@@ -17,7 +17,7 @@ function Pagination({ length, onPageChange }) {
   const [currentPage, setPage] = useState(1)
 
   function paginateLeft() {
-    if (currentPage > 1) {
+    if (currentPage > 0) {
       setPage(currentPage - 1)
     }
     onPageChange(currentPage)
@@ -67,7 +67,6 @@ function Pagination({ length, onPageChange }) {
       }
       return temp
     }
-
   }
 
   const [currentArray, setArray] = useState([])

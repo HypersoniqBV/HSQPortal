@@ -339,9 +339,13 @@ const Home = () => {
 
                 */}
               </CCardBody>
-              <CCardFooter>
-                <Pagination length={paginationLength} onPageChange={(x) => moveContent(x)} />
-              </CCardFooter>
+              {hasData ? (
+                <CCardFooter>
+                  <Pagination length={paginationLength} onPageChange={(x) => moveContent(x)} />
+                </CCardFooter>
+              ) : (
+                <></>
+              )}
             </CCard>
           </div>
         </CCol>

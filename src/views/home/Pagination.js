@@ -14,20 +14,46 @@ import { useEffect, useState } from 'react'
 /* eslint-disable react/react-in-jsx-scope */
 // eslint-disable-next-line react/prop-types
 function Pagination({ length, onPageChange }) {
-  const [currentPage, setPage] = useState(1)
+  const [currentPage, setPage] = useState(0)
+
+  useEffect(() => {
+    onPageChange(currentPage)
+    let arr = getPaginationArray(currentPage)
+    setArray(arr)
+  }, [currentPage])
+
+  useEffect(() => {
+    setPage(0)
+    let arr = getPaginationArray(currentArray)
+    setArray(arr)
+  }, [length])
+
+  function paginateFirst() {
+    if (currentPage > 0) {
+      setPage(0)
+    }
+  }
+
+  function paginateLast() {
+    if (currentPage < length) {
+      setPage(length - 1)
+    }
+  }
 
   function paginateLeft() {
     if (currentPage > 0) {
       setPage(currentPage - 1)
     }
-    onPageChange(currentPage)
   }
 
   function paginateRight() {
-    if (currentPage < length) {
+    if (currentPage < length - 1) {
       setPage(currentPage + 1)
     }
-    onPageChange(currentPage)
+  }
+
+  function paginateTo(page) {
+    setPage(page - 1)
   }
 
   function buttonColor(value) {
@@ -62,11 +88,24 @@ function Pagination({ length, onPageChange }) {
     // We are on the end of the page
     if (pos >= length - median) {
       var temp = []
-      for (var i = length - visiblePaginationButtons; i <= length; i++) {
-        temp.push(i)
+      console.log('Pos: ' + pos)
+      if (length >= visiblePaginationButtons) {
+        for (var i = length + 1 - visiblePaginationButtons; i <= length; i++) {
+          temp.push(i)
+        }
+      } else {
+        for (var i = 1; i <= length; i++) {
+          temp.push(i)
+        }
       }
       return temp
     }
+
+    var temp = []
+    for (var i = pos - median + 1; i <= pos + median + 1; i++) {
+      temp.push(i)
+    }
+    return temp
   }
 
   const [currentArray, setArray] = useState([])
@@ -74,9 +113,13 @@ function Pagination({ length, onPageChange }) {
   //setArray(getPaginationArray(1))
 
   useEffect(() => {
-    setArray(getPaginationArray(1))
+    //setArray(getPaginationArray(1))
     //console.log('Hello World')
-  }, [getPaginationArray])
+    if (currentArray.length === 0) {
+      let arr = getPaginationArray(0)
+      setArray(arr)
+    }
+  }, [currentArray])
 
   //Test
   // eslint-disable-next-line react/react-in-jsx-scope
@@ -85,7 +128,7 @@ function Pagination({ length, onPageChange }) {
       <CRow>
         <CCol>
           <CButton
-            onClick={() => paginateLeft()}
+            onClick={() => paginateFirst()}
             color="dark"
             style={{
               width: '40px',
@@ -115,6 +158,7 @@ function Pagination({ length, onPageChange }) {
           {currentArray.map((item, index) => (
             // eslint-disable-next-line react/jsx-key
             <CButton
+              onClick={() => paginateTo(item)}
               style={{
                 width: '35px',
                 height: '40px',
@@ -124,7 +168,7 @@ function Pagination({ length, onPageChange }) {
                 borderRadius: '0px',
                 borderWidth: '1px',
                 borderColor: '',
-                ...buttonColor(item),
+                ...buttonColor(item - 1),
               }}
             >
               {item}
@@ -147,7 +191,7 @@ function Pagination({ length, onPageChange }) {
         </CCol>
         <CCol>
           <CButton
-            onClick={() => paginateRight()}
+            onClick={() => paginateLast()}
             color="dark"
             style={{
               width: '40px',

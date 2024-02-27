@@ -3,6 +3,9 @@ import { useSelector, useDispatch } from 'react-redux'
 
 import {
   CCloseButton,
+  CCol,
+  CProgress,
+  CRow,
   CSidebar,
   CSidebarBrand,
   CSidebarFooter,

@@ -38,6 +38,7 @@ import {
   CDropdownItem,
   CFormTextarea,
   CFormSelect,
+  CForm,
 } from '@coreui/react'
 import CIcon from '@coreui/icons-react'
 
@@ -63,6 +64,8 @@ import {
 } from '@coreui/icons'
 import ExperimentCell from './ExperimentCell'
 import Pagination from './Pagination'
+import FilterCell from './FilterCell'
+import BasicDropzone from './Dropzone'
 
 ChartJS.register(LinearScale, PointElement, LogarithmicScale, LineElement, Title)
 
@@ -75,11 +78,13 @@ const Home = () => {
   const [hasData, setData] = useState(false)
 
   const [table, setTable] = useState([])
-  const [virtualTable, setVirtualTable] = useState([])
+  const [filteredTable, setFilteredTable] = useState([])
+  const [dataset, setDataset] = useState([])
 
   const [visible, setVisible] = useState(false)
   const [ignored, forceUpdate] = useReducer((x) => x + 1, 0)
 
+  const [history, setHistory] = useState([])
   const commonRef = useRef()
 
   function upload() {
@@ -88,8 +93,11 @@ const Home = () => {
 
   subscribe('uploadData', () => upload())
 
-  const [itemsPerPage, setItemsPerPage] = useState(5)
+  const [itemsPerPage, setItemsPerPage] = useState(10)
   const { acceptedFiles, getRootProps, getInputProps } = useDropzone()
+
+  var [filters, setFilter] = useState([])
+  var [updateFilters, setUpdateFilters] = useState(false)
 
   useEffect(() => {
     if (!hasData) {
@@ -97,26 +105,103 @@ const Home = () => {
         .then((response) => response.json())
         .then((data) => {
           console.log(data)
-          setVirtualTable(data)
-          setTable(data.slice(0, itemsPerPage))
+          setDataset(data)
+          setFilteredTable(data)
+          setTable(filteredTable.slice(0, itemsPerPage))
           setData(true)
         })
     } else {
-      setTable(virtualTable.slice(currentPage * itemsPerPage, (currentPage + 1) * itemsPerPage))
-      console.log(itemsPerPage)
+      setTable(filteredTable.slice(currentPage * itemsPerPage, (currentPage + 1) * itemsPerPage))
     }
-    setPaginationLength(Math.ceil(virtualTable.length / itemsPerPage))
-  }, [currentPage, hasData, itemsPerPage, virtualTable])
+    setPaginationLength(Math.ceil(filteredTable.length / itemsPerPage))
+  }, [currentPage, dataset, filteredTable, hasData, itemsPerPage])
+
+  useEffect(() => {
+    fetch('https://10.8.0.1:5000/api/cat/operator')
+      .then((res) => res.json())
+      .then((dat) => console.log(dat))
+  }, [])
+
+  useEffect(() => {
+    if (updateFilters) {
+      let data = dataset
+      console.log(filters)
+
+      for (var id in filters) {
+        var key = filters[id].key
+        var value = filters[id].value
+
+        if (value.length > 0) {
+          let filteredData = []
+          let k = key.toLowerCase()
+
+          if (k === 'sensor') {
+            k = 'sensor_type'
+          }
+
+          if (k === 'chip') {
+            k = 'chip_type'
+          }
+
+          for (var idx in value) {
+            const filterVal = value[idx]
+            // eslint-disable-next-line no-loop-func
+            filteredData.push(
+              ...data.filter(
+                // eslint-disable-next-line no-loop-func
+                (item) => item[k] === filterVal,
+              ),
+            )
+          }
+          data = filteredData
+        }
+      }
+      data.sort((a, b) => a.id - b.id)
+
+      setCurrentPage(0)
+      setFilteredTable(data)
+      setUpdateFilters(false)
+    }
+  }, [dataset, filters, updateFilters])
 
   const resizeTable = (size) => {
-    setTable(virtualTable.slice(0 * itemsPerPage, (0 + 1) * itemsPerPage))
+    setTable(filteredTable.slice(0 * itemsPerPage, (0 + 1) * itemsPerPage))
     setItemsPerPage(size)
     setData(true)
   }
 
+  const replaceOrAppend = (arr, val, compFn) => {
+    const res = [...arr]
+    const i = arr.findIndex((v) => compFn(v, val))
+    if (i === -1) res.push(val)
+    else res.splice(i, 1, val)
+    return res
+  }
+
+  function onClickedCellCallBack(val) {
+    console.log(val)
+  }
+
+  function onFiltercallBack(cat, val) {
+    const containsItem = filters.some((item) => item.key === cat)
+    console.log(containsItem)
+
+    var newFilter = filters
+    if (!containsItem) {
+      newFilter.push({
+        key: cat,
+        value: val,
+      })
+    } else {
+      const objIndex = newFilter.findIndex((item) => item.key === cat)
+      newFilter[objIndex].value = val
+    }
+    setFilter(newFilter)
+    setUpdateFilters(true)
+  }
+
   function moveContent(page) {
     //setData(false)
-    console.log(page)
     setCurrentPage(page)
     //setTable(virtualTable.slice(page * itemsPerPage, (page + 1) * itemsPerPage))
 
@@ -136,7 +221,76 @@ const Home = () => {
           <CModalTitle id="StaticBackdropExampleLabel">Upload Wizard</CModalTitle>
         </CModalHeader>
         <CModalBody>
-          <div style={{ backgroundColor: '#fff', width: '100%', height: '250px' }}></div>
+          <CRow className="m-1 mt-4">
+            <CCol xs={2}>Experiment ID</CCol>
+            <CCol>
+              <CFormTextarea disabled rows={1} style={{ resize: 'none' }}>
+                {'EXP#00151'}
+              </CFormTextarea>
+            </CCol>
+          </CRow>
+
+          <CRow className="m-1">
+            <CCol xs={2}>Date</CCol>
+            <CCol>
+              <CFormTextarea placeholder="dd/mm/yyyy" rows={1} style={{ resize: 'none' }}>
+                {new Date().toJSON().slice(0, 10).split('-').reverse().join('/')}
+              </CFormTextarea>
+            </CCol>
+          </CRow>
+
+          <CRow className="m-1">
+            <CCol xs={2}>Operator</CCol>
+            <CCol>
+              <CFormTextarea disabled rows={1} style={{ resize: 'none' }}>
+                {'Jasper'}
+              </CFormTextarea>
+            </CCol>
+          </CRow>
+          <CRow className="m-1">
+            <CCol xs={2}>Sensor</CCol>
+            <CCol>
+              <CFormTextarea rows={1} style={{ resize: 'none' }}></CFormTextarea>
+            </CCol>
+          </CRow>
+          <CRow className="m-1">
+            <CCol xs={2}>Chip</CCol>
+            <CCol>
+              <CFormTextarea rows={1} style={{ resize: 'none' }}></CFormTextarea>
+            </CCol>
+          </CRow>
+          <CRow className="m-1">
+            <CCol xs={2}>
+              T<sub>start</sub>
+            </CCol>
+            <CCol>
+              <CFormTextarea
+                placeholder="hh:mm"
+                rows={1}
+                style={{ resize: 'none' }}
+              ></CFormTextarea>
+            </CCol>
+          </CRow>
+          <CRow className="m-1">
+            <CCol xs={2}>
+              T<sub>end</sub>
+            </CCol>
+            <CCol>
+              <CFormTextarea
+                placeholder="hh:mm"
+                rows={1}
+                style={{ resize: 'none' }}
+              ></CFormTextarea>
+            </CCol>
+          </CRow>
+          <CRow className="m-1">
+            <CCol xs={2}>Remark: </CCol>
+            <CCol>
+              <CForm>
+                <CFormTextarea rows={3}></CFormTextarea>
+              </CForm>
+            </CCol>
+          </CRow>
         </CModalBody>
         <CModalFooter>
           <CButton color="secondary" onClick={() => setVisible(false)}>
@@ -154,7 +308,25 @@ const Home = () => {
                 History
               </div>
             </CCardHeader>
-            <CCardBody></CCardBody>
+            <CCardBody>
+              <CTable align="top" className="mb-2" responsive striped hover>
+                <CTableBody>
+                  {/*}
+                  {table.map((item, index) => (
+                    //
+                    // Display a table cell
+                    //
+
+                    <ExperimentCell
+                      data={item}
+                      onClickedCellCB={onClickedCellCallBack}
+                      parentRef={commonRef}
+                    />
+                  ))}
+                  */}
+                </CTableBody>
+              </CTable>
+            </CCardBody>
           </CCard>
           <CCard className="mb-4 position-sticky" style={{ top: '100px', width: '100%' }}>
             <CCardHeader>
@@ -170,6 +342,7 @@ const Home = () => {
                   <CFormInput
                     style={{ paddingLeft: 40 }}
                     className="border border-primary rounded-5 search"
+                    placeholder=""
                   />
                   <CCol xs={1} style={{ position: 'absolute', marginTop: -30, marginLeft: 10 }}>
                     <CIcon icon={cilMagnifyingGlass} size={'lg'} />
@@ -177,71 +350,9 @@ const Home = () => {
                 </CCol>
               </CRow>
               <CRow className="col-form-label border-top border-black mt-3" />
-              <CRow>
-                <CCol xs={2}>
-                  <CButton style={{ textAlign: 'center' }}>
-                    <CIcon style={{ rotate: '180deg' }} icon={cilTriangle} />
-                  </CButton>
-                </CCol>
-                <CCol
-                  xs={5}
-                  style={{
-                    display: 'flex',
-                    justifyContent: 'center',
-                    alignContent: 'center',
-                    flexDirection: 'column',
-                  }}
-                >
-                  <div>Operator</div>
-                </CCol>
-                <CCol
-                  xs={2}
-                  style={{
-                    display: 'flex',
-                    justifyContent: 'center',
-                    flexDirection: 'column',
-                  }}
-                >
-                  <CBadge color="primary">165</CBadge>
-                </CCol>
-                <CRow className="m-0">
-                  <CCol xs={1}></CCol>
-                  <CCol xs={5} className="mb-2">
-                    <CFormCheck primary label="Sanam" />
-                    <CFormCheck label="Maria" />
-                    <CFormCheck label="Zahra" />
-                    <CFormCheck label="Amir" />
-                  </CCol>
-                </CRow>
-              </CRow>
-              <CRow>
-                <CCol xs={2}>
-                  <CButton style={{ textAlign: 'center' }}>
-                    <CIcon style={{ rotate: '90deg' }} icon={cilTriangle} />
-                  </CButton>
-                </CCol>
-                <CCol
-                  xs={5}
-                  style={{
-                    display: 'flex',
-                    justifyContent: 'center',
-                    alignContent: 'center',
-                    flexDirection: 'column',
-                  }}
-                >
-                  <div>Date</div>
-                </CCol>
-                <CCol
-                  xs={2}
-                  style={{
-                    display: 'flex',
-                    justifyContent: 'center',
-                    flexDirection: 'column',
-                  }}
-                >
-                  <CBadge color="primary">165</CBadge>
-                </CCol>
-              </CRow>
+              {['Operator', 'Sensor', 'Chip'].map((item, index) => (
+                <FilterCell cat={item} onChange={onFiltercallBack} />
+              ))}
             </CCardBody>
           </CCard>
         </CCol>
@@ -260,7 +371,7 @@ const Home = () => {
                 </CRow>
               </CCardHeader>
               <CCardBody>
-                {hasData ? (
+                {filteredTable.length > 0 ? (
                   <>
                     <CTable align="top" className="mb-2" responsive striped hover>
                       <CTableHead className="text-nowrap">
@@ -279,13 +390,13 @@ const Home = () => {
                           >
                             #
                           </CTableHeaderCell>
-                          <CTableHeaderCell style={{ backgroundColor: '#571f1f', width: 100 }}>
+                          <CTableHeaderCell style={{ backgroundColor: '#571f1f', width: 120 }}>
                             Date
                           </CTableHeaderCell>
                           <CTableHeaderCell style={{ backgroundColor: '#571f1f', width: 100 }}>
                             Operator
                           </CTableHeaderCell>
-                          <CTableHeaderCell style={{ backgroundColor: '#571f1f', width: 100 }}>
+                          <CTableHeaderCell style={{ backgroundColor: '#571f1f', width: 120 }}>
                             Sensor
                           </CTableHeaderCell>
                           <CTableHeaderCell
@@ -302,12 +413,18 @@ const Home = () => {
                           // Display a table cell
                           //
 
-                          <ExperimentCell data={item} parentRef={commonRef} />
+                          <ExperimentCell
+                            data={item}
+                            onClickedCellCB={onClickedCellCallBack}
+                            parentRef={commonRef}
+                          />
                         ))}
                       </CTableBody>
                     </CTable>
                     <CRow>
-                      <CCol xs={8} />
+                      <CCol style={{ lineHeight: '2' }} xs={8}>
+                        Found {filteredTable.length} results
+                      </CCol>
                       <CCol style={{ textAlign: 'right', lineHeight: '2' }}>Items per page</CCol>
                       <CFormSelect
                         onChange={(x) => resizeTable(x.target.value)}
@@ -317,6 +434,7 @@ const Home = () => {
                           float: 'right',
                           marginRight: '10px',
                         }}
+                        value={itemsPerPage}
                         aria-label="Floating label select example"
                       >
                         <option value="5">5</option>
@@ -326,12 +444,14 @@ const Home = () => {
                       </CFormSelect>
                     </CRow>
                   </>
-                ) : (
+                ) : !hasData ? (
                   <div style={{ padding: '50px', textAlign: 'center' }}>
                     <ScaleLoader color="white" />
                     Fetching Data
                     {/* <CSpinner size="sm" color="primary" style={{ width: '4rem', height: '4rem' }} /> */}
                   </div>
+                ) : (
+                  <div> No results found </div>
                 )}
                 {/*
               
@@ -339,7 +459,7 @@ const Home = () => {
 
                 */}
               </CCardBody>
-              {hasData ? (
+              {paginationLength ? (
                 <CCardFooter>
                   <Pagination length={paginationLength} onPageChange={(x) => moveContent(x)} />
                 </CCardFooter>

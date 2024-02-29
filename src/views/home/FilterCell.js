@@ -53,7 +53,15 @@ function FilterCell({ cat, onChange }) {
 
   useEffect(() => {
     // eslint-disable-next-line react/prop-types
-    fetch('https://10.8.0.1:5000/api/cat/' + cat.toLowerCase())
+    var k = cat
+    if (k === 'Solution') {
+      k = 'background_solution'
+    }
+
+    if (k === 'Concentration') {
+      k = 'background_concentration'
+    }
+    fetch('https://10.8.0.1:5000/api/cat/' + k.toLowerCase())
       .then((res) => res.json())
       .then((dat) => {
         let d = dat.sort()

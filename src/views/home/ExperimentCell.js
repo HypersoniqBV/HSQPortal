@@ -492,6 +492,32 @@ function ExperimentCell({ data, onClickedCellCB }) {
                 </CCol>
               </CRow>
               <CRow className="m-1">
+                <CCol xs={2}>Batch</CCol>
+                <CCol>
+                  <CFormTextarea disabled rows={1} style={{ resize: 'none' }}>
+                    {data.bg_batch}
+                  </CFormTextarea>
+                </CCol>
+              </CRow>
+              <CRow className="m-1">
+                <CCol xs={2}>Solution</CCol>
+                <CCol>
+                  <CFormTextarea disabled rows={1} style={{ resize: 'none' }}>
+                    {data.bg_solution}
+                  </CFormTextarea>
+                </CCol>
+              </CRow>
+              <CRow className="m-1">
+                <CCol xs={2}>
+                  T<sub>end</sub>
+                </CCol>
+                <CCol>
+                  <CFormTextarea disabled rows={1} style={{ resize: 'none' }}>
+                    {data.bg_concentration}
+                  </CFormTextarea>
+                </CCol>
+              </CRow>
+              <CRow className="m-1">
                 <CCol xs={2}>Remark: </CCol>
                 <CCol>
                   <CForm>
@@ -506,7 +532,7 @@ function ExperimentCell({ data, onClickedCellCB }) {
                 <CCol className="">
                   <CDropdown style={{ paddingLeft: 0, paddingRight: 0, width: '100%' }}>
                     <CDropdownToggle style={{ textAlign: 'left', backgroundColor: '#2e3135' }}>
-                      {graphMode === 'bode' ? 'Bode Plot' : 'Nyquist Plot'}
+                      {graphMode === 'bode' ? 'Bode' : 'Nyquist'}
                     </CDropdownToggle>
                     <CDropdownMenu
                       color="secondary"
@@ -516,13 +542,13 @@ function ExperimentCell({ data, onClickedCellCB }) {
                         onClick={() => onSelectMode('nyquist')}
                         style={{ cursor: 'pointer' }}
                       >
-                        Nyquist Plot
+                        Nyquist
                       </CDropdownItem>
                       <CDropdownItem
                         onClick={() => onSelectMode('bode')}
                         style={{ cursor: 'pointer' }}
                       >
-                        Bode Plot
+                        Bode
                       </CDropdownItem>
                     </CDropdownMenu>
                   </CDropdown>

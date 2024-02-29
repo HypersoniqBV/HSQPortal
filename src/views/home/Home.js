@@ -143,6 +143,10 @@ const Home = () => {
             k = 'chip_type'
           }
 
+          if (k === 'solution') {
+            k = 'bg_solution'
+          }
+
           for (var idx in value) {
             const filterVal = value[idx]
             // eslint-disable-next-line no-loop-func
@@ -350,7 +354,7 @@ const Home = () => {
                 </CCol>
               </CRow>
               <CRow className="col-form-label border-top border-black mt-3" />
-              {['Operator', 'Sensor', 'Chip'].map((item, index) => (
+              {['Operator', 'Sensor', 'Chip', 'Solution', 'Concentration'].map((item, index) => (
                 <FilterCell cat={item} onChange={onFiltercallBack} />
               ))}
             </CCardBody>
@@ -423,7 +427,9 @@ const Home = () => {
                     </CTable>
                     <CRow>
                       <CCol style={{ lineHeight: '2' }} xs={8}>
-                        Found {filteredTable.length} results
+                        {filteredTable.length > 1
+                          ? 'Found ' + filteredTable.length + ' results'
+                          : 'Found 1 result'}
                       </CCol>
                       <CCol style={{ textAlign: 'right', lineHeight: '2' }}>Items per page</CCol>
                       <CFormSelect

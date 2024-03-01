@@ -14,7 +14,19 @@ import {
   CDropdownItem,
 } from '@coreui/react'
 import CIcon from '@coreui/icons-react'
-import { cilTriangle } from '@coreui/icons'
+import {
+  cilBeaker,
+  cilCalendar,
+  cilClock,
+  cilDrop,
+  cilFile,
+  cilPencil,
+  cilSquare,
+  cilStar,
+  cilTrash,
+  cilTriangle,
+  cilUser,
+} from '@coreui/icons'
 import { Scatter } from 'react-chartjs-2'
 import zoomPlugin from 'chartjs-plugin-zoom'
 
@@ -348,11 +360,16 @@ function ExperimentCell({ data, onClickedCellCB }) {
     color: '',
   })
 
+  const [showAll, setShowAll] = useState(false)
+  const [showAllRotation, setShowAllRotation] = useState('90deg')
+
   const [graphMode, setGraphMode] = useState('nyquist')
 
   useEffect(() => console.log(graphMode), [graphMode])
 
   const [ignored, forceUpdate] = useReducer((x) => x + 1, 0)
+
+  useEffect(() => {}, [showAll, showAllRotation])
 
   function onClickedCell() {
     if (!cellState.isOpen) {
@@ -377,6 +394,17 @@ function ExperimentCell({ data, onClickedCellCB }) {
     setGraphMode(mode)
   }
 
+  function toggleMetaData() {
+    var newShowAll = !showAll
+    setShowAll(newShowAll)
+
+    if (newShowAll) {
+      setShowAllRotation('180deg')
+    } else {
+      setShowAllRotation('90deg')
+    }
+  }
+
   return (
     <>
       {/*
@@ -394,16 +422,24 @@ function ExperimentCell({ data, onClickedCellCB }) {
           cursor: 'pointer',
           height: 30,
         }}
+        className="noselect"
         color={cellState.color}
       >
-        <CTableDataCell className="text-center">
+        <CTableDataCell
+          className="text-center"
+          style={{ borderRadius: '25% 0% 0% 25%', borderWidth: 0 }}
+        >
           <CIcon style={{ transform: 'rotate(' + cellState.rotation + ')' }} icon={cilTriangle} />
         </CTableDataCell>
-        <CTableDataCell className="text-center">{data.id}</CTableDataCell>
-        <CTableDataCell>{data.date}</CTableDataCell>
-        <CTableDataCell>{data.operator}</CTableDataCell>
-        <CTableDataCell>{data.sensor_type}</CTableDataCell>
-        <CTableDataCell>{data.chip_type}</CTableDataCell>
+        <CTableDataCell className="text-center border-0">{data.id}</CTableDataCell>
+        <CTableDataCell className="border-0">{data.date}</CTableDataCell>
+        <CTableDataCell className="border-0">{data.operator}</CTableDataCell>
+        <CTableDataCell className="border-0">{data.sensor_type}</CTableDataCell>
+        <CTableDataCell className="border-0">{data.chip_type}</CTableDataCell>
+        <CTableDataCell
+          className="border-0"
+          style={{ borderRadius: '0% 25% 25% 0%' }}
+        ></CTableDataCell>
       </CTableRow>
       {/*
 
@@ -419,7 +455,7 @@ function ExperimentCell({ data, onClickedCellCB }) {
               boxShadow: 'none',
               overflow: 'hidden',
             }}
-            colSpan={6}
+            colSpan={7}
           >
             <CCol
               className="p-2 m-2 rounded-4"
@@ -429,129 +465,94 @@ function ExperimentCell({ data, onClickedCellCB }) {
                 borderColor: 'black',
               }}
             >
-              <CRow className="m-1 mt-4">
-                <CCol xs={2}>Experiment ID</CCol>
-                <CCol>
-                  <CFormTextarea disabled rows={1} style={{ resize: 'none' }}>
-                    {'EXP#0000' + data.id}
-                  </CFormTextarea>
-                </CCol>
+              <CRow>
+                <CButton
+                  className="rounded-pill"
+                  color="dark"
+                  style={{ width: '15%', marginRight: '5px' }}
+                >
+                  <CIcon icon={cilSquare} style={{ marginRight: '5px' }} /> Select
+                </CButton>
+                <CButton
+                  className="rounded-pill"
+                  color="dark"
+                  style={{ width: '15%', marginRight: '5px' }}
+                >
+                  <CIcon icon={cilStar} style={{ marginRight: '5px' }} /> Favorite
+                </CButton>
+                <CButton
+                  className="rounded-pill"
+                  color="dark"
+                  style={{ width: '15%', marginRight: '5px' }}
+                >
+                  <CIcon icon={cilPencil} style={{ marginRight: '5px' }} /> Edit
+                </CButton>
+                <CButton
+                  className="rounded-pill"
+                  color="dark"
+                  style={{ width: '15%', marginRight: '5px' }}
+                >
+                  <CIcon icon={cilTrash} style={{ marginRight: '5px' }} /> Delete
+                </CButton>
               </CRow>
-
-              <CRow className="m-1">
-                <CCol xs={2}>Date</CCol>
-                <CCol>
-                  <CFormTextarea disabled rows={1} style={{ resize: 'none' }}>
-                    {data.date}
-                  </CFormTextarea>
+              <CRow className="pt-4 pb-4">
+                <CCol style={{ textAlign: 'center' }}>
+                  <CIcon icon={cilFile} className="m-2" size="xxl" xs={2} />
+                  <div>{'EXP#0000' + data.id}</div>
                 </CCol>
+                <CCol style={{ textAlign: 'center' }}>
+                  <CIcon icon={cilCalendar} className="m-2" size="xxl" xs={2} />
+                  <div>{data.date}</div>
+                </CCol>
+                <CCol style={{ textAlign: 'center' }}>
+                  <CIcon icon={cilClock} className="m-2" size="xxl" xs={4} />
+                  <div>{data.start_time}</div>
+                </CCol>
+                <CCol style={{ textAlign: 'center' }}>
+                  <CIcon icon={cilUser} className="m-2" size="xxl" xs={4} />
+                  <div>{data.operator}</div>
+                </CCol>
+                <CCol style={{ textAlign: 'center' }}>
+                  <CIcon icon={cilDrop} className="m-2" size="xxl" xs={4} />
+                  <div>{data.bg_concentration}</div>
+                </CCol>
+                <CCol style={{ textAlign: 'center' }}>
+                  <CIcon icon={cilBeaker} className="m-2" size="xxl" xs={4} />
+                  <div>{data.bg_concentration}</div>
+                </CCol>
+                <CCol xs={2} />
               </CRow>
-
-              <CRow className="m-1">
-                <CCol xs={2}>Operator</CCol>
-                <CCol>
-                  <CFormTextarea disabled rows={1} style={{ resize: 'none' }}>
-                    {data.operator}
-                  </CFormTextarea>
-                </CCol>
-              </CRow>
-              <CRow className="m-1">
-                <CCol xs={2}>Sensor</CCol>
-                <CCol>
-                  <CFormTextarea disabled rows={1} style={{ resize: 'none' }}>
-                    {data.sensor_type}
-                  </CFormTextarea>
-                </CCol>
-              </CRow>
-              <CRow className="m-1">
-                <CCol xs={2}>Chip</CCol>
-                <CCol>
-                  <CFormTextarea disabled rows={1} style={{ resize: 'none' }}>
-                    {data.chip_type}
-                  </CFormTextarea>
-                </CCol>
-              </CRow>
-              <CRow className="m-1">
-                <CCol xs={2}>
-                  T<sub>start</sub>
-                </CCol>
-                <CCol>
-                  <CFormTextarea disabled rows={1} style={{ resize: 'none' }}>
-                    {data.start_time}
-                  </CFormTextarea>
-                </CCol>
-              </CRow>
-              <CRow className="m-1">
-                <CCol xs={2}>
-                  T<sub>end</sub>
-                </CCol>
-                <CCol>
-                  <CFormTextarea disabled rows={1} style={{ resize: 'none' }}>
-                    {data.finish_time}
-                  </CFormTextarea>
-                </CCol>
+              <CRow className="m-1 fw-bold">
+                <p style={{ paddingLeft: 0, paddingBottom: 0, fontSize: '20px' }}>Comments</p>
               </CRow>
               <CRow className="m-1">
-                <CCol xs={2}>Batch</CCol>
+                <CCol className="" xs={1}>
+                  <div
+                    className="rounded-circle"
+                    style={{
+                      position: 'relative',
+                      top: '20%',
+                      left: '0%',
+                      transform: 'translate(0%, 0%)',
+                      width: '50px',
+                      height: '50px',
+                      textAlign: 'center',
+                      paddingTop: '12px',
+                      backgroundColor: '#aaa',
+                    }}
+                  >
+                    <CIcon size="xl" icon={cilUser} style={{ color: '#000' }} />
+                  </div>
+                </CCol>
                 <CCol>
-                  <CFormTextarea disabled rows={1} style={{ resize: 'none' }}>
-                    {data.bg_batch}
-                  </CFormTextarea>
-                </CCol>
-              </CRow>
-              <CRow className="m-1">
-                <CCol xs={2}>Solution</CCol>
-                <CCol>
-                  <CFormTextarea disabled rows={1} style={{ resize: 'none' }}>
-                    {data.bg_solution}
-                  </CFormTextarea>
-                </CCol>
-              </CRow>
-              <CRow className="m-1">
-                <CCol xs={2}>
-                  T<sub>end</sub>
-                </CCol>
-                <CCol>
-                  <CFormTextarea disabled rows={1} style={{ resize: 'none' }}>
-                    {data.bg_concentration}
-                  </CFormTextarea>
-                </CCol>
-              </CRow>
-              <CRow className="m-1">
-                <CCol xs={2}>Remark: </CCol>
-                <CCol>
-                  <CForm>
-                    <CFormTextarea disabled rows={3}>
-                      {data.remarks}
-                    </CFormTextarea>
-                  </CForm>
-                </CCol>
-              </CRow>
-              <CRow className="m-1 mb-3">
-                <CCol xs={2}>Graph:</CCol>
-                <CCol className="">
-                  <CDropdown style={{ paddingLeft: 0, paddingRight: 0, width: '100%' }}>
-                    <CDropdownToggle style={{ textAlign: 'left', backgroundColor: '#2e3135' }}>
-                      {graphMode === 'bode' ? 'Bode' : 'Nyquist'}
-                    </CDropdownToggle>
-                    <CDropdownMenu
-                      color="secondary"
-                      style={{ backgroundColor: '#222', left: 0, width: '100%' }}
-                    >
-                      <CDropdownItem
-                        onClick={() => onSelectMode('nyquist')}
-                        style={{ cursor: 'pointer' }}
-                      >
-                        Nyquist
-                      </CDropdownItem>
-                      <CDropdownItem
-                        onClick={() => onSelectMode('bode')}
-                        style={{ cursor: 'pointer' }}
-                      >
-                        Bode
-                      </CDropdownItem>
-                    </CDropdownMenu>
-                  </CDropdown>
+                  <CRow className="m-1">{data.operator}</CRow>
+                  <CRow>
+                    <CForm>
+                      <CFormTextarea disabled rows={3}>
+                        {data.remarks}
+                      </CFormTextarea>
+                    </CForm>
+                  </CRow>
                 </CCol>
               </CRow>
               <CRow style={{ position: 'relative' }} className="m-1">
@@ -582,7 +583,148 @@ function ExperimentCell({ data, onClickedCellCB }) {
                   </>
                 )}
               </CRow>
-
+              <CRow className="m-1 mb-3">
+                <CCol className="" style={{ paddingRight: '2px' }}>
+                  <CDropdown style={{ paddingLeft: 0, paddingRight: 0, width: '100%' }}>
+                    <CDropdownToggle style={{ textAlign: 'left', backgroundColor: '#2e3135' }}>
+                      {graphMode === 'bode' ? 'Bode' : 'Nyquist'}
+                    </CDropdownToggle>
+                    <CDropdownMenu
+                      color="secondary"
+                      style={{ backgroundColor: '#222', left: 0, width: '100%' }}
+                    >
+                      <CDropdownItem
+                        onClick={() => onSelectMode('nyquist')}
+                        style={{ cursor: 'pointer' }}
+                      >
+                        Nyquist
+                      </CDropdownItem>
+                      <CDropdownItem
+                        onClick={() => onSelectMode('bode')}
+                        style={{ cursor: 'pointer' }}
+                      >
+                        Bode
+                      </CDropdownItem>
+                    </CDropdownMenu>
+                  </CDropdown>
+                </CCol>
+                <CCol className="" style={{ paddingLeft: '2px' }}>
+                  <CDropdown
+                    style={{ marginLeft: 0, paddingLeft: 0, paddingRight: 0, width: '100%' }}
+                  >
+                    <CDropdownToggle style={{ textAlign: 'left', backgroundColor: '#2e3135' }}>
+                      Measurement 1
+                    </CDropdownToggle>
+                    <CDropdownMenu
+                      color="secondary"
+                      style={{ backgroundColor: '#222', left: 0, width: '100%' }}
+                    >
+                      <CDropdownItem style={{ cursor: 'pointer' }}>Measurement 1</CDropdownItem>
+                      <CDropdownItem style={{ cursor: 'pointer' }}>Measurement 2</CDropdownItem>
+                    </CDropdownMenu>
+                  </CDropdown>
+                </CCol>
+              </CRow>
+              <CRow className="mb-2">
+                <CCol xs={0} />
+                <CCol xs={1}>
+                  <CButton
+                    onClick={() => toggleMetaData()}
+                    style={{ borderWidth: '0px', paddingLeft: '30px', textAlign: 'center' }}
+                  >
+                    <CIcon style={{ rotate: showAllRotation }} icon={cilTriangle} />
+                  </CButton>
+                </CCol>
+                <CCol
+                  xs={5}
+                  style={{
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignContent: 'center',
+                    flexDirection: 'column',
+                  }}
+                >
+                  <div>{'Show all'}</div>
+                </CCol>
+              </CRow>
+              {showAll ? (
+                <>
+                  <CCol
+                    className="rounded-3 shadow-lg"
+                    style={{
+                      backgroundColor: '#707070',
+                      paddingTop: '20px',
+                      paddingBottom: '20px',
+                      marginBottom: '10px',
+                    }}
+                  >
+                    <CRow className="m-1">
+                      <CCol xs={2}>Sensor</CCol>
+                      <CCol>
+                        <CFormTextarea disabled rows={1} style={{ resize: 'none' }}>
+                          {data.sensor_type}
+                        </CFormTextarea>
+                      </CCol>
+                    </CRow>
+                    <CRow className="m-1">
+                      <CCol xs={2}>Chip</CCol>
+                      <CCol>
+                        <CFormTextarea disabled rows={1} style={{ resize: 'none' }}>
+                          {data.chip_type}
+                        </CFormTextarea>
+                      </CCol>
+                    </CRow>
+                    <CRow className="m-1">
+                      <CCol xs={2}>
+                        T<sub>start</sub>
+                      </CCol>
+                      <CCol>
+                        <CFormTextarea disabled rows={1} style={{ resize: 'none' }}>
+                          {data.start_time}
+                        </CFormTextarea>
+                      </CCol>
+                    </CRow>
+                    <CRow className="m-1">
+                      <CCol xs={2}>
+                        T<sub>end</sub>
+                      </CCol>
+                      <CCol>
+                        <CFormTextarea disabled rows={1} style={{ resize: 'none' }}>
+                          {data.finish_time}
+                        </CFormTextarea>
+                      </CCol>
+                    </CRow>
+                    <CRow className="m-1">
+                      <CCol xs={2}>Batch</CCol>
+                      <CCol>
+                        <CFormTextarea disabled rows={1} style={{ resize: 'none' }}>
+                          {data.bg_batch}
+                        </CFormTextarea>
+                      </CCol>
+                    </CRow>
+                    <CRow className="m-1">
+                      <CCol xs={2}>Solution</CCol>
+                      <CCol>
+                        <CFormTextarea disabled rows={1} style={{ resize: 'none' }}>
+                          {data.bg_solution}
+                        </CFormTextarea>
+                      </CCol>
+                    </CRow>
+                    <CRow className="m-1">
+                      <CCol xs={2}>
+                        T<sub>end</sub>
+                      </CCol>
+                      <CCol>
+                        <CFormTextarea disabled rows={1} style={{ resize: 'none' }}>
+                          {data.bg_concentration}
+                        </CFormTextarea>
+                      </CCol>
+                    </CRow>
+                  </CCol>{' '}
+                </>
+              ) : (
+                <></>
+              )}
               {/*
             <CRow className="mb-4">
               <CCol>

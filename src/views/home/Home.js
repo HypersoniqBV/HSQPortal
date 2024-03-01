@@ -61,6 +61,7 @@ import {
   cilFilter,
   cilReload,
   cilPlus,
+  cilHistory,
 } from '@coreui/icons'
 import ExperimentCell from './ExperimentCell'
 import Pagination from './Pagination'
@@ -308,7 +309,7 @@ const Home = () => {
           <CCard className="mb-4 relative" style={{ top: '0px', width: '100%' }}>
             <CCardHeader>
               <div>
-                <CIcon style={{ marginRight: '10px' }} icon={cilReload} />
+                <CIcon style={{ marginRight: '10px' }} icon={cilHistory} />
                 History
               </div>
             </CCardHeader>
@@ -383,31 +384,83 @@ const Home = () => {
                           <CTableHeaderCell
                             className="justify-content-center"
                             style={{
-                              borderTopLeftRadius: '10px',
+                              borderRadius: '25% 0% 0% 25%',
                               backgroundColor: '#571f1f',
                               width: 50,
                             }}
                           />
                           <CTableHeaderCell
                             className="text-center"
-                            style={{ backgroundColor: '#571f1f', width: 50 }}
+                            style={{ backgroundColor: '#571f1f', width: 50, margin: 0, padding: 0 }}
                           >
-                            #
-                          </CTableHeaderCell>
-                          <CTableHeaderCell style={{ backgroundColor: '#571f1f', width: 120 }}>
-                            Date
-                          </CTableHeaderCell>
-                          <CTableHeaderCell style={{ backgroundColor: '#571f1f', width: 100 }}>
-                            Operator
-                          </CTableHeaderCell>
-                          <CTableHeaderCell style={{ backgroundColor: '#571f1f', width: 120 }}>
-                            Sensor
+                            <CButton
+                              className="fw-bold"
+                              style={{ width: '100%', textAlign: 'center' }}
+                            >
+                              #
+                            </CButton>
                           </CTableHeaderCell>
                           <CTableHeaderCell
-                            style={{ backgroundColor: '#571f1f', borderTopRightRadius: '10px' }}
+                            style={{
+                              backgroundColor: '#571f1f',
+                              width: 120,
+                              padding: 0,
+                              margin: 0,
+                            }}
+                          >
+                            <CButton
+                              className="fw-bold"
+                              style={{ width: '100%', textAlign: 'left' }}
+                            >
+                              Date
+                            </CButton>
+                          </CTableHeaderCell>
+                          <CTableHeaderCell
+                            style={{
+                              backgroundColor: '#571f1f',
+                              width: 100,
+                              margin: 0,
+                              padding: 0,
+                            }}
+                          >
+                            <CButton
+                              className="fw-bold"
+                              style={{ width: '100%', textAlign: 'left' }}
+                            >
+                              Operator
+                            </CButton>
+                          </CTableHeaderCell>
+                          <CTableHeaderCell
+                            style={{
+                              backgroundColor: '#571f1f',
+                              width: 120,
+                              margin: 0,
+                              padding: 0,
+                            }}
+                          >
+                            <CButton
+                              className="fw-bold"
+                              style={{ width: '100%', textAlign: 'left' }}
+                            >
+                              Sensor
+                            </CButton>
+                          </CTableHeaderCell>
+                          <CTableHeaderCell
+                            style={{
+                              width: '40%',
+                              backgroundColor: '#571f1f',
+                            }}
                           >
                             Chip
                           </CTableHeaderCell>
+                          <CTableHeaderCell
+                            className="justify-content-center"
+                            style={{
+                              borderRadius: '0% 25% 25% 0%',
+                              backgroundColor: '#571f1f',
+                              width: 50,
+                            }}
+                          />
                         </CTableRow>
                       </CTableHead>
 

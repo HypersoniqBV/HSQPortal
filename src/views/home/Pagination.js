@@ -60,7 +60,15 @@ function Pagination({ length, onPageChange }) {
     if (value === currentPage) {
       return { backgroundColor: 'rgb(92,52,52)' }
     } else {
-      return { backgroundColor: '#2e3135' }
+      return {}
+    }
+  }
+
+  function buttonBackground(value) {
+    if (value === currentPage) {
+      return ''
+    } else {
+      return 'dark'
     }
   }
 
@@ -151,6 +159,7 @@ function Pagination({ length, onPageChange }) {
               borderRadius: '0px',
               borderTopLeftRadius: '10px',
               borderBottomLeftRadius: '10px',
+              cursor: 'pointer',
             }}
           >
             <CIcon icon={cilChevronLeft} />
@@ -159,6 +168,7 @@ function Pagination({ length, onPageChange }) {
             // eslint-disable-next-line react/jsx-key
             <CButton
               onClick={() => paginateTo(item)}
+              color={buttonBackground(item - 1)}
               style={{
                 width: '35px',
                 height: '40px',

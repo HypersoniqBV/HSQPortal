@@ -1,10 +1,11 @@
+/* eslint-disable react/prop-types */
 import { cilTriangle } from '@coreui/icons'
 import CIcon from '@coreui/icons-react'
 import { CBadge, CButton, CCol, CFormCheck, CRow } from '@coreui/react'
 import { React, useState, useReducer, useEffect } from 'react'
 
 // eslint-disable-next-line react/prop-types
-function FilterCell({ cat, onChange }) {
+function FilterCell({ cat, onChange, dataset }) {
   const [rotation, setRotation] = useState('90deg')
   const [visible, setVisible] = useState(false)
   const [data, setData] = useState(null)
@@ -21,6 +22,8 @@ function FilterCell({ cat, onChange }) {
       setVisible(false)
     }
   }
+
+  useEffect(() => console.log(dataset), [dataset])
 
   useEffect(() => {
     if (togglerUpdated) {
@@ -49,18 +52,45 @@ function FilterCell({ cat, onChange }) {
     setTogglerUpdated(true)
   }
 
+  function onlyUnique(val, index, array) {
+    return array.indexOf(val) === index
+  }
+
   useEffect(() => {}, [rotation, data, selectedFilters])
 
   useEffect(() => {
     // eslint-disable-next-line react/prop-types
+
+    if (dataset.length === 0) return
+
     var k = cat
     if (k === 'Solution') {
-      k = 'background_solution'
+      k = 'bg_solution'
     }
 
     if (k === 'Concentration') {
-      k = 'background_concentration'
+      k = 'bg_concentration'
     }
+
+    if (k === 'Chip') {
+      k = 'chip_type'
+    }
+
+    if (k === 'Sensor') {
+      k = 'sensor_type'
+    }
+
+    var values = dataset.map((a) => a[k.toLowerCase()])
+    var sorted = values.sort()
+    var unq = sorted.filter(onlyUnique)
+
+    setData(unq)
+    let e = []
+
+    sorted.forEach(() => e.push(false))
+    setTogglers(e)
+
+    /*
     fetch('https://10.8.0.1:5000/api/cat/' + k.toLowerCase())
       .then((res) => res.json())
       .then((dat) => {
@@ -71,13 +101,18 @@ function FilterCell({ cat, onChange }) {
         d.forEach(() => e.push(false))
         setTogglers(e)
       })
-  }, [])
+    */
+  }, [dataset])
 
   return (
     <>
       <CRow>
         <CCol xs={2}>
-          <CButton style={{ borderWidth: '0px', textAlign: 'center' }} onClick={() => onClick()}>
+          <CButton
+            disabled={togglers.length === 0}
+            style={{ borderWidth: '0px', textAlign: 'center' }}
+            onClick={() => onClick()}
+          >
             <CIcon
               className={visible ? 'triangle-showing' : 'triangle-hiding'}
               icon={cilTriangle}
@@ -108,7 +143,7 @@ function FilterCell({ cat, onChange }) {
         <CRow className={'m-0 ' + (visible ? 'visible' : 'hidden')}>
           <CCol xs={1}></CCol>
           <CCol xs={10} className="mb-2">
-            {data !== null ? (
+            {data !== null && data.length > 0 ? (
               <>
                 {data.map((val, index) => (
                   // eslint-disable-next-line react/jsx-key

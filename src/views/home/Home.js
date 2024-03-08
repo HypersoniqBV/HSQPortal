@@ -87,6 +87,8 @@ const Home = () => {
   const [visible, setVisible] = useState(false)
   const [ignored, forceUpdate] = useReducer((x) => x + 1, 0)
 
+  const [isLoading, setIsLoading] = useState(false)
+
   const [history, setHistory] = useState([])
   const commonRef = useRef()
 
@@ -104,26 +106,12 @@ const Home = () => {
 
   useEffect(() => {
     if (!hasData) {
-      fetch('https://10.8.0.1:5000/api/portal')
-        .then((response) => response.json())
-        .then((data) => {
-          console.log(data)
-          setDataset(data)
-          setFilteredTable(data)
-          setTable(filteredTable.slice(0, itemsPerPage))
-          setData(true)
-        })
+      //Test
     } else {
       setTable(filteredTable.slice(currentPage * itemsPerPage, (currentPage + 1) * itemsPerPage))
     }
     setPaginationLength(Math.ceil(filteredTable.length / itemsPerPage))
   }, [currentPage, dataset, filteredTable, hasData, itemsPerPage])
-
-  useEffect(() => {
-    fetch('https://10.8.0.1:5000/api/cat/operator')
-      .then((res) => res.json())
-      .then((dat) => console.log(dat))
-  }, [])
 
   useEffect(() => {
     if (updateFilters) {
@@ -170,6 +158,33 @@ const Home = () => {
       setUpdateFilters(false)
     }
   }, [dataset, filters, updateFilters])
+
+  useEffect(() => console.log(hasData), [hasData, isLoading])
+
+  function onDateRangeSelected(date1, date2) {
+    //Reset the current loaded data
+    setData(false)
+    setFilteredTable([])
+    setDataset([])
+    setIsLoading(true)
+
+    console.log(date1.getTimezoneOffset())
+
+    var time1 = date1.getTime() - date1.getTimezoneOffset() * 1000 * 60
+    var time2 = date2.getTime() - date2.getTimezoneOffset() * 1000 * 60
+
+    //Get the new data
+    fetch('https://10.8.0.1:5000/api/portal?t1=' + time1 + '&t2=' + time2)
+      .then((response) => response.json())
+      .then((data) => {
+        console.log(data)
+        setDataset(data)
+        setFilteredTable(data)
+        setTable(filteredTable.slice(0, itemsPerPage))
+        setData(true)
+        setIsLoading(false)
+      })
+  }
 
   const resizeTable = (size) => {
     setTable(filteredTable.slice(0 * itemsPerPage, (0 + 1) * itemsPerPage))
@@ -357,14 +372,14 @@ const Home = () => {
                 </CCol>
               </CRow>
               <CRow className="m-3 mb-1" />
-              <Calendar />
+              <Calendar onDateRangeSelected={onDateRangeSelected} />
               <CRow className="m-0 mt-2">
                 <CCol className="col-sm-4">Categories</CCol>
                 <CCol />
               </CRow>
               <CRow className="col-form-label border-top" />
               {['Operator', 'Sensor', 'Chip', 'Solution', 'Concentration'].map((item, index) => (
-                <FilterCell cat={item} onChange={onFiltercallBack} />
+                <FilterCell cat={item} onChange={onFiltercallBack} dataset={dataset} />
               ))}
             </CCardBody>
           </CCard>
@@ -511,7 +526,7 @@ const Home = () => {
                       </CFormSelect>
                     </CRow>
                   </>
-                ) : !hasData ? (
+                ) : !hasData && isLoading ? (
                   <div style={{ padding: '50px', textAlign: 'center' }}>
                     <ScaleLoader color="white" />
                     Fetching Data

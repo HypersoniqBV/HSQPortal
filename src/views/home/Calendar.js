@@ -1,10 +1,11 @@
 /* eslint-disable prettier/prettier */
-import { cilArrowLeft, cilTriangle } from '@coreui/icons'
+import { cilArrowLeft, cilCalendar, cilTriangle } from '@coreui/icons'
 import CIcon from '@coreui/icons-react'
-import { CButton, CCol, CRow } from '@coreui/react'
+import { CButton, CCol, COffcanvasBody, CRow } from '@coreui/react'
 import { React, useEffect, useState } from 'react'
 
-function Calendar() {
+// eslint-disable-next-line react/prop-types
+function Calendar( {onDateRangeSelected}) {
 
     const [date, setDate] = useState(null)
     const [days, setDays] = useState([])
@@ -17,26 +18,43 @@ function Calendar() {
     const [date1, setDate1] = useState(false)
     const [date2, setDate2] = useState(false)
 
+    const [reachedLimit, setReachedLimit] = useState(true)
+
     const [isSelecting, setIsSelecting] = useState(false)
 
     const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
 
     useEffect(() => {
 
+        const day = new Date().getDate()
         const month = new Date().getMonth()
         const year = new Date().getFullYear()
 
         const days = getDaysInMonth(month, year)
+        
+        const now = new Date(year, month, day)
+        const then = new Date(year, month - 1, day)
+
+        console.log(day, month, year, now)
+
         setDays(days)
         setMonthNum(month)
         setMonth(months[month])
-
         setYear(year)
+
+        setDate1(then)
+        setDate2(now)
     },[])
 
-    useEffect(() => { console.log(month, year) },[days, month, monthNum, year])
+    useEffect(() => { },[days, month, monthNum, year])
 
-    function getDaysInMonth(month, year, date1=false, date2=false) {
+    useEffect(() => {
+        if(date1 !== false && date2 !== false) {
+            onDateRangeSelected(date1, date2)
+        }
+    },[date1, date2])
+
+    function getDaysInMonth(month, year) {
         const firstDay = new Date(year, month, 1, 0, 0, 0, 0)
         const lastDay = new Date(year, month + 1, 0, 0, 0, 0)
         
@@ -55,18 +73,24 @@ function Calendar() {
             var day = new Date(year, month, i, 0, 0, 0, 0)
             var dayNum = day.getDate()
             var inMonth = false
+            var isOverDate = false
+            var isToday = false
 
             if (day.getMonth() === month) {
                 inMonth = true
             }
 
-            console.log(date1)
-
-            if (date1 !== false && date1 === day) {
-                console.log("test")
+            if (day > new Date()) {
+                isOverDate = true 
+            }
+            
+            if (day.getDate() === new Date().getDate() && 
+                day.getMonth() === new Date().getMonth() && 
+                day.getFullYear() === new Date().getFullYear()) {
+                isToday = true
             }
 
-            days = [...days, [dayNum, inMonth, day]]
+            days = [...days, [dayNum, inMonth, day, isOverDate, isToday]]
             count += 1
 
             if (count >= 7) {
@@ -86,19 +110,32 @@ function Calendar() {
         if(nextMonth > 11) {
             nextMonth = 0
             newYear = year + 1
-            setYear(newYear)
         }
 
-        const days = getDaysInMonth(nextMonth, newYear)
+        // If next month is later than current month
+        if(new Date() < new Date(newYear, nextMonth + 1, 1)) {
+            setReachedLimit(true)
+        } else {
+            setReachedLimit(false)
+        }
 
-        setDays(days)
+        setYear(newYear)
         setMonthNum(nextMonth)
         setMonth(months[nextMonth])
+
+        const days = getDaysInMonth(nextMonth, newYear)
+        setDays(days)
     }
 
     function previousMonth() {
         var nextMonth = monthNum - 1
         var newYear = year
+
+        if(new Date().getMonth() < new Date(1, month, year)) {
+            setReachedLimit(true)
+        } else {
+            setReachedLimit(false)
+        }
 
         if(nextMonth < 0) {
             nextMonth = 11
@@ -113,44 +150,93 @@ function Calendar() {
         setMonth(months[nextMonth])
     }
 
+    function toMonth(date) {
+
+        if(date === false) 
+            return
+
+        var nextMonth = date.getMonth()
+        var nextYear = date.getFullYear()
+
+        const days = getDaysInMonth(nextMonth, nextYear)
+
+        setDays(days)
+        setMonthNum(nextMonth)
+        setMonth(months[nextMonth])
+        setYear(nextYear)
+    }
+
+    function moveToToday() {
+        var date = new Date()
+        var nextMonth = date.getMonth()
+        var nextYear = date.getFullYear()
+
+        const days = getDaysInMonth(nextMonth, nextYear)
+
+        setDays(days)
+        setMonthNum(nextMonth)
+        setMonth(months[nextMonth])
+        setYear(nextYear) 
+        setReachedLimit(true)
+    }
+
     function onClick(date) {
 
         if(date1 === false) {
             setDate1(date)
-            console.log("first day selected: ", date)
             return
         }
 
         if(date2 === false && date1 !== false) { 
             setDate2(date)
-            console.log("second day selected: ", date)
         }
 
         if(date >= date1 && date < date2) {
             setDate1(date)
             setDate2(false)
-            console.log("first day selected: ", date)
         }
 
         if (date < date1) {
             setDate1(date)
             setDate2(false)
-            console.log("first day selected: ", date)
         }
 
         if(date >= date2) {
             setDate2(date)
-            console.log("second day selected: ", date)
         }
 
-        console.log("testing testing")
-        const days = getDaysInMonth(month, year, date1, date2)
-        //setDays(days)
     }
 
     function onHover(date) {
+        
+    }
+
+    function toDateString(date) {
+        
+        if(date === false) 
+            return ""
+
+        return date.getDate() + "/" + (date.getMonth() + 1) + "/" + date.getFullYear()
+    }
+
+    function isSelectedDay(day) {
+
+        if ((day - date1) === 0 || (day - date2) === 0) {
+            return true
+        }
+
+        return false
+    }
+
+    function inRange(day) {
+
+        if(date1 === false || date2 === false)
+            return false
+
+        return (date1 < day) && (day < date2)
 
     }
+    
 
     return (
     <>
@@ -168,7 +254,7 @@ function Calendar() {
             </CCol>
             <CCol xs={6} className="mb-2 mt-2 fw-bold">{month} {year}</CCol>
             <CCol>
-                <CButton onClick={() => nextMonth()} style={{ borderWidth: '0px' }}>
+                <CButton disabled={reachedLimit} onClick={() => nextMonth()} style={{ opacity: reachedLimit ? 0 : 1, borderWidth: '0px' }}>
                     <CIcon icon={cilTriangle} style={{ rotate: '90deg' }}/>
                 </CButton>
             </CCol>
@@ -187,16 +273,16 @@ function Calendar() {
             {days.map((week, iWeek) => (
                 <>
                     <div style={{ display: 'table-row', height: '30px' }}>
-                        {week.map(([day, inMonth, dayObj], iDay) => ( 
+                        {week.map(([day, inMonth, dayObj, overDate, isToday], iDay) => ( 
                             <>
                                 { inMonth ? (
                                     <div style={{ position: 'relative', display: 'table-cell', width: '14.2%' }}>
-                                        <div onClick={() => onClick(dayObj)} className={ (date1 === dayObj || date2 === dayObj) ? "text-highlight" : "text"} style={{ cursor: 'pointer', zIndex: 2, position: 'absolute', borderRadius: '25%', width: '30px', height: '30px', top: 0, bottom: 0, left: 0, right: 0, margin: 'auto' }} />
-                                        <div className="text" style={{ borderWidth: 0, opacity: 0.2, backgroundColor: '#ff0000', position: 'absolute', borderRadius: '0', width: '100%', height: '25px', top: 0, bottom: 0, left: 0, right: 0, margin: 'auto' }} />
-                                        <div style={{ position: 'relative', zIndex: 1 }}>{day}</div>
+                                    { !overDate ? <div onClick={() => onClick(dayObj)} className={ isSelectedDay(dayObj) ? "text-highlight" : overDate ? "" : "text" } style={{ cursor: 'pointer', zIndex: 2, position: 'absolute', borderRadius: '25%', width: '30px', height: '30px', top: 0, bottom: 0, left: 0, right: 0, margin: 'auto' }} /> : <></>}
+                                    {inRange(dayObj) ? (<div className="text" style={{ borderWidth: 0, opacity: 0.2, backgroundColor: '#ff0000', position: 'absolute', borderRadius: '0', width: '100%', height: '25px', top: 0, bottom: 0, left: 0, right: 0, margin: 'auto' }} />) : (<></>)}
+                                    <div style={{ color: (isToday) ? "#cc4400" : overDate ? "#555" : "#fff", position: 'relative', zIndex: 1 }}>{day}</div>
                                     </div>
                                 ) : (
-                                    <div style={{ display: 'table-cell', color: '#555' }} >{day}</div>                  
+                                    <div style={{ display: 'table-cell', color: overDate ? '#555' : '#555' }} >{day}</div>            
                                 )}
 
                             </>
@@ -205,6 +291,19 @@ function Calendar() {
                 </>
             ))}
         </div>
+        <CRow className='mt-3'>
+            <CCol xs={2} style={{ position: 'relative' }}>
+                <CButton className='w-100 h-100' style={{ borderWidth : 0 }} onClick={() => moveToToday() } >
+                    <CIcon className="center" icon={cilCalendar} size="xl" />
+                </CButton>
+            </CCol>
+            <CCol xs={5} className='' style={{ height: 50, position: 'relative'}}>
+                <CButton disabled={ date1 === false } style={{ borderWidth: 0 }} onClick={() => toMonth(date1)} className='w-100 h-100 calendar-button'>{toDateString(date1)}</CButton>
+            </CCol>
+            <CCol xs={5} onClick={() => toMonth(date2)} className='' style={{ height: 50, position: 'relative' }}>
+                <CButton disabled={ date2 === false } style={{ borderWidth: 0 }} className='w-100 h-100 calendar-button'>{toDateString(date2)}</CButton>         
+            </CCol>
+        </CRow>
       </CCol>
     </CRow>
   </>

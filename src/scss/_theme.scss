@@ -84,6 +84,50 @@ body {
                                   supported by Chrome, Edge, Opera and Firefox */
 }
 
+.text-highlight {
+  border: solid;
+  border-color: $fresh-red;
+  transition: 0.3s;
+  border-width: 2px;
+  opacity: 1;
+}
+
+.text {
+  border: solid;
+  border-color: $fresh-red;
+  transition: 0.3s;
+  border-width: 2px;
+  opacity: 0;
+}
+
+.visible {
+  transition: max-height 0s linear;
+  max-height: 500px;
+  overflow: hidden;
+}
+
+.hidden {
+  transition: max-height 0s linear;
+  max-height: 0;
+  overflow: hidden;
+}
+
+.triangle-showing {
+  rotate: 180deg;
+  transition: rotate 0.1s;
+}
+
+.triangle-hiding {
+  rotate: 90deg;
+  transition: rotate 0.1s;
+}
+
+.text:hover {
+  opacity: 1;
+  //background-color: firebrick;
+  transition: 0.1s;
+}
+
 
 @if $enable-dark-mode {
   @include color-mode(dark) {

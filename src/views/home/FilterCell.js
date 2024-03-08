@@ -78,7 +78,10 @@ function FilterCell({ cat, onChange }) {
       <CRow>
         <CCol xs={2}>
           <CButton style={{ borderWidth: '0px', textAlign: 'center' }} onClick={() => onClick()}>
-            <CIcon style={{ rotate: rotation }} icon={cilTriangle} />
+            <CIcon
+              className={visible ? 'triangle-showing' : 'triangle-hiding'}
+              icon={cilTriangle}
+            />
           </CButton>
         </CCol>
         <CCol
@@ -102,24 +105,26 @@ function FilterCell({ cat, onChange }) {
         >
           <CBadge color={selectedFilters === 0 ? 'dark' : 'primary'}>{selectedFilters}</CBadge>
         </CCol>
-        {visible ? (
-          <CRow className="m-0">
-            <CCol xs={1}></CCol>
-            <CCol xs={10} className="mb-2">
-              {data.map((val, index) => (
-                // eslint-disable-next-line react/jsx-key
-                <CFormCheck
-                  label={val.replace(/(^\w{1})|(\s+\w{1})/g, (letter) => letter.toUpperCase())}
-                  onChange={() => onToggle(index)}
-                  style={{ cursor: 'pointer' }}
-                  checked={togglers[index]}
-                />
-              ))}
-            </CCol>
-          </CRow>
-        ) : (
-          <></>
-        )}
+        <CRow className={'m-0 ' + (visible ? 'visible' : 'hidden')}>
+          <CCol xs={1}></CCol>
+          <CCol xs={10} className="mb-2">
+            {data !== null ? (
+              <>
+                {data.map((val, index) => (
+                  // eslint-disable-next-line react/jsx-key
+                  <CFormCheck
+                    label={val.replace(/(^\w{1})|(\s+\w{1})/g, (letter) => letter.toUpperCase())}
+                    onChange={() => onToggle(index)}
+                    style={{ cursor: 'pointer' }}
+                    checked={togglers[index]}
+                  />
+                ))}
+              </>
+            ) : (
+              <></>
+            )}
+          </CCol>
+        </CRow>
       </CRow>
     </>
   )

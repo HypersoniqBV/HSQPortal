@@ -62,11 +62,13 @@ import {
   cilReload,
   cilPlus,
   cilHistory,
+  cilArrowLeft,
 } from '@coreui/icons'
 import ExperimentCell from './ExperimentCell'
 import Pagination from './Pagination'
 import FilterCell from './FilterCell'
 import BasicDropzone from './Dropzone'
+import Calendar from './Calendar'
 
 ChartJS.register(LinearScale, PointElement, LogarithmicScale, LineElement, Title)
 
@@ -354,7 +356,13 @@ const Home = () => {
                   </CCol>
                 </CCol>
               </CRow>
-              <CRow className="col-form-label border-top border-black mt-3" />
+              <CRow className="m-3 mb-1" />
+              <Calendar />
+              <CRow className="m-0 mt-2">
+                <CCol className="col-sm-4">Categories</CCol>
+                <CCol />
+              </CRow>
+              <CRow className="col-form-label border-top" />
               {['Operator', 'Sensor', 'Chip', 'Solution', 'Concentration'].map((item, index) => (
                 <FilterCell cat={item} onChange={onFiltercallBack} />
               ))}

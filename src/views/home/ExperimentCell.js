@@ -24,6 +24,7 @@ import {
   cilFile,
   cilInfo,
   cilPencil,
+  cilShare,
   cilSquare,
   cilStar,
   cilTrash,
@@ -432,7 +433,10 @@ function ExperimentCell({ data, onClickedCellCB }) {
           className="text-center"
           style={{ borderRadius: '25% 0% 0% 25%', borderWidth: 0 }}
         >
-          <CIcon style={{ transform: 'rotate(' + cellState.rotation + ')' }} icon={cilTriangle} />
+          <CIcon
+            className={cellState.isOpen ? 'triangle-showing' : 'triangle-hiding'}
+            icon={cilTriangle}
+          />
         </CTableDataCell>
         <CTableDataCell className="text-center border-0">{data.id}</CTableDataCell>
         <CTableDataCell className="border-0">{data.date}</CTableDataCell>
@@ -450,18 +454,20 @@ function ExperimentCell({ data, onClickedCellCB }) {
 
        */}
       {cellState.isOpen ? (
-        <CTableRow className="">
+        <CTableRow style={{ position: 'relative' }}>
           <CTableDataCell
             className=""
             style={{
+              position: 'relative',
               boxSizing: 'border-box',
               boxShadow: 'none',
               overflow: 'hidden',
+              maxHeight: 0,
             }}
             colSpan={7}
           >
             <CCol
-              className="p-2 m-2 rounded-4"
+              className="rounded-4 p-4"
               style={{
                 backgroundColor: '',
                 borderWidth: '5px',
@@ -483,6 +489,13 @@ function ExperimentCell({ data, onClickedCellCB }) {
                   onClick={() => toggleMetaData()}
                 >
                   <CIcon icon={cilDescription} style={{ marginRight: '5px' }} /> Info
+                </CButton>
+                <CButton
+                  className="rounded-pill"
+                  color="dark"
+                  style={{ width: '15%', marginRight: '5px' }}
+                >
+                  <CIcon icon={cilShare} style={{ marginRight: '5px' }} /> Share
                 </CButton>
                 <CButton
                   className="rounded-pill"

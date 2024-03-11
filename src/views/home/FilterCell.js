@@ -5,16 +5,22 @@ import { CBadge, CButton, CCol, CFormCheck, CRow } from '@coreui/react'
 import { React, useState, useReducer, useEffect } from 'react'
 
 // eslint-disable-next-line react/prop-types
-function FilterCell({ cat, onChange, dataset }) {
+function FilterCell({ cat, onChange, dataset, filter }) {
   const [rotation, setRotation] = useState('90deg')
   const [visible, setVisible] = useState(false)
+
   const [data, setData] = useState(null)
+  const [visibleData, setVisibleData] = useState(null)
+
   const [selectedFilters, setSelectedFilters] = useState(0)
+
   const [togglers, setTogglers] = useState([])
+  const [visibleTogglers, setVisibleTogglers] = useState([])
+
   const [togglerUpdated, setTogglerUpdated] = useState(false)
 
-  function onClick() {
-    if (rotation === '90deg') {
+  function onClick(force = false) {
+    if (rotation === '90deg' || force) {
       setRotation('180deg')
       setVisible(true)
     } else {
@@ -23,7 +29,28 @@ function FilterCell({ cat, onChange, dataset }) {
     }
   }
 
-  useEffect(() => console.log(dataset), [dataset])
+  useEffect(() => {}, [dataset])
+
+  useEffect(() => {
+    if (filter !== '') {
+      onClick(true)
+
+      var filteredData = []
+      var filteredTogglers = []
+      data.forEach((e, i) => {
+        if (e.toLowerCase().includes(filter.toLowerCase())) {
+          filteredData.push(e)
+          filteredTogglers.push(togglers[i])
+        }
+      })
+      setVisibleData(filteredData)
+      //setVisibleTogglers(filteredTogglers)
+      console.log(togglers)
+    } else {
+      setVisibleData(data)
+      //setVisibleTogglers(togglers)
+    }
+  }, [filter])
 
   useEffect(() => {
     if (togglerUpdated) {
@@ -50,6 +77,10 @@ function FilterCell({ cat, onChange, dataset }) {
     setTogglers(newTogglers)
     setSelectedFilters(newSelectedFilters)
     setTogglerUpdated(true)
+  }
+
+  function getIndex(val) {
+    return data.indexOf(val)
   }
 
   function onlyUnique(val, index, array) {
@@ -85,23 +116,13 @@ function FilterCell({ cat, onChange, dataset }) {
     var unq = sorted.filter(onlyUnique)
 
     setData(unq)
+    setVisibleData(unq)
     let e = []
 
-    sorted.forEach(() => e.push(false))
+    unq.forEach(() => e.push(false))
     setTogglers(e)
-
-    /*
-    fetch('https://10.8.0.1:5000/api/cat/' + k.toLowerCase())
-      .then((res) => res.json())
-      .then((dat) => {
-        let d = dat.sort()
-        setData(d)
-        let e = []
-
-        d.forEach(() => e.push(false))
-        setTogglers(e)
-      })
-    */
+    setVisibleTogglers(e)
+    setSelectedFilters(0)
   }, [dataset])
 
   return (
@@ -143,15 +164,15 @@ function FilterCell({ cat, onChange, dataset }) {
         <CRow className={'m-0 ' + (visible ? 'visible' : 'hidden')}>
           <CCol xs={1}></CCol>
           <CCol xs={10} className="mb-2">
-            {data !== null && data.length > 0 ? (
+            {visibleData !== null && visibleData.length > 0 ? (
               <>
-                {data.map((val, index) => (
+                {visibleData.map((val, index) => (
                   // eslint-disable-next-line react/jsx-key
                   <CFormCheck
                     label={val.replace(/(^\w{1})|(\s+\w{1})/g, (letter) => letter.toUpperCase())}
-                    onChange={() => onToggle(index)}
+                    onChange={() => onToggle(getIndex(val))}
                     style={{ cursor: 'pointer' }}
-                    checked={togglers[index]}
+                    checked={togglers[getIndex(val)]}
                   />
                 ))}
               </>

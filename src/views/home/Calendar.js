@@ -33,9 +33,7 @@ function Calendar( {onDateRangeSelected}) {
         const days = getDaysInMonth(month, year)
         
         const now = new Date(year, month, day)
-        const then = new Date(year, month - 1, day)
-
-        console.log(day, month, year, now)
+        const then = new Date(year, month - 5, day) 
 
         setDays(days)
         setMonthNum(month)
@@ -75,14 +73,25 @@ function Calendar( {onDateRangeSelected}) {
             var inMonth = false
             var isOverDate = false
             var isToday = false
+            var isFirstWeek = false
+            var isLastWeek = false
 
             if (day.getMonth() === month) {
                 inMonth = true
             }
 
+            if (day.getDay() === 1 ) {
+                isFirstWeek = true
+            }
+
+            if (day.getDay() === 0 ) {
+                isLastWeek = true
+            }
+
             if (day > new Date()) {
                 isOverDate = true 
             }
+
             
             if (day.getDate() === new Date().getDate() && 
                 day.getMonth() === new Date().getMonth() && 
@@ -90,7 +99,7 @@ function Calendar( {onDateRangeSelected}) {
                 isToday = true
             }
 
-            days = [...days, [dayNum, inMonth, day, isOverDate, isToday]]
+            days = [...days, [dayNum, inMonth, day, isOverDate, isToday, isFirstWeek, isLastWeek]]
             count += 1
 
             if (count >= 7) {
@@ -155,6 +164,14 @@ function Calendar( {onDateRangeSelected}) {
         if(date === false) 
             return
 
+        if(date === date1 && date.getMonth() !== date1.getMonth()) {
+            setReachedLimit(false)
+        }
+        
+        if(date === date2 && date.getMonth() !== date2.getMonth()) {
+            setReachedLimit(true)
+        }
+
         var nextMonth = date.getMonth()
         var nextYear = date.getFullYear()
 
@@ -178,6 +195,10 @@ function Calendar( {onDateRangeSelected}) {
         setMonth(months[nextMonth])
         setYear(nextYear) 
         setReachedLimit(true)
+
+        if(date2 === false) {
+            setDate2(new Date(date.getFullYear(), date.getMonth(), date.getDate()))
+        }
     }
 
     function onClick(date) {
@@ -228,12 +249,20 @@ function Calendar( {onDateRangeSelected}) {
         return false
     }
 
+    function isFirstSelectedDay(day) {
+        return (day - date1) === 0
+    }
+
+    function isLastSelectedDay(day) {
+        return (day - date2) === 0
+    }
+
     function inRange(day) {
 
         if(date1 === false || date2 === false)
             return false
 
-        return (date1 < day) && (day < date2)
+        return (date1 <= day) && (day <= date2)
 
     }
     
@@ -242,7 +271,7 @@ function Calendar( {onDateRangeSelected}) {
     <>
     <CRow>
       <CCol
-        className="bg-dark rounded-3 m-3 p-3"
+        className="bg-dark rounded-3 m-3 p-3 mt-1"
         style={{ paddingBottom: 15, height: '200px', textAlign: 'center', display: 'table' }}
       >
         <CRow>
@@ -273,16 +302,30 @@ function Calendar( {onDateRangeSelected}) {
             {days.map((week, iWeek) => (
                 <>
                     <div style={{ display: 'table-row', height: '30px' }}>
-                        {week.map(([day, inMonth, dayObj, overDate, isToday], iDay) => ( 
+                        {week.map(([day, inMonth, dayObj, overDate, isToday, isFirstWeek, isLastWeek], iDay) => ( 
                             <>
                                 { inMonth ? (
                                     <div style={{ position: 'relative', display: 'table-cell', width: '14.2%' }}>
-                                    { !overDate ? <div onClick={() => onClick(dayObj)} className={ isSelectedDay(dayObj) ? "text-highlight" : overDate ? "" : "text" } style={{ cursor: 'pointer', zIndex: 2, position: 'absolute', borderRadius: '25%', width: '30px', height: '30px', top: 0, bottom: 0, left: 0, right: 0, margin: 'auto' }} /> : <></>}
-                                    {inRange(dayObj) ? (<div className="text" style={{ borderWidth: 0, opacity: 0.2, backgroundColor: '#ff0000', position: 'absolute', borderRadius: '0', width: '100%', height: '25px', top: 0, bottom: 0, left: 0, right: 0, margin: 'auto' }} />) : (<></>)}
-                                    <div style={{ color: (isToday) ? "#cc4400" : overDate ? "#555" : "#fff", position: 'relative', zIndex: 1 }}>{day}</div>
+                                        { !overDate ? <div onClick={() => onClick(dayObj)} className={ isSelectedDay(dayObj) ? "text-highlight" : overDate ? "" : "text" } style={{ cursor: 'pointer', zIndex: 2, position: 'absolute', borderRadius: '25%', width: '30px', height: '30px', top: 0, bottom: 0, left: 0, right: 0, margin: 'auto' }} /> : <></>}
+                                        { inRange(dayObj) ? (<div className={"text " + 
+                                        ((isFirstWeek) ? "highlight-first " : "") + 
+                                        ((isLastWeek) ? "highlight-last " : "") + 
+                                        ((isFirstSelectedDay(dayObj)) ? "highlight-first-selected " : "") + 
+                                        ((isLastSelectedDay(dayObj)) ? "highlight-last-selected " : "")} 
+                                        style={{ borderWidth: 0, opacity: 0.2, backgroundColor: '#ff0000', position: 'absolute', width: '100%', height: '25px', top: 0, bottom: 0, left: 0, right: 0, margin: 'auto' }} />) : (<></>) }
+                                        <div style={{ color: (isToday) ? "#cc4400" : overDate ? "#555" : "#fff", position: 'relative', zIndex: 1 }}>{day}</div>
                                     </div>
                                 ) : (
-                                    <div style={{ display: 'table-cell', color: overDate ? '#555' : '#555' }} >{day}</div>            
+                                    <div style={{ position: 'relative', display: 'table-cell', width: '14.2%' }}>
+                                        { !overDate ? <div className={ isSelectedDay(dayObj) ? "text-highlight" : overDate ? "" : "" } style={{ zIndex: 2, position: 'absolute', borderRadius: '25%', width: '30px', height: '30px', top: 0, bottom: 0, left: 0, right: 0, margin: 'auto' }} /> : <></>}
+                                        <div style={{ color: '#555', position: 'relative', zIndex: 1 }}>{day}</div>
+                                        { inRange(dayObj) ? (<div className={"text " + 
+                                        ((isFirstWeek) ? "highlight-first " : "") + 
+                                        ((isLastWeek) ? "highlight-last " : "") + 
+                                        ((isFirstSelectedDay(dayObj)) ? "highlight-first-selected " : "") + 
+                                        ((isLastSelectedDay(dayObj)) ? "highlight-last-selected " : "")} 
+                                        style={{ borderWidth: 0, opacity: 0.2, backgroundColor: '#ff0000', position: 'absolute', width: '100%', height: '25px', top: 0, bottom: 0, left: 0, right: 0, margin: 'auto' }} />) : (<></>) }         
+                                    </div>      
                                 )}
 
                             </>

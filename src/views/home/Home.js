@@ -90,6 +90,7 @@ const Home = () => {
   const [isLoading, setIsLoading] = useState(false)
 
   const [history, setHistory] = useState([])
+  const [filterInput, setFilterInput] = useState('')
   const commonRef = useRef()
 
   function upload() {
@@ -98,7 +99,7 @@ const Home = () => {
 
   subscribe('uploadData', () => upload())
 
-  const [itemsPerPage, setItemsPerPage] = useState(10)
+  const [itemsPerPage, setItemsPerPage] = useState(15)
   const { acceptedFiles, getRootProps, getInputProps } = useDropzone()
 
   var [filters, setFilter] = useState([])
@@ -159,7 +160,7 @@ const Home = () => {
     }
   }, [dataset, filters, updateFilters])
 
-  useEffect(() => console.log(hasData), [hasData, isLoading])
+  useEffect(() => {}, [hasData, isLoading])
 
   function onDateRangeSelected(date1, date2) {
     //Reset the current loaded data
@@ -168,8 +169,6 @@ const Home = () => {
     setDataset([])
     setIsLoading(true)
 
-    console.log(date1.getTimezoneOffset())
-
     var time1 = date1.getTime() - date1.getTimezoneOffset() * 1000 * 60
     var time2 = date2.getTime() - date2.getTimezoneOffset() * 1000 * 60
 
@@ -177,7 +176,6 @@ const Home = () => {
     fetch('https://10.8.0.1:5000/api/portal?t1=' + time1 + '&t2=' + time2)
       .then((response) => response.json())
       .then((data) => {
-        console.log(data)
         setDataset(data)
         setFilteredTable(data)
         setTable(filteredTable.slice(0, itemsPerPage))
@@ -243,74 +241,9 @@ const Home = () => {
           <CModalTitle id="StaticBackdropExampleLabel">Upload Wizard</CModalTitle>
         </CModalHeader>
         <CModalBody>
-          <CRow className="m-1 mt-4">
-            <CCol xs={2}>Experiment ID</CCol>
-            <CCol>
-              <CFormTextarea disabled rows={1} style={{ resize: 'none' }}>
-                {'EXP#00151'}
-              </CFormTextarea>
-            </CCol>
-          </CRow>
-
-          <CRow className="m-1">
-            <CCol xs={2}>Date</CCol>
-            <CCol>
-              <CFormTextarea placeholder="dd/mm/yyyy" rows={1} style={{ resize: 'none' }}>
-                {new Date().toJSON().slice(0, 10).split('-').reverse().join('/')}
-              </CFormTextarea>
-            </CCol>
-          </CRow>
-
-          <CRow className="m-1">
-            <CCol xs={2}>Operator</CCol>
-            <CCol>
-              <CFormTextarea disabled rows={1} style={{ resize: 'none' }}>
-                {'Jasper'}
-              </CFormTextarea>
-            </CCol>
-          </CRow>
-          <CRow className="m-1">
-            <CCol xs={2}>Sensor</CCol>
-            <CCol>
-              <CFormTextarea rows={1} style={{ resize: 'none' }}></CFormTextarea>
-            </CCol>
-          </CRow>
-          <CRow className="m-1">
-            <CCol xs={2}>Chip</CCol>
-            <CCol>
-              <CFormTextarea rows={1} style={{ resize: 'none' }}></CFormTextarea>
-            </CCol>
-          </CRow>
-          <CRow className="m-1">
-            <CCol xs={2}>
-              T<sub>start</sub>
-            </CCol>
-            <CCol>
-              <CFormTextarea
-                placeholder="hh:mm"
-                rows={1}
-                style={{ resize: 'none' }}
-              ></CFormTextarea>
-            </CCol>
-          </CRow>
-          <CRow className="m-1">
-            <CCol xs={2}>
-              T<sub>end</sub>
-            </CCol>
-            <CCol>
-              <CFormTextarea
-                placeholder="hh:mm"
-                rows={1}
-                style={{ resize: 'none' }}
-              ></CFormTextarea>
-            </CCol>
-          </CRow>
-          <CRow className="m-1">
-            <CCol xs={2}>Remark: </CCol>
-            <CCol>
-              <CForm>
-                <CFormTextarea rows={3}></CFormTextarea>
-              </CForm>
+          <CRow>
+            <CCol className="bg-black m-3" style={{ height: 500, borderRadius: '10px' }}>
+              Hello
             </CCol>
           </CRow>
         </CModalBody>
@@ -358,6 +291,7 @@ const Home = () => {
               </div>
             </CCardHeader>
             <CCardBody>
+              <Calendar onDateRangeSelected={onDateRangeSelected} />
               <CRow className="m-0">
                 <CFormLabel className="col-sm-3 col-form-label">Search</CFormLabel>
                 <CCol>
@@ -365,21 +299,21 @@ const Home = () => {
                     style={{ paddingLeft: 40 }}
                     className="border border-primary rounded-5 search"
                     placeholder=""
+                    onChange={(value) => setFilterInput(value.target.value)}
                   />
                   <CCol xs={1} style={{ position: 'absolute', marginTop: -30, marginLeft: 10 }}>
                     <CIcon icon={cilMagnifyingGlass} size={'lg'} />
                   </CCol>
                 </CCol>
               </CRow>
-              <CRow className="m-3 mb-1" />
-              <Calendar onDateRangeSelected={onDateRangeSelected} />
-              <CRow className="m-0 mt-2">
-                <CCol className="col-sm-4">Categories</CCol>
-                <CCol />
-              </CRow>
               <CRow className="col-form-label border-top" />
               {['Operator', 'Sensor', 'Chip', 'Solution', 'Concentration'].map((item, index) => (
-                <FilterCell cat={item} onChange={onFiltercallBack} dataset={dataset} />
+                <FilterCell
+                  cat={item}
+                  onChange={onFiltercallBack}
+                  dataset={dataset}
+                  filter={filterInput}
+                />
               ))}
             </CCardBody>
           </CCard>

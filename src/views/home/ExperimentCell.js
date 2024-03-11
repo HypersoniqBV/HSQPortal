@@ -369,26 +369,30 @@ function ExperimentCell({ data, onClickedCellCB }) {
 
   const [graphMode, setGraphMode] = useState('nyquist')
 
-  useEffect(() => console.log(graphMode), [graphMode])
+  useEffect(() => {}, [graphMode])
 
   const [ignored, forceUpdate] = useReducer((x) => x + 1, 0)
 
   useEffect(() => {}, [showAll, showAllRotation])
 
-  function onClickedCell() {
-    if (!cellState.isOpen) {
-      let newCellState = cellState
-      newCellState.height = 300
-      newCellState.rotation = '180deg'
-      newCellState.isOpen = true
-      newCellState.color = 'light'
-      setCellState(newCellState)
-    } else {
+  useEffect(() => {
+    onClickedCell(true)
+  }, [data])
+
+  function onClickedCell(forceClosed = false) {
+    if (cellState.isOpen || forceClosed) {
       let newCellState = cellState
       newCellState.height = 0
       newCellState.rotation = '90deg'
       newCellState.isOpen = false
       newCellState.color = ''
+      setCellState(newCellState)
+    } else {
+      let newCellState = cellState
+      newCellState.height = 300
+      newCellState.rotation = '180deg'
+      newCellState.isOpen = true
+      newCellState.color = 'light'
       setCellState(newCellState)
     }
     forceUpdate()

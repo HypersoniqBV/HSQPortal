@@ -87,7 +87,7 @@ body {
 .text-highlight {
   border: solid;
   border-color: $fresh-red;
-  transition: 0.3s;
+  transition: 0s;
   border-width: 2px;
   opacity: 1;
 }
@@ -95,7 +95,7 @@ body {
 .text {
   border: solid;
   border-color: $fresh-red;
-  transition: 0.3s;
+  transition: 0s;
   border-width: 2px;
   opacity: 0;
 }
@@ -147,6 +147,27 @@ body {
 
 .calendar-button:disabled {
   background-color: #373A3D;
+}
+
+.highlight-first {
+  border-top-left-radius: 15px;
+  border-bottom-left-radius: 15px;
+}
+
+.highlight-last {
+  border-top-right-radius: 15px;
+  border-bottom-right-radius: 15px;
+}
+
+.highlight-first-selected {
+  border-top-left-radius: 15px;
+  border-bottom-left-radius: 15px;
+}
+
+.highlight-last-selected {
+  border-top-right-radius: 15px;
+  border-bottom-right-radius: 15px;
+  ;
 }
 
 

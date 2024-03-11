@@ -39,10 +39,26 @@ const _nav = [
     name: 'Data',
   },
   {
-    component: CNavItem,
+    component: CNavGroup,
     name: 'Measurements',
-    href: '#/data/measurements',
     icon: <CIcon icon={cilFolder} customClassName="nav-icon" />,
+    items: [
+      {
+        component: CNavItem,
+        name: 'Inspector',
+        href: '#/measurements',
+      },
+      {
+        component: CNavItem,
+        name: 'Favorites',
+        href: '#/measurements',
+      },
+      {
+        component: CNavItem,
+        name: 'History',
+        href: '#/measurements',
+      },
+    ],
   },
   {
     component: CNavItem,

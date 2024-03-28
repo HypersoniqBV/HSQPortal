@@ -63,6 +63,7 @@ import {
   cilPlus,
   cilHistory,
   cilArrowLeft,
+  cilWarning,
 } from '@coreui/icons'
 import ExperimentCell from './ExperimentCell'
 import Pagination from './Pagination'
@@ -73,6 +74,8 @@ import Calendar from './Calendar'
 ChartJS.register(LinearScale, PointElement, LogarithmicScale, LineElement, Title)
 
 const Home = () => {
+  const [networkError, setNetworkError] = useState(false)
+
   const [toast, addToast] = useState(0)
   const toaster = useRef()
 
@@ -93,6 +96,31 @@ const Home = () => {
   const [filterInput, setFilterInput] = useState('')
   const commonRef = useRef()
 
+  const { getRootProps, getInputProps, isFocused, isDragAccept, isDragReject } = useDropzone({})
+
+  function toasterFabricator(status, msg) {
+    return (
+      <CToast>
+        <CToastHeader closeButton>
+          <svg
+            className="rounded me-2"
+            width="20"
+            height="20"
+            xmlns="http://www.w3.org/2000/svg"
+            preserveAspectRatio="xMidYMid slice"
+            focusable="false"
+            role="img"
+          >
+            <rect width="100%" height="100%" fill="#A41F13"></rect>
+          </svg>
+          <div className="fw-bold me-auto">{status}</div>
+          <small>Now</small>
+        </CToastHeader>
+        <CToastBody>{msg}</CToastBody>
+      </CToast>
+    )
+  }
+
   function upload() {
     setVisible(true)
   }
@@ -100,10 +128,12 @@ const Home = () => {
   subscribe('uploadData', () => upload())
 
   const [itemsPerPage, setItemsPerPage] = useState(15)
-  const { acceptedFiles, getRootProps, getInputProps } = useDropzone()
+  const fileUpload = useRef('')
 
   var [filters, setFilter] = useState([])
   var [updateFilters, setUpdateFilters] = useState(false)
+
+  var Buffer = require('buffer/').Buffer
 
   useEffect(() => {
     if (!hasData) {
@@ -160,7 +190,7 @@ const Home = () => {
     }
   }, [dataset, filters, updateFilters])
 
-  useEffect(() => {}, [hasData, isLoading])
+  useEffect(() => {}, [hasData, isLoading, networkError])
 
   function onDateRangeSelected(date1, date2) {
     //Reset the current loaded data
@@ -181,6 +211,10 @@ const Home = () => {
         setTable(filteredTable.slice(0, itemsPerPage))
         setData(true)
         setIsLoading(false)
+      })
+      .catch((res) => {
+        addToast(toasterFabricator('Network Error', res.toString()))
+        setNetworkError(true)
       })
   }
 
@@ -228,8 +262,54 @@ const Home = () => {
     //commonRef.current.testFunction()
   }
 
+  async function handleFileUpload(e) {
+    const files = Array.from(e.target.files)
+    console.log(files)
+
+    const file = files[0]
+    //const blob = await file.arrayBuffer()
+    //const buffer = new Uint8Array(blob)
+    //console.log(buffer)
+    const txt = await file.text()
+    const encodedString = Buffer.from(txt).toString('base64')
+    // const str = Buffer.from(encodedString, 'base64')
+
+    var enc = new TextDecoder('utf-8')
+    var id = Math.random().toString(16).slice(2)
+    var body = {
+      data: encodedString,
+    }
+
+    console.log(encodedString)
+
+    fetch('https://10.8.0.1:5000/api/process', {
+      method: 'POST',
+      body: JSON.stringify(body),
+    })
+      .then((res) => res.json())
+      .then((data) => console.log(data))
+      .catch((res) => {
+        addToast(toasterFabricator('Network Error', res.statusText))
+        setNetworkError(true)
+        console.log(res)
+      })
+
+    /*
+    fetch('https://10.8.0.1:5000/api/portal?t1=' + time1 + '&t2=' + time2)
+      .then((response) => response.json())
+      .then((data) => {
+        setDataset(data)
+        setFilteredTable(data)
+        setTable(filteredTable.slice(0, itemsPerPage))
+        setData(true)
+        setIsLoading(false)
+      })
+    */
+  }
+
   return (
     <>
+      <CToaster className="p-3" placement="bottom-start" push={toast} ref={toaster} />
       <CModal
         backdrop="static"
         size="lg"
@@ -242,8 +322,19 @@ const Home = () => {
         </CModalHeader>
         <CModalBody>
           <CRow>
-            <CCol className="bg-black m-3" style={{ height: 500, borderRadius: '10px' }}>
-              Hello
+            <CCol
+              {...getRootProps({ isFocused, isDragAccept, isDragReject })}
+              className="border upload bg-primary-25 border-primary glow-effect"
+              style={{
+                height: 500,
+                borderRadius: '10px',
+                borderWidth: 2,
+                marginLeft: 100,
+                marginRight: 100,
+              }}
+            >
+              <div className="center">Drop or click *here* to upload .mpt file</div>
+              <input {...getInputProps()} type="file" onChange={handleFileUpload} />
             </CCol>
           </CRow>
         </CModalBody>
@@ -333,141 +424,163 @@ const Home = () => {
                 </CRow>
               </CCardHeader>
               <CCardBody>
-                {filteredTable.length > 0 ? (
+                {!networkError ? (
                   <>
-                    <CTable align="top" className="mb-2" responsive striped hover>
-                      <CTableHead className="text-nowrap">
-                        <CTableRow>
-                          <CTableHeaderCell
-                            className="justify-content-center"
-                            style={{
-                              borderRadius: '25% 0% 0% 25%',
-                              backgroundColor: '#571f1f',
-                              width: 50,
-                            }}
-                          />
-                          <CTableHeaderCell
-                            className="text-center"
-                            style={{ backgroundColor: '#571f1f', width: 50, margin: 0, padding: 0 }}
-                          >
-                            <CButton
-                              className="fw-bold"
-                              style={{ width: '100%', textAlign: 'center' }}
-                            >
-                              #
-                            </CButton>
-                          </CTableHeaderCell>
-                          <CTableHeaderCell
-                            style={{
-                              backgroundColor: '#571f1f',
-                              width: 120,
-                              padding: 0,
-                              margin: 0,
-                            }}
-                          >
-                            <CButton
-                              className="fw-bold"
-                              style={{ width: '100%', textAlign: 'left' }}
-                            >
-                              Date
-                            </CButton>
-                          </CTableHeaderCell>
-                          <CTableHeaderCell
-                            style={{
-                              backgroundColor: '#571f1f',
-                              width: 100,
-                              margin: 0,
-                              padding: 0,
-                            }}
-                          >
-                            <CButton
-                              className="fw-bold"
-                              style={{ width: '100%', textAlign: 'left' }}
-                            >
-                              Operator
-                            </CButton>
-                          </CTableHeaderCell>
-                          <CTableHeaderCell
-                            style={{
-                              backgroundColor: '#571f1f',
-                              width: 120,
-                              margin: 0,
-                              padding: 0,
-                            }}
-                          >
-                            <CButton
-                              className="fw-bold"
-                              style={{ width: '100%', textAlign: 'left' }}
-                            >
-                              Sensor
-                            </CButton>
-                          </CTableHeaderCell>
-                          <CTableHeaderCell
-                            style={{
-                              width: '40%',
-                              backgroundColor: '#571f1f',
-                            }}
-                          >
-                            Chip
-                          </CTableHeaderCell>
-                          <CTableHeaderCell
-                            className="justify-content-center"
-                            style={{
-                              borderRadius: '0% 25% 25% 0%',
-                              backgroundColor: '#571f1f',
-                              width: 50,
-                            }}
-                          />
-                        </CTableRow>
-                      </CTableHead>
+                    {filteredTable.length > 0 ? (
+                      <>
+                        <CTable align="top" className="mb-2" responsive striped hover>
+                          <CTableHead className="text-nowrap">
+                            <CTableRow>
+                              <CTableHeaderCell
+                                className="justify-content-center"
+                                style={{
+                                  borderRadius: '25% 0% 0% 25%',
+                                  backgroundColor: '#571f1f',
+                                  width: 50,
+                                }}
+                              />
+                              <CTableHeaderCell
+                                className="text-center"
+                                style={{
+                                  backgroundColor: '#571f1f',
+                                  width: 50,
+                                  margin: 0,
+                                  padding: 0,
+                                }}
+                              >
+                                <CButton
+                                  className="fw-bold"
+                                  style={{ width: '100%', textAlign: 'center' }}
+                                >
+                                  #
+                                </CButton>
+                              </CTableHeaderCell>
+                              <CTableHeaderCell
+                                style={{
+                                  backgroundColor: '#571f1f',
+                                  width: 120,
+                                  padding: 0,
+                                  margin: 0,
+                                }}
+                              >
+                                <CButton
+                                  className="fw-bold"
+                                  style={{ width: '100%', textAlign: 'left' }}
+                                >
+                                  Date
+                                </CButton>
+                              </CTableHeaderCell>
+                              <CTableHeaderCell
+                                style={{
+                                  backgroundColor: '#571f1f',
+                                  width: 100,
+                                  margin: 0,
+                                  padding: 0,
+                                }}
+                              >
+                                <CButton
+                                  className="fw-bold"
+                                  style={{ width: '100%', textAlign: 'left' }}
+                                >
+                                  Operator
+                                </CButton>
+                              </CTableHeaderCell>
+                              <CTableHeaderCell
+                                style={{
+                                  backgroundColor: '#571f1f',
+                                  width: 120,
+                                  margin: 0,
+                                  padding: 0,
+                                }}
+                              >
+                                <CButton
+                                  className="fw-bold"
+                                  style={{ width: '100%', textAlign: 'left' }}
+                                >
+                                  Sensor
+                                </CButton>
+                              </CTableHeaderCell>
+                              <CTableHeaderCell
+                                style={{
+                                  width: '40%',
+                                  backgroundColor: '#571f1f',
+                                }}
+                              >
+                                Chip
+                              </CTableHeaderCell>
+                              <CTableHeaderCell
+                                className="justify-content-center"
+                                style={{
+                                  borderRadius: '0% 25% 25% 0%',
+                                  backgroundColor: '#571f1f',
+                                  width: 50,
+                                }}
+                              />
+                            </CTableRow>
+                          </CTableHead>
 
-                      <CTableBody>
-                        {table.map((item, index) => (
-                          //
-                          // Display a table cell
-                          //
+                          <CTableBody>
+                            {table.map((item, index) => (
+                              //
+                              // Display a table cell
+                              //
 
-                          <ExperimentCell
-                            data={item}
-                            onClickedCellCB={onClickedCellCallBack}
-                            parentRef={commonRef}
-                          />
-                        ))}
-                      </CTableBody>
-                    </CTable>
-                    <CRow>
-                      <CCol style={{ lineHeight: '2' }} xs={8}>
-                        {filteredTable.length > 1
-                          ? 'Found ' + filteredTable.length + ' results'
-                          : 'Found 1 result'}
-                      </CCol>
-                      <CCol style={{ textAlign: 'right', lineHeight: '2' }}>Items per page</CCol>
-                      <CFormSelect
-                        onChange={(x) => resizeTable(x.target.value)}
-                        id="floatingSelect"
-                        style={{
-                          width: '70px',
-                          float: 'right',
-                          marginRight: '10px',
-                        }}
-                        value={itemsPerPage}
-                        aria-label="Floating label select example"
-                      >
-                        <option value="5">5</option>
-                        <option value="10">10</option>
-                        <option value="15">15</option>
-                        <option value="20">20</option>
-                      </CFormSelect>
-                    </CRow>
+                              <ExperimentCell
+                                data={item}
+                                onClickedCellCB={onClickedCellCallBack}
+                                parentRef={commonRef}
+                              />
+                            ))}
+                          </CTableBody>
+                        </CTable>
+                        <CRow>
+                          <CCol style={{ lineHeight: '2' }} xs={8}>
+                            {filteredTable.length > 1
+                              ? 'Found ' + filteredTable.length + ' results'
+                              : 'Found 1 result'}
+                          </CCol>
+                          <CCol style={{ textAlign: 'right', lineHeight: '2' }}>
+                            Items per page
+                          </CCol>
+                          <CFormSelect
+                            onChange={(x) => resizeTable(x.target.value)}
+                            id="floatingSelect"
+                            style={{
+                              width: '70px',
+                              float: 'right',
+                              marginRight: '10px',
+                            }}
+                            value={itemsPerPage}
+                            aria-label="Floating label select example"
+                          >
+                            <option value="5">5</option>
+                            <option value="10">10</option>
+                            <option value="15">15</option>
+                            <option value="20">20</option>
+                          </CFormSelect>
+                        </CRow>
+                      </>
+                    ) : !hasData && isLoading ? (
+                      <div style={{ height: 200, textAlign: 'center', position: 'relative' }}>
+                        <div className="center">
+                          <ScaleLoader color="white" />
+                          Fetching Data
+                        </div>
+                        {/* <CSpinner size="sm" color="primary" style={{ width: '4rem', height: '4rem' }} /> */}
+                      </div>
+                    ) : (
+                      <div> No results found </div>
+                    )}
                   </>
-                ) : !hasData && isLoading ? (
-                  <div style={{ padding: '50px', textAlign: 'center' }}>
-                    <ScaleLoader color="white" />
-                    Fetching Data
-                    {/* <CSpinner size="sm" color="primary" style={{ width: '4rem', height: '4rem' }} /> */}
-                  </div>
                 ) : (
-                  <div> No results found </div>
+                  <>
+                    <div style={{ position: 'relative', textAlign: 'center', height: 200 }}>
+                      <div className="center">
+                        <CIcon icon={cilWarning} size="3xl" />
+                        <div className="m-1">No connection with the database</div>
+                      </div>
+                    </div>
+                  </>
                 )}
                 {/*
               

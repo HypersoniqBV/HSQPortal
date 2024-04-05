@@ -96,7 +96,11 @@ const Home = () => {
   const [filterInput, setFilterInput] = useState('')
   const commonRef = useRef()
 
-  const { getRootProps, getInputProps, isFocused, isDragAccept, isDragReject } = useDropzone({})
+  const { getRootProps, getInputProps, isFocused, isDragAccept, isDragReject } = useDropzone({
+    accept: {
+      mpt: ['.mpt'],
+    },
+  })
 
   function toasterFabricator(status, msg) {
     return (
@@ -266,45 +270,47 @@ const Home = () => {
     const files = Array.from(e.target.files)
     console.log(files)
 
-    const file = files[0]
-    //const blob = await file.arrayBuffer()
-    //const buffer = new Uint8Array(blob)
-    //console.log(buffer)
-    const txt = await file.text()
-    const encodedString = Buffer.from(txt).toString('base64')
-    // const str = Buffer.from(encodedString, 'base64')
+    for await (const file of files) {
+      console.log(file)
+      //const blob = await file.arrayBuffer()
+      //const buffer = new Uint8Array(blob)
+      //console.log(buffer)
+      const txt = await file.text()
+      const encodedString = Buffer.from(txt).toString('base64')
+      // const str = Buffer.from(encodedString, 'base64')
 
-    var enc = new TextDecoder('utf-8')
-    var id = Math.random().toString(16).slice(2)
-    var body = {
-      data: encodedString,
+      var enc = new TextDecoder('utf-8')
+      var id = Math.random().toString(16).slice(2)
+      var body = {
+        data: encodedString,
+      }
+
+      // console.log(encodedString)
+
+      fetch('https://10.8.0.1:5000/api/process', {
+        method: 'POST',
+        body: JSON.stringify(body),
+      })
+        .then((res) => res.json())
+        .then((data) => console.log(data))
+        .catch((res) => {
+          addToast(toasterFabricator('Network Error', res.statusText))
+          setNetworkError(true)
+          console.log(res)
+        })
+
+      /*
+      fetch('https://10.8.0.1:5000/api/portal?t1=' + time1 + '&t2=' + time2)
+        .then((response) => response.json())
+        .then((data) => {
+          setDataset(data)
+          setFilteredTable(data)
+          setTable(filteredTable.slice(0, itemsPerPage))
+          setData(true)
+          setIsLoading(false)
+        })
+      */
     }
-
-    console.log(encodedString)
-
-    fetch('https://10.8.0.1:5000/api/process', {
-      method: 'POST',
-      body: JSON.stringify(body),
-    })
-      .then((res) => res.json())
-      .then((data) => console.log(data))
-      .catch((res) => {
-        addToast(toasterFabricator('Network Error', res.statusText))
-        setNetworkError(true)
-        console.log(res)
-      })
-
-    /*
-    fetch('https://10.8.0.1:5000/api/portal?t1=' + time1 + '&t2=' + time2)
-      .then((response) => response.json())
-      .then((data) => {
-        setDataset(data)
-        setFilteredTable(data)
-        setTable(filteredTable.slice(0, itemsPerPage))
-        setData(true)
-        setIsLoading(false)
-      })
-    */
   }
 
   return (

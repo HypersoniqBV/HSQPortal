@@ -360,7 +360,7 @@ function testFunction() {
   console.log('hello')
 }
 
-function ExperimentCell({ data, onClickedCellCB }) {
+function ExperimentCell({ data, onClickedCellCB, toaster }) {
   const [cellState, setCellState] = useState({
     height: 0,
     rotation: '90deg',
@@ -427,6 +427,11 @@ function ExperimentCell({ data, onClickedCellCB }) {
   function enableEditMode() {
     if (!showAll) toggleMetaData()
     setEditModeEnabled(true)
+  }
+
+  function shareMeasurement() {
+    navigator.clipboard.writeText('http://localhost:3000/#/home/' + data.id)
+    toaster('Copied succesful!', 'A shareable link has been copied to your clipboard.')
   }
 
   return (
@@ -515,6 +520,7 @@ function ExperimentCell({ data, onClickedCellCB }) {
                   className="rounded-pill"
                   color="dark"
                   style={{ width: '15%', marginRight: '5px' }}
+                  onClick={() => shareMeasurement()}
                 >
                   <CIcon icon={cilShare} style={{ marginRight: '5px' }} /> Share
                 </CButton>

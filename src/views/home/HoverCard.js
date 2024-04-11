@@ -3,11 +3,11 @@
 /* eslint-disable prettier/prettier */
 import React, { useState } from 'react'
 
-function Card({ children }) {
+function Card({msg, children}) {
 
   return (
     <div 
-      className="hovercard mb-2 rounded"
+      className="bg-dark hovercard mb-2 rounded"
     >
       <div
         className="p-2"
@@ -15,6 +15,10 @@ function Card({ children }) {
       >
         {children}
       </div>
+      {msg ? (
+      <div className='bg-primary rounded-bottom' style={{ paddingLeft: 10, paddingTop: 2, paddingBottom: 2}}>
+        {msg}
+      </div> ) : (<></>)}
     </div>
   )
 }

@@ -189,12 +189,24 @@ body {
 }
 
 .upload:hover {
-  transform: scale(1.01);
+  transform: scale(1.03);
   transition: transform 0.1s;
 }
 
 .upload {
   transform: scale(1);
+  transition: transform 0.1s;
+}
+
+.hovercard {
+  outline: none;
+  transform: scale(1.0);
+  transition: transform 0.1s;
+
+}
+
+.hovercard:hover{
+  transform: scale(1.01);
   transition: transform 0.1s;
 }
 

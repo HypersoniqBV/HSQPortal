@@ -39,6 +39,7 @@ import {
   CFormTextarea,
   CFormSelect,
   CForm,
+  CHeader,
 } from '@coreui/react'
 import CIcon from '@coreui/icons-react'
 
@@ -64,12 +65,15 @@ import {
   cilHistory,
   cilArrowLeft,
   cilWarning,
+  cilCheck,
+  cilX,
 } from '@coreui/icons'
 import ExperimentCell from './ExperimentCell'
 import Pagination from './Pagination'
 import FilterCell from './FilterCell'
 import BasicDropzone from './Dropzone'
 import Calendar from './Calendar'
+import HoverCard from './HoverCard'
 
 ChartJS.register(LinearScale, PointElement, LogarithmicScale, LineElement, Title)
 
@@ -88,6 +92,8 @@ const Home = () => {
   const [dataset, setDataset] = useState([])
 
   const [visible, setVisible] = useState(false)
+  const [uploadingData, setUploadingData] = useState(false)
+
   const [ignored, forceUpdate] = useReducer((x) => x + 1, 0)
 
   const [isLoading, setIsLoading] = useState(false)
@@ -136,6 +142,7 @@ const Home = () => {
 
   var [filters, setFilter] = useState([])
   var [updateFilters, setUpdateFilters] = useState(false)
+  var [uploadFiles, setUploadFiles] = useState([])
 
   var Buffer = require('buffer/').Buffer
 
@@ -151,7 +158,6 @@ const Home = () => {
   useEffect(() => {
     if (updateFilters) {
       let data = dataset
-      console.log(filters)
 
       for (var id in filters) {
         var key = filters[id].key
@@ -171,6 +177,10 @@ const Home = () => {
 
           if (k === 'solution') {
             k = 'bg_solution'
+          }
+
+          if (k === 'concentration') {
+            k = 'bg_concentration'
           }
 
           for (var idx in value) {
@@ -268,50 +278,57 @@ const Home = () => {
 
   async function handleFileUpload(e) {
     const files = Array.from(e.target.files)
-    console.log(files)
 
-    for await (const file of files) {
-      console.log(file)
-      //const blob = await file.arrayBuffer()
-      //const buffer = new Uint8Array(blob)
-      //console.log(buffer)
-      const txt = await file.text()
-      const encodedString = Buffer.from(txt).toString('base64')
-      // const str = Buffer.from(encodedString, 'base64')
+    async function sendFiles(files) {
+      var respondData = []
 
-      var enc = new TextDecoder('utf-8')
-      var id = Math.random().toString(16).slice(2)
-      var body = {
-        data: encodedString,
+      for await (const file of files) {
+        //const blob = await file.arrayBuffer()
+        //const buffer = new Uint8Array(blob)
+        //console.log(buffer)
+
+        const txt = await file.text()
+        const encodedString = Buffer.from(txt).toString('base64')
+        // const str = Buffer.from(encodedString, 'base64')
+
+        var enc = new TextDecoder('utf-8')
+        var id = Math.random().toString(16).slice(2)
+
+        var body = {
+          data: encodedString,
+          file_name: file.name,
+        }
+
+        // console.log(encodedString)
+
+        await fetch('https://10.8.0.1:5000/api/process', {
+          method: 'POST',
+          body: JSON.stringify(body),
+        })
+          .then((res) => res.json())
+          // eslint-disable-next-line no-loop-func
+          .then((data) => {
+            setUploadingData(true)
+            respondData = [...respondData, data]
+            console.log(respondData)
+          })
+          .catch((res) => {
+            addToast(toasterFabricator('Network Error', res.statusText))
+            setNetworkError(true)
+            console.log(res)
+          })
       }
-
-      // console.log(encodedString)
-
-      fetch('https://10.8.0.1:5000/api/process', {
-        method: 'POST',
-        body: JSON.stringify(body),
-      })
-        .then((res) => res.json())
-        .then((data) => console.log(data))
-        .catch((res) => {
-          addToast(toasterFabricator('Network Error', res.statusText))
-          setNetworkError(true)
-          console.log(res)
-        })
-
-      /*
-      fetch('https://10.8.0.1:5000/api/portal?t1=' + time1 + '&t2=' + time2)
-        .then((response) => response.json())
-        .then((data) => {
-          setDataset(data)
-          setFilteredTable(data)
-          setTable(filteredTable.slice(0, itemsPerPage))
-          setData(true)
-          setIsLoading(false)
-        })
-      */
+      return respondData
     }
+
+    await sendFiles(files).then((res) => setUploadFiles([...uploadFiles, ...res]))
   }
+
+  function removeUploadItem(item) {
+    setUploadFiles(uploadFiles.filter((i) => i !== item))
+  }
+
+  useEffect(() => {}, [uploadFiles])
 
   return (
     <>
@@ -327,22 +344,127 @@ const Home = () => {
           <CModalTitle id="StaticBackdropExampleLabel">Upload Wizard</CModalTitle>
         </CModalHeader>
         <CModalBody>
-          <CRow>
-            <CCol
-              {...getRootProps({ isFocused, isDragAccept, isDragReject })}
-              className="border upload bg-primary-25 border-primary glow-effect"
-              style={{
-                height: 500,
-                borderRadius: '10px',
-                borderWidth: 2,
-                marginLeft: 100,
-                marginRight: 100,
-              }}
-            >
-              <div className="center">Drop or click *here* to upload .mpt file</div>
-              <input {...getInputProps()} type="file" onChange={handleFileUpload} />
-            </CCol>
-          </CRow>
+          {!uploadingData ? (
+            <CRow>
+              <CCol
+                {...getRootProps({ isFocused, isDragAccept, isDragReject })}
+                className="border upload bg-primary-25 border-primary glow-effect"
+                style={{
+                  height: 500,
+                  borderRadius: '10px',
+                  borderWidth: 2,
+                  marginLeft: 100,
+                  marginRight: 100,
+                }}
+              >
+                <div className="center">Drop or click *here* to upload .mpt file</div>
+                <input {...getInputProps()} type="file" onChange={handleFileUpload} />
+              </CCol>
+            </CRow>
+          ) : (
+            <>
+              <CRow>
+                <CCol>
+                  <CCard>
+                    <CHeader>Stop</CHeader>
+                    <CRow className="m-2 mb-1 p-3">Uploaded Files</CRow>
+                    {uploadFiles.map((item, index) => (
+                      <HoverCard>
+                        <div>
+                          <CIcon
+                            icon={item.status === 'OK' ? cilCheck : cilX}
+                            size="xl"
+                            style={{ marginLeft: '5px', marginRight: '20px' }}
+                          />
+                        </div>
+                        <div className="">{item.file}</div>
+                        <div
+                          onMouseDown={() => removeUploadItem(item)}
+                          style={{ cursor: 'pointer', marginLeft: 'auto', marginRight: 0 }}
+                        >
+                          <CIcon
+                            icon={cilPlus}
+                            size="xl"
+                            style={{
+                              transform: 'rotateZ(45deg)',
+                            }}
+                          />
+                        </div>
+                      </HoverCard>
+                    ))}
+                    <HoverCard className="bg-dark m-2">
+                      <CCol
+                        {...getRootProps({ isFocused, isDragAccept, isDragReject })}
+                        className="w-100 h-100 p-0 text-center"
+                        style={{ cursor: 'pointer' }}
+                      >
+                        <input {...getInputProps()} type="file" onChange={handleFileUpload} />
+                        <CIcon icon={cilPlus} size="xl" style={{ marginRight: '10px' }} />
+                      </CCol>
+                    </HoverCard>
+                  </CCard>
+                  <CRow className="m-2 mt-2 p-3 rounded">Properties</CRow>
+                  <CRow className="m-2 rounded-4 border border-dark border-2">
+                    <CCol
+                      className="rounded-3 p-3 mt-2"
+                      style={{
+                        backgroundColor: '',
+                      }}
+                    >
+                      <CRow className="m-1">
+                        <CCol xs={2}>Sensor</CCol>
+                        <CCol>
+                          <CFormTextarea rows={1} style={{ resize: 'none' }}></CFormTextarea>
+                        </CCol>
+                      </CRow>
+                      <CRow className="m-1">
+                        <CCol xs={2}>Chip</CCol>
+                        <CCol>
+                          <CFormTextarea rows={1} style={{ resize: 'none' }}></CFormTextarea>
+                        </CCol>
+                      </CRow>
+                      <CRow className="m-1">
+                        <CCol xs={2}>
+                          T<sub>start</sub>
+                        </CCol>
+                        <CCol>
+                          <CFormTextarea rows={1} style={{ resize: 'none' }}></CFormTextarea>
+                        </CCol>
+                      </CRow>
+                      <CRow className="m-1">
+                        <CCol xs={2}>
+                          T<sub>end</sub>
+                        </CCol>
+                        <CCol>
+                          <CFormTextarea rows={1} style={{ resize: 'none' }}></CFormTextarea>
+                        </CCol>
+                      </CRow>
+                      <CRow className="m-1">
+                        <CCol xs={2}>Batch</CCol>
+                        <CCol>
+                          <CFormTextarea rows={1} style={{ resize: 'none' }}></CFormTextarea>
+                        </CCol>
+                      </CRow>
+                      <CRow className="m-1">
+                        <CCol xs={2}>Solution</CCol>
+                        <CCol>
+                          <CFormTextarea rows={1} style={{ resize: 'none' }}></CFormTextarea>
+                        </CCol>
+                      </CRow>
+                      <CRow className="m-1">
+                        <CCol xs={2}>
+                          T<sub>end</sub>
+                        </CCol>
+                        <CCol>
+                          <CFormTextarea rows={1} style={{ resize: 'none' }}></CFormTextarea>
+                        </CCol>
+                      </CRow>
+                    </CCol>
+                  </CRow>
+                </CCol>
+              </CRow>
+            </>
+          )}
         </CModalBody>
         <CModalFooter>
           <CButton color="secondary" onClick={() => setVisible(false)}>

@@ -19,6 +19,7 @@ import {
   cilBeaker,
   cilCalendar,
   cilClock,
+  cilCloudDownload,
   cilCommand,
   cilCommentBubble,
   cilDescription,
@@ -373,6 +374,7 @@ function ExperimentCell({ data, onClickedCellCB }) {
   const [isFavorite, setFavorite] = useState(false)
   const [isEditModeEnabled, setEditModeEnabled] = useState(false)
   const [graphMode, setGraphMode] = useState('nyquist')
+  const [graphNum, setGraphNum] = useState(0)
 
   useEffect(() => {}, [graphMode])
 
@@ -405,6 +407,10 @@ function ExperimentCell({ data, onClickedCellCB }) {
 
   function onSelectMode(mode) {
     setGraphMode(mode)
+  }
+
+  function onSelectGraphNum(mode) {
+    setGraphNum(mode)
   }
 
   function toggleMetaData() {
@@ -531,9 +537,9 @@ function ExperimentCell({ data, onClickedCellCB }) {
                 <CButton
                   className="rounded-pill"
                   color="dark"
-                  style={{ width: '15%', marginRight: '5px' }}
+                  style={{ width: '20%', marginRight: '5px' }}
                 >
-                  <CIcon icon={cilTrash} style={{ marginRight: '5px' }} /> Delete
+                  <CIcon icon={cilCloudDownload} style={{ marginRight: '5px' }} /> Download
                 </CButton>
               </CRow>
 
@@ -560,7 +566,7 @@ function ExperimentCell({ data, onClickedCellCB }) {
                 </CCol>
                 <CCol style={{ textAlign: 'center' }}>
                   <CIcon icon={cilBeaker} className="m-2" size="xxl" xs={4} />
-                  <div style={{ fontSize: 13 }}>{data.bg_concentration}</div>
+                  <div style={{ fontSize: 13 }}>{data.bg_solution}</div>
                 </CCol>
                 <CCol xs={2} />
               </CRow>
@@ -674,7 +680,7 @@ function ExperimentCell({ data, onClickedCellCB }) {
                   <CCol xs={12} className="" style={{ height: '600px' }}>
                     <Scatter
                       options={nyquist_options}
-                      data={dataSet(data.nyquist_graph)}
+                      data={dataSet(data.nyquist_graph[graphNum])}
                       style={{ marginBottom: '25px' }}
                     />
                   </CCol>
@@ -683,14 +689,14 @@ function ExperimentCell({ data, onClickedCellCB }) {
                     <CCol xs={12} className="" style={{ height: '300px' }}>
                       <Scatter
                         options={bode_options_gain}
-                        data={dataSet(data.bode_graph_gain)}
+                        data={dataSet(data.bode_graph_gain[graphNum])}
                         style={{ marginBottom: '25px' }}
                       />
                     </CCol>
                     <CCol xs={12} className="" style={{ height: '300px' }}>
                       <Scatter
                         options={bode_options_phase}
-                        data={dataSet(data.bode_graph_phase)}
+                        data={dataSet(data.bode_graph_phase[graphNum])}
                         style={{ marginBottom: '25px' }}
                       />
                     </CCol>
@@ -723,21 +729,18 @@ function ExperimentCell({ data, onClickedCellCB }) {
                 <CCol className="" style={{ padding: 0, paddingLeft: '4px' }}>
                   <CDropdown className="bg-dark w-100 rounded-4" style={{ height: '40px' }}>
                     <CDropdownToggle className="" style={{ textAlign: 'left' }}>
-                      Measurement 1
+                      {data.graph_label[graphNum]}
                     </CDropdownToggle>
                     <CDropdownMenu className="w-100 bg-dark" style={{}}>
-                      <CDropdownItem
-                        onClick={() => onSelectMode('nyquist')}
-                        style={{ cursor: 'pointer' }}
-                      >
-                        Measurement 1
-                      </CDropdownItem>
-                      <CDropdownItem
-                        onClick={() => onSelectMode('bode')}
-                        style={{ cursor: 'pointer' }}
-                      >
-                        Measurement 2
-                      </CDropdownItem>
+                      {data.graph_label.map((item, index) => (
+                        // eslint-disable-next-line react/jsx-key
+                        <CDropdownItem
+                          onClick={() => onSelectGraphNum(index)}
+                          style={{ cursor: 'pointer' }}
+                        >
+                          {item}
+                        </CDropdownItem>
+                      ))}
                     </CDropdownMenu>
                   </CDropdown>
                 </CCol>

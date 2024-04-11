@@ -45,7 +45,6 @@ function FilterCell({ cat, onChange, dataset, filter }) {
       })
       setVisibleData(filteredData)
       //setVisibleTogglers(filteredTogglers)
-      console.log(togglers)
     } else {
       setVisibleData(data)
       //setVisibleTogglers(togglers)

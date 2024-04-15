@@ -83,7 +83,6 @@ import FilterCell from './FilterCell'
 import BasicDropzone from './Dropzone'
 import Calendar from './Calendar'
 import HoverCard from './HoverCard'
-import { Scatter } from 'react-chartjs-2'
 
 ChartJS.register(LinearScale, PointElement, LogarithmicScale, LineElement, Title)
 
@@ -103,11 +102,9 @@ const Home = () => {
   const [filteredTable, setFilteredTable] = useState([])
   const [dataset, setDataset] = useState([])
 
-  const [uploadWindowVisible, setUploadWindowVisible] = useState(false)
+  const [visible, setVisible] = useState(false)
   const [uploadingData, setUploadingData] = useState(false)
   const [waitingUploadingData, setWaitingUploadData] = useState(false)
-
-  const [compareWindowVisible, setCompareWindowVisible] = useState(false)
 
   const [ignored, forceUpdate] = useReducer((x) => x + 1, 0)
 
@@ -147,11 +144,7 @@ const Home = () => {
   }
 
   function upload() {
-    setUploadWindowVisible(true)
-  }
-
-  function compare() {
-    setCompareWindowVisible(true)
+    setVisible(true)
   }
 
   function warnThroughToaster(status, msg) {
@@ -159,7 +152,6 @@ const Home = () => {
   }
 
   subscribe('uploadData', () => upload())
-  subscribe('compareData', () => compare())
 
   const [itemsPerPage, setItemsPerPage] = useState(15)
   const fileUpload = useRef('')
@@ -191,7 +183,7 @@ const Home = () => {
           setNetworkError(true)
         })
     }
-  }, [filteredTable, id, itemsPerPage])
+  }, [id])
 
   useEffect(() => {
     if (!hasData) {
@@ -446,12 +438,8 @@ const Home = () => {
 
     setNeedsSessionID(true)
     setUploadFiles([])
-    setUploadWindowVisible(false)
+    setVisible(false)
     setUploadingData(false)
-  }
-
-  function closeCompareWindow() {
-    setCompareWindowVisible(false)
   }
 
   useBeforeUnload(() => closeUploadWindow())
@@ -461,11 +449,10 @@ const Home = () => {
   return (
     <>
       <CToaster className="p-3" placement="bottom-start" push={toast} ref={toaster} />
-
       <CModal
         backdrop="static"
         size="lg"
-        visible={uploadWindowVisible}
+        visible={visible}
         onClose={() => closeUploadWindow()}
         aria-labelledby="StaticBackdropExampleLabel"
       >
@@ -724,111 +711,16 @@ const Home = () => {
         </CModalBody>
         <CModalFooter>
           <CButton color="secondary" onClick={() => closeUploadWindow()}>
-            Cancel
+            Close
           </CButton>
           <CButton color="primary" onClick={() => uploadFilesFinal()}>
             Upload
           </CButton>
         </CModalFooter>
       </CModal>
-
-      <CModal
-        backdrop="static"
-        size="xl"
-        visible={compareWindowVisible}
-        onClose={() => closeCompareWindow()}
-        aria-labelledby="StaticBackdropExampleLabel"
-      >
-        <CModalHeader>
-          <CModalTitle id="StaticBackdropExampleLabel">Compare Wizard</CModalTitle>
-        </CModalHeader>
-        <CModalBody>
-          <CRow className="m-2">
-            <CCol style={{ height: 500 }} xs={8} className="bg-dark rounded border-right"></CCol>
-            <CCol className="bg-dark rounded"></CCol>
-          </CRow>
-        </CModalBody>
-        <CModalFooter>
-          <CButton color="secondary" onClick={() => closeCompareWindow()}>
-            Close
-          </CButton>
-        </CModalFooter>
-      </CModal>
-
-      <CRow>
-        <CCol xs={4}>
-          <CCard className="mb-4 relative" style={{ top: '0px', width: '100%' }}>
-            <CCardHeader>
-              <div>
-                <CIcon style={{ marginRight: '10px' }} icon={cilHistory} />
-                History
-              </div>
-            </CCardHeader>
-            <CCardBody>
-              <CTable align="top" className="mb-0" responsive striped hover>
-                <CTableBody>
-                  <CCol>
-                    <CRow className="w-100 m-0 bg-dark rounded-pill">
-                      <div style={{ height: 30 }}>
-                        <div></div>
-                        <div></div>
-                        <div></div>
-                      </div>
-                    </CRow>
-                  </CCol>
-                  {/*}
-                  {table.map((item, index) => (
-                    //
-                    // Display a table cell
-                    //
-
-                    <ExperimentCell
-                      data={item}
-                      onClickedCellCB={onClickedCellCallBack}
-                      parentRef={commonRef}
-                    />
-                  ))}
-                  */}
-                </CTableBody>
-              </CTable>
-            </CCardBody>
-          </CCard>
-          <CCard className="mb-4 position-sticky" style={{ top: '100px', width: '100%' }}>
-            <CCardHeader>
-              <div>
-                <CIcon style={{ marginRight: '10px' }} icon={cilFilter} />
-                Filter
-              </div>
-            </CCardHeader>
-            <CCardBody>
-              <Calendar onDateRangeSelected={onDateRangeSelected} />
-              <CRow className="m-0">
-                <CFormLabel className="col-sm-3 col-form-label">Search</CFormLabel>
-                <CCol>
-                  <CFormInput
-                    style={{ paddingLeft: 40 }}
-                    className="border border-primary rounded-5 search"
-                    placeholder=""
-                    onChange={(value) => setFilterInput(value.target.value)}
-                  />
-                  <CCol xs={1} style={{ position: 'absolute', marginTop: -30, marginLeft: 10 }}>
-                    <CIcon icon={cilMagnifyingGlass} size={'lg'} />
-                  </CCol>
-                </CCol>
-              </CRow>
-              <CRow className="col-form-label border-top" />
-              {['Operator', 'Sensor', 'Chip', 'Solution', 'Concentration'].map((item, index) => (
-                <FilterCell
-                  cat={item}
-                  onChange={onFiltercallBack}
-                  dataset={dataset}
-                  filter={filterInput}
-                />
-              ))}
-            </CCardBody>
-          </CCard>
-        </CCol>
-        <CCol xs>
+      <CRow className="">
+        <CCol xs={2} />
+        <CCol>
           <div>
             <CCard className="mb-4">
               <CCardHeader>
@@ -953,32 +845,6 @@ const Home = () => {
                             ))}
                           </CTableBody>
                         </CTable>
-                        <CRow>
-                          <CCol style={{ lineHeight: '2' }} xs={8}>
-                            {filteredTable.length > 1
-                              ? 'Found ' + filteredTable.length + ' results'
-                              : 'Found 1 result'}
-                          </CCol>
-                          <CCol style={{ textAlign: 'right', lineHeight: '2' }}>
-                            Items per page
-                          </CCol>
-                          <CFormSelect
-                            onChange={(x) => resizeTable(x.target.value)}
-                            id="floatingSelect"
-                            style={{
-                              width: '70px',
-                              float: 'right',
-                              marginRight: '10px',
-                            }}
-                            value={itemsPerPage}
-                            aria-label="Floating label select example"
-                          >
-                            <option value="5">5</option>
-                            <option value="10">10</option>
-                            <option value="15">15</option>
-                            <option value="20">20</option>
-                          </CFormSelect>
-                        </CRow>
                       </>
                     ) : !hasData && isLoading ? (
                       <div style={{ height: 200, textAlign: 'center', position: 'relative' }}>
@@ -1008,16 +874,10 @@ const Home = () => {
 
                 */}
               </CCardBody>
-              {paginationLength ? (
-                <CCardFooter>
-                  <Pagination length={paginationLength} onPageChange={(x) => moveContent(x)} />
-                </CCardFooter>
-              ) : (
-                <></>
-              )}
             </CCard>
           </div>
         </CCol>
+        <CCol xs={2} />
       </CRow>
     </>
   )

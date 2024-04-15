@@ -40,6 +40,20 @@ function AppHeaderData() {
       >
         Edit
       </CButton>
+        <CButton
+          color="dark"
+          style={{
+            borderRadius: '0px',
+            paddingLeft: '30px',
+            paddingRight: '30px',
+            marginRight: '0px',
+            borderRightWidth: '1px',
+            borderRightColor: '#222',
+          }}
+          onClick={() => publish('compareData', '')}
+        >
+          Compare
+        </CButton>
       <CButton
         color="dark"
         style={{

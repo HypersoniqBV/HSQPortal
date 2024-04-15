@@ -60,7 +60,7 @@ const AppHeader = () => {
           <CIcon icon={cilMenu} size="lg" />
         </CHeaderToggler>
         <CHeaderNav>
-          {path === '/home' ? <AppHeaderData /> : <></>}
+          {path === '/home' || path === '/home/:id' ? <AppHeaderData /> : <></>}
           {/*
           <li className="nav-item py-1">
             <div className="vr h-100 mx-2 text-body text-opacity-75"></div>

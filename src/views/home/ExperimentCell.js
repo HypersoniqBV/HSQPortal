@@ -18,6 +18,7 @@ import {
   cilApplications,
   cilBeaker,
   cilCalendar,
+  cilCheck,
   cilClock,
   cilCloudDownload,
   cilCommand,
@@ -35,7 +36,7 @@ import {
   cilTriangle,
   cilUser,
 } from '@coreui/icons'
-import { Scatter } from 'react-chartjs-2'
+import { Chart, Scatter } from 'react-chartjs-2'
 import zoomPlugin from 'chartjs-plugin-zoom'
 
 const nyquist_options = {
@@ -375,8 +376,9 @@ function ExperimentCell({ data, onClickedCellCB, toaster }) {
   const [isEditModeEnabled, setEditModeEnabled] = useState(false)
   const [graphMode, setGraphMode] = useState('nyquist')
   const [graphNum, setGraphNum] = useState(0)
+  const [isCopied, setIsCopied] = useState(false)
 
-  useEffect(() => {}, [graphMode])
+  useEffect(() => {}, [graphMode, isCopied])
 
   const [ignored, forceUpdate] = useReducer((x) => x + 1, 0)
 
@@ -394,6 +396,7 @@ function ExperimentCell({ data, onClickedCellCB, toaster }) {
       newCellState.isOpen = false
       newCellState.color = ''
       setCellState(newCellState)
+      setIsCopied(false)
     } else {
       let newCellState = cellState
       newCellState.height = 300
@@ -432,6 +435,18 @@ function ExperimentCell({ data, onClickedCellCB, toaster }) {
   function shareMeasurement() {
     navigator.clipboard.writeText('http://localhost:3000/#/home/' + data.id)
     toaster('Copied succesful!', 'A shareable link has been copied to your clipboard.')
+    setIsCopied(true)
+  }
+
+  function deleteItemFromDataset() {
+    var body = { id: data.id }
+
+    fetch('https://10.8.0.1:5000/api/delete', {
+      method: 'POST',
+      body: JSON.stringify(body),
+    })
+      .then((res) => res.json())
+      .then((dat) => console.log(dat))
   }
 
   return (
@@ -499,35 +514,58 @@ function ExperimentCell({ data, onClickedCellCB, toaster }) {
                 borderColor: 'black',
               }}
             >
-              <CRow>
+              <CRow style={{ overflow: 'hidden', position: 'relative' }}>
                 <CButton
                   className="rounded-pill"
                   color={isSelected ? 'primary' : 'dark'}
-                  style={{ width: '15%', marginRight: '5px' }}
+                  style={{ width: '15%', marginRight: '5px', marginBottom: '5px' }}
                   onClick={() => setSelected(!isSelected)}
+                  disabled
                 >
                   <CIcon icon={cilSquare} style={{ marginRight: '5px' }} /> Select
                 </CButton>
                 <CButton
                   className="rounded-pill"
                   color="dark"
-                  style={{ width: '15%', marginRight: '5px' }}
+                  style={{ width: '15%', marginRight: '5px', marginBottom: '5px' }}
                   onClick={() => toggleMetaData()}
                 >
                   <CIcon icon={cilDescription} style={{ marginRight: '5px' }} /> Info
                 </CButton>
+
+                {isCopied ? (
+                  <CFormTextarea
+                    className="bg-dark border-0 rounded-pill"
+                    rows={1}
+                    style={{
+                      textOverflow: 'ellipsis',
+                      overflow: 'hidden',
+                      whiteSpace: 'nowrap',
+                      resize: 'none',
+                      width: '20%',
+                      marginRight: '5px',
+                      marginBottom: '5px',
+                    }}
+                  >
+                    {'http://localhost:3000/#/home/' + data.id}
+                  </CFormTextarea>
+                ) : (
+                  <CButton
+                    className="rounded-pill"
+                    color="dark"
+                    style={{ width: '15%', marginRight: '5px', marginBottom: '5px' }}
+                    onClick={() => shareMeasurement()}
+                  >
+                    <CIcon icon={isCopied ? cilCheck : cilShare} style={{ marginRight: '5px' }} />{' '}
+                    Share
+                  </CButton>
+                )}
+
                 <CButton
-                  className="rounded-pill"
-                  color="dark"
-                  style={{ width: '15%', marginRight: '5px' }}
-                  onClick={() => shareMeasurement()}
-                >
-                  <CIcon icon={cilShare} style={{ marginRight: '5px' }} /> Share
-                </CButton>
-                <CButton
+                  disabled
                   className="rounded-pill"
                   color={isFavorite ? 'primary' : 'dark'}
-                  style={{ width: '15%', marginRight: '5px' }}
+                  style={{ width: '15%', marginRight: '5px', marginBottom: '5px' }}
                   onClick={() => setFavorite(!isFavorite)}
                 >
                   <CIcon icon={cilStar} style={{ marginRight: '5px' }} /> Favorite
@@ -535,21 +573,23 @@ function ExperimentCell({ data, onClickedCellCB, toaster }) {
                 <CButton
                   className="rounded-pill"
                   color={isEditModeEnabled ? 'primary' : 'dark'}
-                  style={{ width: '15%', marginRight: '5px' }}
+                  style={{ width: '15%', marginRight: '5px', marginBottom: '5px' }}
                   onClick={() => enableEditMode()}
+                  disabled
                 >
                   <CIcon icon={cilPencil} style={{ marginRight: '5px' }} /> Edit
                 </CButton>
                 <CButton
                   className="rounded-pill"
-                  color="dark"
-                  style={{ width: '20%', marginRight: '5px' }}
+                  color={isEditModeEnabled ? 'primary' : 'dark'}
+                  style={{ width: '15%', marginRight: '5px', marginBottom: '5px' }}
+                  onClick={() => deleteItemFromDataset()}
                 >
-                  <CIcon icon={cilCloudDownload} style={{ marginRight: '5px' }} /> Download
+                  <CIcon icon={cilTrash} style={{ marginRight: '5px' }} /> Delete
                 </CButton>
               </CRow>
 
-              <CRow className="mt-2 mb-2 p-3 bg-dark rounded-4">
+              <CRow className="mt-1 mb-2 p-3 bg-dark rounded-4">
                 <CCol style={{ textAlign: 'center' }}>
                   <CIcon icon={cilFile} className="m-2" size="xxl" xs={2} />
                   <div style={{ fontSize: 13 }}>{'EXP#0000' + data.id}</div>

@@ -1,5 +1,5 @@
 /* eslint-disable react/prop-types */
-import { React, useState, useReducer, useEffect } from 'react'
+import { React, useState, useReducer, useEffect, useContext } from 'react'
 import {
   CTableRow,
   CTableDataCell,
@@ -38,6 +38,7 @@ import {
 } from '@coreui/icons'
 import { Chart, Scatter } from 'react-chartjs-2'
 import zoomPlugin from 'chartjs-plugin-zoom'
+import { UserContext } from 'src/App'
 
 const nyquist_options = {
   maintainAspectRatio: false,
@@ -357,10 +358,6 @@ function dataSet(values) {
   }
 }
 
-function testFunction() {
-  console.log('hello')
-}
-
 function ExperimentCell({ data, onClickedCellCB, toaster }) {
   const [cellState, setCellState] = useState({
     height: 0,
@@ -368,6 +365,8 @@ function ExperimentCell({ data, onClickedCellCB, toaster }) {
     isOpen: false,
     color: '',
   })
+
+  const { user, setUser, token, setToken } = useContext(UserContext)
 
   const [showAll, setShowAll] = useState(false)
   const [showAllRotation, setShowAllRotation] = useState('90deg')

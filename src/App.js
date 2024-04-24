@@ -1,9 +1,10 @@
 import React, { Suspense, useEffect } from 'react'
-import { HashRouter, Route, Routes, Navigate } from 'react-router-dom'
+import { HashRouter, Route, Routes, Navigate, useNavigate } from 'react-router-dom'
 import { useSelector } from 'react-redux'
 
 import { CSpinner, useColorModes } from '@coreui/react'
 import './scss/style.scss'
+import { subscribe } from './event'
 
 // Containers
 const DefaultLayout = React.lazy(() => import('./layout/DefaultLayout'))
@@ -19,7 +20,9 @@ const App = () => {
   const storedTheme = useSelector((state) => state.theme)
 
   const [token, setToken] = React.useState(null)
-  const [user, setUser] = React.useState(true)
+
+  // Set if the user is authenticated or not
+  const [user, setUser] = React.useState(false)
 
   const fakeAuth = () =>
     new Promise((resolve) => {
@@ -40,6 +43,13 @@ const App = () => {
     setColorMode(storedTheme)
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
+  function login() {
+    setUser(true)
+    console.log('Connected!')
+  }
+
+  subscribe('loginButton', () => login())
+
   return (
     <HashRouter>
       <Suspense
@@ -49,39 +59,25 @@ const App = () => {
           </div>
         }
       >
-        <Routes>
-          <Route
-            exact
-            path="/login"
-            name="Login Page"
-            element={
-              <Reroute user={user}>
-                <Login />
-              </Reroute>
-            }
-          />
-          <Route
-            exact
-            path="/register"
-            name="Register Page"
-            element={
-              <Reroute user={user}>
-                <Register />
-              </Reroute>
-            }
-          />
-          <Route exact path="/404" name="Page 404" element={<Page404 />} />
-          <Route exact path="/500" name="Page 500" element={<Page500 />} />
-          <Route
-            path="*"
-            name="Home"
-            element={
-              <ProtectedRoute user={user}>
-                <DefaultLayout />
-              </ProtectedRoute>
-            }
-          />
-        </Routes>
+        <UserContext.Provider
+          value={{ user: user, setUser: setUser, token: token, setToken: setToken }}
+        >
+          <Routes>
+            <Route exact path="/login" name="Login Page" element={<Login />} />
+            <Route exact path="/register/:id" name="Register Page" element={<Register />} />
+            <Route exact path="/404" name="Page 404" element={<Page404 />} />
+            <Route exact path="/500" name="Page 500" element={<Page500 />} />
+            <Route
+              path="*"
+              name="Home"
+              element={
+                <ProtectedRoute user={user}>
+                  <DefaultLayout />
+                </ProtectedRoute>
+              }
+            />
+          </Routes>
+        </UserContext.Provider>
       </Suspense>
     </HashRouter>
   )
@@ -89,18 +85,12 @@ const App = () => {
 
 // eslint-disable-next-line react/prop-types
 const ProtectedRoute = ({ user, children }) => {
+  console.log(user)
   if (!user) {
-    return <Navigate to="/login" replace={true} />
-  }
-  return children
-}
-
-// eslint-disable-next-line react/prop-types
-const Reroute = ({ user, children }) => {
-  if (user) {
-    return <Navigate to="/home" replace />
+    return <Navigate to="/login" replace />
   }
   return children
 }
 
 export default App
+export const UserContext = React.createContext(null)

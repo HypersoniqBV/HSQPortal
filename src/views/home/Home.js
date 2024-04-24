@@ -1,6 +1,6 @@
 /* eslint-disable react/jsx-key */
 /* eslint-disable react/no-unescaped-entities */
-import { React, useState, useReducer, useRef, useEffect } from 'react'
+import { React, useState, useReducer, useRef, useEffect, useContext } from 'react'
 
 import { subscribe, unsubscribe } from 'src/event'
 
@@ -40,6 +40,8 @@ import {
   CFormSelect,
   CForm,
   CHeader,
+  CDropdownDivider,
+  CDropdownHeader,
 } from '@coreui/react'
 import CIcon from '@coreui/icons-react'
 
@@ -76,6 +78,7 @@ import {
   cilSquare,
   cilGraph,
   cilXCircle,
+  cilIndentIncrease,
 } from '@coreui/icons'
 import ExperimentCell from './ExperimentCell'
 import Pagination from './Pagination'
@@ -84,6 +87,7 @@ import BasicDropzone from './Dropzone'
 import Calendar from './Calendar'
 import HoverCard from './HoverCard'
 import { Scatter } from 'react-chartjs-2'
+import { UserContext } from 'src/App'
 
 ChartJS.register(LinearScale, PointElement, LogarithmicScale, LineElement, Title)
 
@@ -116,6 +120,8 @@ const Home = () => {
   const [history, setHistory] = useState([])
   const [filterInput, setFilterInput] = useState('')
   const commonRef = useRef()
+
+  const { user, setUser, token, setToken } = useContext(UserContext)
 
   const { getRootProps, getInputProps, isFocused, isDragAccept, isDragReject } = useDropzone({
     accept: {
@@ -267,7 +273,12 @@ const Home = () => {
       var time2 = date2.getTime() - date2.getTimezoneOffset() * 1000 * 60
 
       //Get the new data
-      fetch('https://10.8.0.1:5000/api/portal?t1=' + time1 + '&t2=' + time2)
+      fetch('https://10.8.0.1:5000/api/portal?t1=' + time1 + '&t2=' + time2, {
+        method: 'GET',
+        headers: {
+          Authorization: 'Bearer ' + token,
+        },
+      })
         .then((response) => response.json())
         .then((data) => {
           setDataset(data)
@@ -454,6 +465,11 @@ const Home = () => {
     setCompareWindowVisible(false)
   }
 
+  function onDateEnter(e) {
+    //console.log(e.target.value)
+    console.log(e.target.value.length)
+  }
+
   useBeforeUnload(() => closeUploadWindow())
 
   useEffect(() => {}, [uploadFiles, waitingUploadingData])
@@ -473,254 +489,271 @@ const Home = () => {
           <CModalTitle id="StaticBackdropExampleLabel">Upload Wizard</CModalTitle>
         </CModalHeader>
         <CModalBody>
-          {!uploadingData ? (
-            <CRow>
-              <CCol
-                {...getRootProps({ isFocused, isDragAccept, isDragReject })}
-                className="border upload bg-primary-25 border-primary glow-effect"
-                style={{
-                  height: 500,
-                  borderRadius: '10px',
-                  borderWidth: 2,
-                  marginLeft: 100,
-                  marginRight: 100,
-                }}
+          <CRow>
+            <CCol className="rounded p-3 pt-0 m-3 mt-0">
+              <div className="pl-2 fw-bold fs-3 mb-3">New Experiment</div>
+
+              <div
+                className={uploadingData ? 'meta-visible' : 'meta-hidden'}
+                style={{ overflow: 'hidden' }}
               >
-                <div className="center">Drop or click *here* to upload .mpt file</div>
-                <input {...getInputProps()} type="file" onChange={handleFileUpload} />
-              </CCol>
-            </CRow>
-          ) : (
-            <>
-              <CRow>
-                <CCol className="rounded p-3 pt-0 m-3 mt-0">
-                  <div className="pl-2 fw-bold fs-3 mb-3">New Experiment</div>
-                  <CRow className="m-0 mb-2">
-                    <CButton
-                      className="rounded-pill"
-                      color="dark"
-                      style={{ width: '15%', marginRight: '5px' }}
-                    >
-                      <CIcon icon={cilDescription} style={{ marginRight: '5px' }} /> Info
-                    </CButton>
-                    <CButton
-                      className="rounded-pill"
-                      color={'dark'}
-                      style={{ width: '15%', marginRight: '5px' }}
-                    >
-                      <CIcon icon={cilGraph} style={{ marginRight: '5px' }} /> Graph
-                    </CButton>
-                  </CRow>
-                  <CRow className="m-0 rounded-4">
-                    <CCol
-                      className="rounded-3  p-3"
-                      style={{
-                        backgroundColor: '',
-                      }}
-                    >
-                      <CRow className="m-1 pb-2 mb-2 border-bottom border-light">
-                        <CCol xs={4}>UIN</CCol>
-                        <CCol>
-                          <CFormTextarea disabled rows={1} style={{ resize: 'none' }}>
-                            {sessionID}
-                          </CFormTextarea>
-                        </CCol>
-                      </CRow>
-                      <CRow className="m-1 pb-2 mb-2 border-bottom border-light">
-                        <CCol xs={4}>Date</CCol>
-                        <CCol>
-                          <CFormTextarea
-                            id="date"
-                            placeholder="DD / MM / YYYY"
-                            rows={1}
-                            style={{ resize: 'none' }}
-                          ></CFormTextarea>
-                        </CCol>
-                      </CRow>
-                      <CRow className="m-1 pb-2 mb-2 border-bottom border-light">
-                        <CCol xs={4}>Operator</CCol>
-                        <CCol>
-                          <CFormTextarea
-                            id="operator"
-                            rows={1}
-                            style={{ resize: 'none' }}
-                          ></CFormTextarea>
-                        </CCol>
-                      </CRow>
-                      <CRow className="m-1 pb-2 mb-2 border-bottom border-light">
-                        <CCol xs={4}>Device</CCol>
-                        <CCol>
-                          <CFormTextarea
-                            id="device"
-                            rows={1}
-                            style={{ resize: 'none' }}
-                          ></CFormTextarea>
-                        </CCol>
-                      </CRow>
-                      <CRow className="m-1 pb-2 mb-2 border-bottom border-light">
-                        <CCol xs={4}>Comment</CCol>
-                        <CCol>
-                          <CFormTextarea
-                            id="remarks"
-                            rows={3}
-                            style={{ resize: 'none' }}
-                          ></CFormTextarea>
-                        </CCol>
-                      </CRow>
-                      <CRow className="m-1 pb-2 mb-2 border-bottom border-light">
-                        <CCol xs={4}>Start Time</CCol>
-                        <CCol>
-                          <CFormTextarea
-                            id="start_time"
-                            placeholder="MM:HH"
-                            rows={1}
-                            style={{ resize: 'none' }}
-                          ></CFormTextarea>
-                        </CCol>
-                      </CRow>
-                      <CRow className="m-1 pb-2 mb-2 border-bottom border-light">
-                        <CCol xs={4}>Finish Time</CCol>
-                        <CCol>
-                          <CFormTextarea
-                            id="finish_time"
-                            placeholder="MM:HH"
-                            rows={1}
-                            style={{ resize: 'none' }}
-                          ></CFormTextarea>
-                        </CCol>
-                      </CRow>
-                      <CRow className="m-1 pb-2 mb-2 border-bottom border-light">
-                        <CCol xs={4}>Sensor</CCol>
-                        <CCol>
-                          <CFormTextarea
-                            id="sensor_type"
-                            rows={1}
-                            style={{ resize: 'none' }}
-                          ></CFormTextarea>
-                        </CCol>
-                      </CRow>
-                      <CRow className="m-1 pb-2 mb-2 border-bottom border-light">
-                        <CCol xs={4}>Chip</CCol>
-                        <CCol>
-                          <CFormTextarea
-                            id="chip_type"
-                            rows={1}
-                            style={{ resize: 'none' }}
-                          ></CFormTextarea>
-                        </CCol>
-                      </CRow>
-                      <CRow className="m-1 pb-2 mb-2 border-bottom border-light">
-                        <CCol xs={4}>Chip Number</CCol>
-                        <CCol>
-                          <CFormTextarea
-                            id="chip_number"
-                            rows={1}
-                            style={{ resize: 'none' }}
-                          ></CFormTextarea>
-                        </CCol>
-                      </CRow>
-                      <CRow className="m-1 pb-2 mb-2 border-bottom border-light">
-                        <CCol xs={4}>Solution</CCol>
-                        <CCol>
-                          <CFormTextarea
-                            id="solution"
-                            rows={1}
-                            style={{ resize: 'none' }}
-                          ></CFormTextarea>
-                        </CCol>
-                      </CRow>
-                      <CRow className="m-1 pb-2 mb-2 border-bottom border-light">
-                        <CCol xs={4}>Background Solution</CCol>
-                        <CCol>
-                          <CFormTextarea
-                            id="bg_solution"
-                            rows={1}
-                            style={{ resize: 'none' }}
-                          ></CFormTextarea>
-                        </CCol>
-                      </CRow>
-                      <CRow className="m-1 pb-2 mb-2 border-bottom border-light">
-                        <CCol xs={4}>Background Solution Date</CCol>
-                        <CCol>
-                          <CFormTextarea
-                            id="bg_batch"
-                            placeholder="DD / MM / YYYY"
-                            rows={1}
-                            style={{ resize: 'none' }}
-                          ></CFormTextarea>
-                        </CCol>
-                      </CRow>
-                      <CRow className="m-1 pb-2 mb-2 border-bottom border-light">
-                        <CCol xs={4}>Background Solution Concentration</CCol>
-                        <CCol>
-                          <CFormTextarea
-                            id="bg_concentration"
-                            rows={1}
-                            style={{ resize: 'none' }}
-                          ></CFormTextarea>
-                        </CCol>
-                      </CRow>
-                      <CRow className="m-1 pb-2 mb-2">
-                        <CCol xs={4}>Conductivity</CCol>
-                        <CCol>
-                          <CFormTextarea
-                            id="conductivity"
-                            rows={1}
-                            style={{ resize: 'none' }}
-                          ></CFormTextarea>
-                        </CCol>
-                      </CRow>
-                    </CCol>
-                  </CRow>
-                  <div className="pl-2 fw-bold fs-3 mb-2"></div>
-                  {uploadFiles.map((item, index) => (
-                    <HoverCard msg={item.warning}>
-                      <div>
-                        <CIcon
-                          icon={item.status === 'OK' ? cilCheck : cilX}
-                          size="xl"
-                          style={{ marginLeft: '5px', marginRight: '20px' }}
-                        />
-                      </div>
-                      <div className="">{item.file}</div>
-                      <div
-                        onMouseDown={() => removeUploadItem(item)}
-                        style={{ cursor: 'pointer', marginLeft: 'auto', marginRight: 0 }}
-                      >
-                        <CIcon
-                          icon={cilPlus}
-                          size="xl"
-                          style={{
-                            transform: 'rotateZ(45deg)',
-                          }}
-                        />
-                      </div>
-                    </HoverCard>
-                  ))}
-                  <HoverCard>
-                    {waitingUploadingData ? (
-                      <CCol className="text-center">
-                        <CSpinner style={{ width: '25px', height: '25px' }} />
+                <CRow className="m-0 mb-2">
+                  <CButton
+                    className="rounded-pill"
+                    color="dark"
+                    style={{ width: '15%', marginRight: '5px' }}
+                  >
+                    <CIcon icon={cilDescription} style={{ marginRight: '5px' }} /> Info
+                  </CButton>
+                  <CButton
+                    className="rounded-pill"
+                    color={'dark'}
+                    style={{ width: '15%', marginRight: '5px' }}
+                  >
+                    <CIcon icon={cilGraph} style={{ marginRight: '5px' }} /> Graph
+                  </CButton>
+                </CRow>
+                <CRow className="m-0 rounded-4">
+                  <CCol
+                    className="rounded-3  p-3"
+                    style={{
+                      backgroundColor: '',
+                    }}
+                  >
+                    <CRow className="m-1 pb-2 mb-2 border-bottom border-light">
+                      <CCol xs={4}>UIN</CCol>
+                      <CCol>
+                        <CFormTextarea disabled rows={1} style={{ resize: 'none' }}>
+                          {sessionID}
+                        </CFormTextarea>
                       </CCol>
-                    ) : (
-                      <CCol
-                        {...getRootProps({ isFocused, isDragAccept, isDragReject })}
-                        className="w-100 h-100 p-0 text-center"
-                        style={{ cursor: 'pointer' }}
-                      >
-                        <input {...getInputProps()} type="file" onChange={handleFileUpload} />
-                        <CIcon
-                          icon={cilPlus}
-                          size="xl"
-                          style={{ marginRight: '10px', height: '25px' }}
-                        />
+                    </CRow>
+                    <CRow className="m-1 pb-2 mb-2 border-bottom border-light">
+                      <CCol xs={4}>Date</CCol>
+                      <CCol>
+                        <CFormInput
+                          id="date"
+                          placeholder="DD / MM / YYYY"
+                          rows={1}
+                          style={{ resize: 'none' }}
+                          type="date"
+                        ></CFormInput>
                       </CCol>
-                    )}
+                    </CRow>
+                    <CRow className="m-1 pb-2 mb-2 border-bottom border-light">
+                      <CCol xs={4}>Operator</CCol>
+                      <CCol>
+                        <CFormTextarea
+                          id="operator"
+                          rows={1}
+                          style={{ resize: 'none' }}
+                        ></CFormTextarea>
+                      </CCol>
+                    </CRow>
+                    <CRow className="m-1 pb-2 mb-2 border-bottom border-light">
+                      <CCol xs={4}>Device</CCol>
+                      <CCol>
+                        <CFormTextarea
+                          id="device"
+                          rows={1}
+                          style={{ resize: 'none' }}
+                        ></CFormTextarea>
+                      </CCol>
+                    </CRow>
+                    <CRow className="m-1 pb-2 mb-2 border-bottom border-light">
+                      <CCol xs={4}>Comment</CCol>
+                      <CCol>
+                        <CFormTextarea
+                          id="remarks"
+                          rows={3}
+                          style={{ resize: 'none' }}
+                        ></CFormTextarea>
+                      </CCol>
+                    </CRow>
+                    <CRow className="m-1 pb-2 mb-2 border-bottom border-light">
+                      <CCol xs={4}>Start Time</CCol>
+                      <CCol>
+                        <CFormInput
+                          id="start_time"
+                          placeholder="MM:HH"
+                          rows={1}
+                          style={{ resize: 'none' }}
+                          type="time"
+                        ></CFormInput>
+                      </CCol>
+                    </CRow>
+                    <CRow className="m-1 pb-2 mb-2 border-bottom border-light">
+                      <CCol xs={4}>Finish Time</CCol>
+                      <CCol>
+                        <CFormInput
+                          id="finish_time"
+                          placeholder="MM:HH"
+                          rows={1}
+                          style={{ resize: 'none' }}
+                          type="time"
+                        ></CFormInput>
+                      </CCol>
+                    </CRow>
+                    <CRow className="m-1 pb-2 mb-2 border-bottom border-light">
+                      <CCol xs={4}>Sensor</CCol>
+                      <CCol>
+                        <CFormTextarea
+                          id="sensor_type"
+                          rows={1}
+                          style={{ resize: 'none' }}
+                        ></CFormTextarea>
+                      </CCol>
+                    </CRow>
+                    <CRow className="m-1 pb-2 mb-2 border-bottom border-light">
+                      <CCol xs={4}>Chip</CCol>
+                      <CCol>
+                        <CFormTextarea
+                          id="chip_type"
+                          rows={1}
+                          style={{ resize: 'none' }}
+                        ></CFormTextarea>
+                      </CCol>
+                    </CRow>
+                    <CRow className="m-1 pb-2 mb-2 border-bottom border-light">
+                      <CCol xs={4}>Chip Number</CCol>
+                      <CCol>
+                        <CFormTextarea
+                          id="chip_number"
+                          rows={1}
+                          style={{ resize: 'none' }}
+                        ></CFormTextarea>
+                      </CCol>
+                    </CRow>
+                    <CRow className="m-1 pb-2 mb-2 border-bottom border-light">
+                      <CCol xs={4}>Solution</CCol>
+                      <CCol>
+                        <CFormTextarea
+                          id="solution"
+                          rows={1}
+                          style={{ resize: 'none' }}
+                        ></CFormTextarea>
+                      </CCol>
+                    </CRow>
+                    <CRow className="m-1 pb-2 mb-2 border-bottom border-light">
+                      <CCol xs={4}>Background Solution</CCol>
+                      <CCol>
+                        <CFormTextarea
+                          id="bg_solution"
+                          rows={1}
+                          style={{ resize: 'none' }}
+                        ></CFormTextarea>
+                      </CCol>
+                    </CRow>
+                    <CRow className="m-1 pb-2 mb-2 border-bottom border-light">
+                      <CCol xs={4}>Background Solution Date</CCol>
+                      <CCol>
+                        <CFormInput
+                          id="bg_batch"
+                          placeholder="DD / MM / YYYY"
+                          rows={1}
+                          style={{ resize: 'none' }}
+                          type="date"
+                        ></CFormInput>
+                      </CCol>
+                    </CRow>
+                    <CRow className="m-1 pb-2 mb-2 border-bottom border-light">
+                      <CCol xs={4}>Background Solution Concentration</CCol>
+                      <CCol>
+                        <CFormInput
+                          id="bg_concentration"
+                          rows={1}
+                          style={{ resize: 'none' }}
+                        ></CFormInput>
+                      </CCol>
+                    </CRow>
+                    <CRow className="m-1 pb-2 mb-2">
+                      <CCol xs={4}>Conductivity</CCol>
+                      <CCol>
+                        <CFormTextarea
+                          id="conductivity"
+                          rows={1}
+                          style={{ resize: 'none' }}
+                        ></CFormTextarea>
+                      </CCol>
+                    </CRow>
+                    <CRow className="m-1 pb-2 mb-2">
+                      <CCol xs={4} className="p-0">
+                        <CDropdown autoClose="outside" className="w-100 bg-dark">
+                          <CDropdownToggle style={{ textAlign: 'left' }}></CDropdownToggle>
+                          <CDropdownMenu className="w-100">
+                            <CDropdownHeader>Filter Categories</CDropdownHeader>
+                            <CForm className="px-2">
+                              <CFormInput></CFormInput>
+                            </CForm>
+                            <CDropdownDivider />
+                            <CDropdownItem>Background Solution</CDropdownItem>
+                            <CDropdownItem>Background Solution Date</CDropdownItem>
+                            <CDropdownItem>Background Solution Concentration</CDropdownItem>
+                            <CDropdownItem>Background 6</CDropdownItem>
+                            <CDropdownItem>Background 9</CDropdownItem>
+                          </CDropdownMenu>
+                        </CDropdown>
+                      </CCol>
+                      <CCol>
+                        <CFormTextarea
+                          id="conductivity"
+                          rows={1}
+                          style={{ resize: 'none' }}
+                          disabled
+                        ></CFormTextarea>
+                      </CCol>
+                    </CRow>
+                  </CCol>
+                </CRow>
+                <div className="pl-2 fw-bold fs-3 mb-2"></div>
+                {uploadFiles.map((item, index) => (
+                  <HoverCard msg={item.warning}>
+                    <div>
+                      <CIcon
+                        icon={item.status === 'OK' ? cilCheck : cilX}
+                        size="xl"
+                        style={{ marginLeft: '5px', marginRight: '20px' }}
+                      />
+                    </div>
+                    <div className="">{item.file}</div>
+                    <div
+                      onMouseDown={() => removeUploadItem(item)}
+                      style={{ cursor: 'pointer', marginLeft: 'auto', marginRight: 0 }}
+                    >
+                      <CIcon
+                        icon={cilPlus}
+                        size="xl"
+                        style={{
+                          transform: 'rotateZ(45deg)',
+                        }}
+                      />
+                    </div>
                   </HoverCard>
-                </CCol>
-              </CRow>
-            </>
-          )}
+                ))}
+              </div>
+
+              <HoverCard>
+                {waitingUploadingData ? (
+                  <CCol className="text-center">
+                    <CSpinner style={{ width: '25px', height: '25px' }} />
+                  </CCol>
+                ) : (
+                  <CCol
+                    {...getRootProps({ isFocused, isDragAccept, isDragReject })}
+                    className="w-100 h-100 p-0 text-center"
+                    style={{ cursor: 'pointer' }}
+                  >
+                    <input {...getInputProps()} type="file" onChange={handleFileUpload} />
+                    <CIcon
+                      icon={cilPlus}
+                      size="xl"
+                      style={{ marginRight: '10px', height: '25px' }}
+                    />
+                  </CCol>
+                )}
+              </HoverCard>
+            </CCol>
+          </CRow>
         </CModalBody>
         <CModalFooter>
           <CButton color="secondary" onClick={() => closeUploadWindow()}>
@@ -803,6 +836,11 @@ const Home = () => {
             <CCardBody>
               <Calendar onDateRangeSelected={onDateRangeSelected} />
               <CRow className="m-0">
+                <CCol xs={2}>
+                  <CButton>
+                    <CIcon icon={cilIndentIncrease} size="xl" />
+                  </CButton>
+                </CCol>
                 <CFormLabel className="col-sm-3 col-form-label">Search</CFormLabel>
                 <CCol>
                   <CFormInput

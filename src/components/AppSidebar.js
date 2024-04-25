@@ -17,7 +17,7 @@ import CIcon from '@coreui/icons-react'
 
 import { AppSidebarNav } from './AppSidebarNav'
 
-import { logo } from 'src/assets/brand/logo'
+import { logo_simple } from 'src/assets/brand/logo_simple'
 import { sygnet } from 'src/assets/brand/sygnet'
 
 import SimpleBar from 'simplebar-react'
@@ -42,7 +42,11 @@ const AppSidebar = () => {
     >
       <CSidebarHeader style={{ justifyContent: 'center' }} className="align-items-center">
         <CSidebarBrand className="align-items-center" to="/">
-          <CIcon customClassName="align-self-center sidebar-brand-full" icon={logo} height={20} />
+          <CIcon
+            customClassName="align-self-center sidebar-brand-full"
+            icon={logo_simple}
+            height={20}
+          />
           <CIcon customClassName="sidebar-brand-narrow" icon={sygnet} height={20} />
         </CSidebarBrand>
         <CCloseButton

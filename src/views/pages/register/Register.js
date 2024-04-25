@@ -38,9 +38,14 @@ const Register = () => {
       <div id="stars2"></div>
       <div id="stars3"></div>
       <CContainer>
-        <CRow>
-          <CIcon customClassName="align-self-center text-center mb-1" icon={logo} height={40} />
-          <h5 className="text-center mb-5">Measuring Insights</h5>
+        <CRow className="mb-3">
+          <CIcon customClassName="align-self-center text-center mb-1" icon={logo} height={80} />
+          <h5
+            className="text-center mb-5"
+            style={{ fontFamily: 'sans-serif', letterSpacing: 3, fontSize: 20 }}
+          >
+            MEASURING INSIGHTS
+          </h5>
         </CRow>
         <CRow className="justify-content-center">
           <CCol md={9} lg={7} xl={6}>

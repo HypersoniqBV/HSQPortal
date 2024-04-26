@@ -79,6 +79,7 @@ import {
   cilGraph,
   cilXCircle,
   cilIndentIncrease,
+  cilCompass,
 } from '@coreui/icons'
 import ExperimentCell from './ExperimentCell'
 import Pagination from './Pagination'
@@ -91,7 +92,7 @@ import { UserContext } from 'src/App'
 
 ChartJS.register(LinearScale, PointElement, LogarithmicScale, LineElement, Title)
 
-const Home = () => {
+const Explorer = () => {
   const [networkError, setNetworkError] = useState(false)
   const [sessionID, setSessionID] = useState(0)
   const [needsSessionID, setNeedsSessionID] = useState(true)
@@ -787,46 +788,9 @@ const Home = () => {
           </CButton>
         </CModalFooter>
       </CModal>
-
       <CRow>
         <CCol xs={4}>
-          <CCard className="mb-4 relative" style={{ top: '0px', width: '100%' }}>
-            <CCardHeader>
-              <div>
-                <CIcon style={{ marginRight: '10px' }} icon={cilHistory} />
-                History
-              </div>
-            </CCardHeader>
-            <CCardBody>
-              <CTable align="top" className="mb-0" responsive striped hover>
-                <CTableBody>
-                  <CCol>
-                    <CRow className="w-100 m-0 bg-dark rounded-pill">
-                      <div style={{ height: 30 }}>
-                        <div></div>
-                        <div></div>
-                        <div></div>
-                      </div>
-                    </CRow>
-                  </CCol>
-                  {/*}
-                  {table.map((item, index) => (
-                    //
-                    // Display a table cell
-                    //
-
-                    <ExperimentCell
-                      data={item}
-                      onClickedCellCB={onClickedCellCallBack}
-                      parentRef={commonRef}
-                    />
-                  ))}
-                  */}
-                </CTableBody>
-              </CTable>
-            </CCardBody>
-          </CCard>
-          <CCard className="mb-4 position-sticky" style={{ top: '100px', width: '100%' }}>
+          <CCard className="position-sticky" style={{ top: '90px' }}>
             <CCardHeader>
               <div>
                 <CIcon style={{ marginRight: '10px' }} icon={cilFilter} />
@@ -866,7 +830,7 @@ const Home = () => {
             </CCardBody>
           </CCard>
         </CCol>
-        <CCol xs>
+        <CCol>
           <div>
             <CCard className="mb-4">
               <CCardHeader>
@@ -1061,4 +1025,4 @@ const Home = () => {
   )
 }
 
-export default Home
+export default Explorer

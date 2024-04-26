@@ -1,94 +1,135 @@
 import React from 'react'
 import CIcon from '@coreui/icons-react'
 import {
-  cilBell,
-  cilCalculator,
-  cilChartPie,
-  cilCursor,
-  cilDescription,
-  cilDrop,
-  cilNotes,
-  cilPencil,
-  cilPuzzle,
-  cilSpeedometer,
   cilStar,
   cilHome,
-  cilFolder,
-  cilCode,
-  cilCloudUpload,
   cilFile,
   cilMediaPlay,
+  cilCompass,
+  cilStorage,
+  cilUser,
+  cilSettings,
+  cilClock,
+  cilMonitor,
+  cilBeaker,
 } from '@coreui/icons'
 import { CNavGroup, CNavItem, CNavTitle } from '@coreui/react'
 
 const _nav = [
   {
+    component: CNavTitle,
+    name: 'Apps',
+  },
+  {
     component: CNavItem,
-    name: 'Home',
+    name: 'Dashboard',
     href: '#/home',
     icon: <CIcon icon={cilHome} customClassName="nav-icon" />,
-    /*
-    badge: {
-      color: 'info',
-      text: 'NEW',
-    },
-    */
+  },
+  {
+    component: CNavItem,
+    name: 'Explorer',
+    href: '#/apps/explorer',
+    icon: <CIcon icon={cilCompass} customClassName="nav-icon" />,
+  },
+  {
+    component: CNavItem,
+    name: 'Scanner',
+    href: '#/apps/scanner',
+    icon: <CIcon icon={cilBeaker} customClassName="nav-icon" />,
+  },
+  {
+    component: CNavItem,
+    name: 'Monitor',
+    href: '#/apps/monitor',
+    icon: <CIcon icon={cilMonitor} customClassName="nav-icon" />,
   },
   {
     component: CNavTitle,
-    name: 'Data',
+    name: 'Datasets',
+  },
+  {
+    component: CNavItem,
+    name: 'Favorites',
+    href: '#/datasets/favorites',
+    icon: <CIcon icon={cilStar} customClassName="nav-icon" />,
+    badge: {
+      color: 'info',
+      text: '10',
+    },
+  },
+  {
+    component: CNavItem,
+    name: 'History',
+    href: '#/datasets/history',
+    icon: <CIcon icon={cilClock} customClassName="nav-icon" />,
   },
   {
     component: CNavGroup,
-    name: 'Measurements',
-    icon: <CIcon icon={cilFolder} customClassName="nav-icon" />,
+    name: 'Storage',
+    icon: <CIcon icon={cilStorage} customClassName="nav-icon" />,
     items: [
       {
         component: CNavItem,
-        name: 'Inspector',
-        href: '#/measurements',
+        name: 'Hypersoniq',
+        href: '#/datasets/storage/hypersoniq',
+        badge: {
+          color: 'black',
+          text: '10',
+        },
       },
       {
         component: CNavItem,
-        name: 'Favorites',
-        href: '#/measurements',
+        name: 'TU Delft',
+        href: '#/datasets/storage/tu_delft',
+        badge: {
+          color: 'black',
+          text: '10',
+        },
       },
       {
         component: CNavItem,
-        name: 'History',
-        href: '#/measurements',
+        name: 'KWR',
+        href: '#/datasets/storage/kwr',
+        badge: {
+          color: 'black',
+          text: '10',
+        },
       },
     ],
   },
   {
     component: CNavItem,
-    name: 'Model',
-    href: '#/data/model',
-    icon: <CIcon icon={cilMediaPlay} customClassName="nav-icon" />,
-    /*
-    items: [
-      {
-        component: CNavItem,
-        name: 'Accordion',
-        href: '#/base/accordion',
-      },
-      {
-        component: CNavItem,
-        name: 'Breadcrumb',
-        href: '#/base/breadcrumbs',
-      },
-    ],
-    */
+    name: 'Data Manager',
+    href: '#/datasets/data_manager',
+    icon: <CIcon icon={cilFile} customClassName="nav-icon" />,
   },
   {
     component: CNavTitle,
-    name: 'Code',
+    name: 'Tools',
   },
   {
     component: CNavItem,
-    name: 'Documentation',
-    href: '#/code/documentation',
-    icon: <CIcon icon={cilFile} customClassName="nav-icon" />,
+    name: 'PalmSens',
+    href: '#/tools/palmsens',
+    icon: <CIcon icon={cilMediaPlay} customClassName="nav-icon" />,
+  },
+
+  {
+    component: CNavTitle,
+    name: 'Extra',
+  },
+  {
+    component: CNavItem,
+    name: 'Account',
+    href: '#/extra/account',
+    icon: <CIcon icon={cilUser} customClassName="nav-icon" />,
+  },
+  {
+    component: CNavItem,
+    name: 'Settings',
+    href: '#/extra/settings',
+    icon: <CIcon icon={cilSettings} customClassName="nav-icon" />,
   },
 ]
 

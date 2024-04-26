@@ -40,8 +40,8 @@ const AppSidebar = () => {
         dispatch({ type: 'set', sidebarShow: visible })
       }}
     >
-      <CSidebarHeader style={{ justifyContent: 'center' }} className="align-items-center">
-        <CSidebarBrand className="align-items-center" to="/">
+      <CSidebarHeader style={{ justifyContent: 'center' }} className="align-items-center mb-2">
+        <CSidebarBrand className="align-items-center">
           <CIcon
             customClassName="align-self-center sidebar-brand-full"
             icon={logo_simple}
@@ -56,8 +56,15 @@ const AppSidebar = () => {
         />
       </CSidebarHeader>
 
-      <CSidebarNav>
-        <SimpleBar className="rounded-3 bg-dark m-0">
+      <CSidebarNav className="pt-0 h-100">
+        <SimpleBar
+          className="rounded-3 bg-dark m-0 pb-4"
+          style={{
+            scrollbarWidth: 'none',
+            msOverflowStyle: 'none',
+            overflow: '-moz-scrollbars-none',
+          }}
+        >
           <AppSidebarNav items={navigation} />
         </SimpleBar>
       </CSidebarNav>

@@ -32,7 +32,7 @@ import {
 import { AppBreadcrumb } from './index'
 import { AppHeaderDropdown } from './header/index'
 import { publish } from 'src/event'
-import AppHeaderData from 'src/views/home/AppHeaderData'
+import AppHeaderData from 'src/views/apps/AppHeaderData'
 
 const AppHeader = () => {
   const headerRef = useRef()
@@ -64,14 +64,7 @@ const AppHeader = () => {
           <CIcon icon={cilMenu} size="lg" />
         </CHeaderToggler>
         <CHeaderNav>
-          {path === '/home' || path === '/home/:id' ? <AppHeaderData /> : <></>}
-          {/*
-          <li className="nav-item py-1">
-            <div className="vr h-100 mx-2 text-body text-opacity-75"></div>
-          </li>
-
-
-          {/*<AppHeaderDropdown />*/}
+          {path === '/apps/explorer' || path === '/apps/explorer/:id' ? <AppHeaderData /> : <></>}
         </CHeaderNav>
         <CHeaderNav className="ms-auto">
           <CNavItem>

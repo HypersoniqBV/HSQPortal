@@ -6,6 +6,7 @@ import { CBadge } from '@coreui/react'
 
 export const AppSidebarNav = ({ items }) => {
   const location = useLocation()
+
   const navLink = (name, icon, badge, indent = false) => {
     return (
       <>
@@ -28,6 +29,8 @@ export const AppSidebarNav = ({ items }) => {
 
   const navItem = (item, index, indent = false) => {
     const { component, name, badge, icon, ...rest } = item
+    console.log(item.href, '#' + location.pathname)
+
     const Component = component
     return (
       <Component
@@ -37,6 +40,22 @@ export const AppSidebarNav = ({ items }) => {
           })}
         key={index}
         {...rest}
+        style={
+          item.href === '#' + location.pathname
+            ? {
+                backgroundColor: '#373a3d',
+                borderRadius: '0px',
+                borderTopLeftRadius: '10px',
+                borderBottomLeftRadius: '10px',
+                marginLeft: '20px',
+                marginRight: '0px',
+              }
+            : {
+                borderRadius: '0px',
+                borderTopLeftRadius: '10px',
+                borderBottomLeftRadius: '10px',
+              }
+        }
       >
         {navLink(name, icon, badge, indent)}
       </Component>

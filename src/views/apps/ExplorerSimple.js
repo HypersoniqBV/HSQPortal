@@ -86,7 +86,7 @@ import HoverCard from './HoverCard'
 
 ChartJS.register(LinearScale, PointElement, LogarithmicScale, LineElement, Title)
 
-const Home = () => {
+const ExplorerSimple = () => {
   const [networkError, setNetworkError] = useState(false)
   const [sessionID, setSessionID] = useState(0)
   const [needsSessionID, setNeedsSessionID] = useState(true)
@@ -883,4 +883,4 @@ const Home = () => {
   )
 }
 
-export default Home
+export default ExplorerSimple

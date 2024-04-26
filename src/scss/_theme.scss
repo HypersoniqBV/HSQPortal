@@ -274,6 +274,18 @@ body {
   box-shadow: 91px 409px #FFF , 1886px 728px #FFF , 1294px 970px #FFF , 720px 1215px #FFF , 796px 1431px #FFF , 834px 1217px #FFF , 1926px 1164px #FFF , 1803px 310px #FFF , 1532px 1421px #FFF , 1680px 232px #FFF;
 }
 
+/* Hide scrollbar for Chrome, Safari and Opera */
+.sidebar-scroll::-webkit-scrollbar {
+  display: none;
+}
+
+/* Hide scrollbar for IE, Edge and Firefox */
+.sidebar-scroll {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}
+
+
 @keyframes animStar {
   from {
     transform: translateY(0px);

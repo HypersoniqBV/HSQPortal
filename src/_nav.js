@@ -17,14 +17,14 @@ import { CNavGroup, CNavItem, CNavTitle } from '@coreui/react'
 
 const _nav = [
   {
-    component: CNavTitle,
-    name: 'Apps',
-  },
-  {
     component: CNavItem,
     name: 'Dashboard',
     href: '#/home',
     icon: <CIcon icon={cilHome} customClassName="nav-icon" />,
+  },
+  {
+    component: CNavTitle,
+    name: 'Apps',
   },
   {
     component: CNavItem,

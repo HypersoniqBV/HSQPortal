@@ -56,15 +56,15 @@ const AppSidebar = () => {
         />
       </CSidebarHeader>
 
-      <CSidebarNav className="pt-0 h-100">
-        <SimpleBar
-          className="rounded-3 bg-dark m-0 pb-4"
-          style={{
-            scrollbarWidth: 'none',
-            msOverflowStyle: 'none',
-            overflow: '-moz-scrollbars-none',
-          }}
-        >
+      <CSidebarNav
+        style={{
+          scrollbarWidth: 'none',
+          msOverflowStyle: 'none',
+          overflow: '-moz-scrollbars-none',
+        }}
+        className="pt-0 h-100 p-0 rounded-3 m-2 mb-0 mt-0"
+      >
+        <SimpleBar className="bg-dark pb-3 m-0 pt-4 h-100">
           <AppSidebarNav items={navigation} />
         </SimpleBar>
       </CSidebarNav>

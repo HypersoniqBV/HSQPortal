@@ -1,5 +1,5 @@
-import React, { useEffect, useRef } from 'react'
-import { NavLink, useLocation } from 'react-router-dom'
+import React, { useContext, useEffect, useRef } from 'react'
+import { NavLink, useLocation, useNavigate } from 'react-router-dom'
 import { useSelector, useDispatch } from 'react-redux'
 import {
   CContainer,
@@ -33,6 +33,7 @@ import { AppBreadcrumb } from './index'
 import { AppHeaderDropdown } from './header/index'
 import { publish } from 'src/event'
 import AppHeaderData from 'src/views/apps/AppHeaderData'
+import { UserContext } from 'src/App'
 
 const AppHeader = () => {
   const headerRef = useRef()
@@ -53,6 +54,14 @@ const AppHeader = () => {
   }, [])
 
   const path = useLocation().pathname
+  const { user, setUser, token, setToken } = useContext(UserContext)
+  const navigate = useNavigate()
+
+  function accountLogOut() {
+    setUser(false)
+    setToken(null)
+    navigate('/home')
+  }
 
   return (
     <CHeader position="sticky" className="mb-2 p-1 shadow-lg" ref={headerRef}>
@@ -78,8 +87,8 @@ const AppHeader = () => {
             </CNavLink>
           </CNavItem>
           <CNavItem>
-            <CNavLink href="#">
-              <CIcon icon={cilAccountLogout} size="lg" />
+            <CNavLink style={{ cursor: 'pointer' }}>
+              <CIcon icon={cilAccountLogout} size="lg" onClick={() => accountLogOut()} />
             </CNavLink>
           </CNavItem>
         </CHeaderNav>

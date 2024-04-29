@@ -14,23 +14,47 @@ import {
 import CIcon from '@coreui/icons-react'
 import { cilLockLocked, cilUser } from '@coreui/icons'
 import { logo } from 'src/assets/brand/logo'
-import { useParams } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
 
 const Register = () => {
   document.body.style.overflow = 'hidden'
+  const navigate = useNavigate()
 
   const { id } = useParams()
-  console.log(id)
-
   const [username, setUsername] = useState(null)
   const [email, setEmail] = useState(null)
 
-  fetch('https://10.8.0.1:5000/api/register/user_sub?id=' + id)
+  fetch('https://10.8.0.1:5000/api/user/fetch?id=' + id)
     .then((res) => res.json())
     .then((dat) => {
       setUsername(dat.username)
       setEmail(dat.email)
     })
+    //If we can't confirm the creation ID, return to the login page
+    .catch((res) => navigate('/'))
+
+  function createAccount() {
+    const password = document.getElementById('password').value
+    const repeatedPassword = document.getElementById('repeatedPassword').value
+
+    if (password !== repeatedPassword) {
+      console.log('Passwords do not match!')
+      return
+    }
+
+    var body = { creation_id: id, password: password }
+    fetch('https://10.8.0.1:5000/api/user/register', {
+      method: 'POST',
+      body: JSON.stringify(body),
+    })
+      .then((res) => res.json())
+      .then((dat) => {
+        if (dat.status === 'OK') {
+          navigate('/')
+        }
+      })
+      .catch((dat) => console.log(dat))
+  }
 
   return (
     <div className="bg-body-dark min-vh-100 d-flex flex-row align-items-center">
@@ -69,6 +93,7 @@ const Register = () => {
                       <CIcon icon={cilLockLocked} />
                     </CInputGroupText>
                     <CFormInput
+                      id="password"
                       type="password"
                       placeholder="Password"
                       autoComplete="new-password"
@@ -80,6 +105,7 @@ const Register = () => {
                       <CIcon icon={cilLockLocked} />
                     </CInputGroupText>
                     <CFormInput
+                      id="repeatedPassword"
                       type="password"
                       placeholder="Repeat password"
                       autoComplete="new-password"
@@ -87,7 +113,7 @@ const Register = () => {
                     />
                   </CInputGroup>
                   <div className="d-grid">
-                    <CButton color="primary" className="border-0">
+                    <CButton color="primary" className="border-0" onClick={() => createAccount()}>
                       Create Account
                     </CButton>
                   </div>

@@ -23,6 +23,7 @@ const App = () => {
 
   // Set if the user is authenticated or not
   const [user, setUser] = React.useState(false)
+  const [userMeta, setUserMeta] = React.useState(null)
 
   const fakeAuth = () =>
     new Promise((resolve) => {
@@ -60,7 +61,14 @@ const App = () => {
         }
       >
         <UserContext.Provider
-          value={{ user: user, setUser: setUser, token: token, setToken: setToken }}
+          value={{
+            user: user,
+            setUser: setUser,
+            token: token,
+            setToken: setToken,
+            userMeta: userMeta,
+            setUserMeta: setUserMeta,
+          }}
         >
           <Routes>
             <Route exact path="/login" name="Login Page" element={<Login />} />

@@ -4,6 +4,7 @@ import {
   CButton,
   CCard,
   CCardBody,
+  CCardFooter,
   CCardGroup,
   CCol,
   CContainer,
@@ -23,7 +24,7 @@ import { UserContext } from 'src/App'
 
 const Login = () => {
   const navigate = useNavigate()
-  const { user, setUser, token, setToken } = useContext(UserContext)
+  const { user, setUser, token, setToken, userMeta, setUserMeta } = useContext(UserContext)
 
   useEffect(() => {
     if (user) {
@@ -35,6 +36,9 @@ const Login = () => {
     const inputBox = document.getElementById('input-box')
     inputBox.style.animation = 'none'
 
+    const warningBox = document.getElementById('warning-box')
+    warningBox.style.animation = 'none'
+
     const userEl = document.getElementById('username')
     var usernameVal = userEl.value
 
@@ -45,9 +49,6 @@ const Login = () => {
       username: usernameVal,
       password: passwordVal,
     }
-
-    setUser(true)
-    navigate('/home')
 
     fetch('https://10.8.0.1:5000/api/auth', {
       method: 'POST',
@@ -61,12 +62,15 @@ const Login = () => {
         if (dat['auth'] === 'OK') {
           // The right password was entered
           setUser(true)
+          setUserMeta(dat['meta'])
           setToken(dat['token'])
           navigate('/home')
         } else {
           // The wrong password was entered
           inputBox.style.animation = 'none'
           inputBox.style.animation = 'horizontal-shaking 0.3s linear 1'
+          warningBox.className =
+            'pt-2 bg-primary rounded-bottom-4 popup-warning-showing text-center'
         }
       })
     //console.log('test')
@@ -94,13 +98,9 @@ const Login = () => {
             </h5>
           </CRow>
           <CRow className="justify-content-center">
-            <CCol xl={5}>
+            <CCol xl={5} id="input-box" style={{ animation: 'none' }}>
               <CCardGroup>
-                <CCard
-                  className="p-4 rounded-4 border-0"
-                  style={{ animation: 'none' }}
-                  id="input-box"
-                >
+                <CCard className="p-4 rounded-top-4 rounded-bottom-4 border-0">
                   <CCardBody>
                     <CForm>
                       <h2>Login</h2>
@@ -139,6 +139,16 @@ const Login = () => {
                   </CCardBody>
                 </CCard>
               </CCardGroup>
+              <div
+                id="warning-box"
+                style={{
+                  backgroundColor: '#373a3d',
+                  height: '35px',
+                }}
+                className="p-0 bg-primary rounded-bottom-4 popup-warning text-center"
+              >
+                Wrong username or password.
+              </div>
             </CCol>
           </CRow>
         </CContainer>

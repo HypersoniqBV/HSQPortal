@@ -46,6 +46,23 @@ body {
   }
 }
 
+.vertical-center {
+  margin: 0;
+  position: absolute;
+  top: 50%;
+  -ms-transform: translateY(-50%);
+  transform: translateY(-50%);
+}
+
+.center {
+  margin: 0;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  -ms-transform: translate(-50%, -50%);
+  transform: translate(-50%, -50%);
+}
+
 .sidebar-toggler {
   @include ltr-rtl("margin-left", auto);
 }
@@ -285,6 +302,35 @@ body {
   scrollbar-width: none;  /* Firefox */
 }
 
+.popup-warning {
+  margin-top: -40px;
+  transition: margin-top 0.1s linear;
+}
+
+.popup-warning-showing {
+  margin-top: -10px;
+  transition: margin-top 0.1s linear;
+}
+
+.sidebar-button {
+  margin-left: 0px;
+  transition: margin-left 0.0s linear;
+}
+.sidebar-button:hover {
+  margin-left: 5px;
+}
+
+.app-tile {
+  background-color: #2e3135;
+  width: 130px;
+  height: 130px;
+  transition: background-color 0.05s linear;
+}
+
+.app-tile:hover {
+  background-color: #52100A;
+  scale: 1.05;
+}
 
 @keyframes animStar {
   from {
@@ -297,9 +343,9 @@ body {
 
 @keyframes horizontal-shaking {
   0% { transform: translateX(0) }
-  25% { transform: translateX(25px) }
-  50% { transform: translateX(-25px) }
-  75% { transform: translateX(25px) }
+  25% { transform: translateX(15px) }
+  50% { transform: translateX(-15px) }
+  75% { transform: translateX(15px) }
   100% { transform: translateX(0) }
  }
 

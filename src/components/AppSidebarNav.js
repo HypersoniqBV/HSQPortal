@@ -29,11 +29,11 @@ export const AppSidebarNav = ({ items }) => {
 
   const navItem = (item, index, indent = false) => {
     const { component, name, badge, icon, ...rest } = item
-    console.log(item.href, '#' + location.pathname)
 
     const Component = component
     return (
       <Component
+        className="sidebar-button"
         {...(rest.to &&
           !rest.items && {
             component: NavLink,
@@ -49,11 +49,14 @@ export const AppSidebarNav = ({ items }) => {
                 borderBottomLeftRadius: '10px',
                 marginLeft: '20px',
                 marginRight: '0px',
+                transition: 'margin-left 0.1s',
               }
             : {
                 borderRadius: '0px',
                 borderTopLeftRadius: '10px',
                 borderBottomLeftRadius: '10px',
+                marginLeft: '0px',
+                transition: 'margin-left 0.1s',
               }
         }
       >

@@ -12,6 +12,8 @@ import {
   cilClock,
   cilMonitor,
   cilBeaker,
+  cilBrowser,
+  cilTag,
 } from '@coreui/icons'
 import { CNavGroup, CNavItem, CNavTitle } from '@coreui/react'
 
@@ -100,9 +102,9 @@ const _nav = [
   },
   {
     component: CNavItem,
-    name: 'Data Manager',
-    href: '#/datasets/data_manager',
-    icon: <CIcon icon={cilFile} customClassName="nav-icon" />,
+    name: 'Projects',
+    href: '#/datasets/projects',
+    icon: <CIcon icon={cilTag} customClassName="nav-icon" />,
   },
   {
     component: CNavTitle,

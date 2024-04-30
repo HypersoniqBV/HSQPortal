@@ -122,7 +122,7 @@ const Explorer = () => {
   const [filterInput, setFilterInput] = useState('')
   const commonRef = useRef()
 
-  const { user, setUser, token, setToken } = useContext(UserContext)
+  const { user, setUser, token, setToken, userMeta, setUserMeta } = useContext(UserContext)
 
   const { getRootProps, getInputProps, isFocused, isDragAccept, isDragReject } = useDropzone({
     accept: {
@@ -178,28 +178,6 @@ const Explorer = () => {
 
   var Buffer = require('buffer/').Buffer
 
-  const { id } = useParams()
-
-  useEffect(() => {
-    setIsIdRequest(id !== undefined)
-
-    if (id !== undefined) {
-      fetch('https://10.8.0.1:5000/api/portal/id?id=' + id)
-        .then((response) => response.json())
-        .then((data) => {
-          setDataset(data)
-          setFilteredTable(data)
-          setTable(filteredTable.slice(0, itemsPerPage))
-          setData(true)
-          setIsLoading(false)
-        })
-        .catch((res) => {
-          addToast(toasterFabricator('Network Error', res.toString()))
-          setNetworkError(true)
-        })
-    }
-  }, [filteredTable, id, itemsPerPage])
-
   useEffect(() => {
     if (!hasData) {
       //Test
@@ -209,7 +187,11 @@ const Explorer = () => {
     setPaginationLength(Math.ceil(filteredTable.length / itemsPerPage))
   }, [currentPage, dataset, filteredTable, hasData, itemsPerPage])
 
-  useEffect(() => {}, [sessionID, needsSessionID])
+  useEffect(() => {
+    if (needsSessionID) {
+      generateSessionID()
+    }
+  }, [needsSessionID])
 
   useEffect(() => {
     if (updateFilters) {
@@ -282,6 +264,8 @@ const Explorer = () => {
       })
         .then((response) => response.json())
         .then((data) => {
+          console.log(data)
+
           setDataset(data)
           setFilteredTable(data)
           setTable(filteredTable.slice(0, itemsPerPage))
@@ -339,16 +323,21 @@ const Explorer = () => {
     //commonRef.current.testFunction()
   }
 
+  function generateSessionID() {
+    var id = (Math.random() + 1).toString(36).substring(2)
+    setSessionID(id)
+    console.log(id)
+    setNeedsSessionID(false)
+    return id
+  }
+
   async function handleFileUpload(e) {
     const files = Array.from(e.target.files)
 
     var id = sessionID
 
     if (needsSessionID) {
-      id = (Math.random() + 1).toString(36).substring(2)
-      setSessionID(id)
-      console.log(id)
-      setNeedsSessionID(false)
+      id = generateSessionID()
     }
 
     async function sendFiles(files, id) {
@@ -544,21 +533,17 @@ const Explorer = () => {
                     <CRow className="m-1 pb-2 mb-2 border-bottom border-light">
                       <CCol xs={4}>Operator</CCol>
                       <CCol>
-                        <CFormTextarea
-                          id="operator"
-                          rows={1}
-                          style={{ resize: 'none' }}
-                        ></CFormTextarea>
+                        <CFormTextarea disabled id="operator" rows={1} style={{ resize: 'none' }}>
+                          {String(userMeta.first_name) + ' ' + String(userMeta.last_name)}
+                        </CFormTextarea>
                       </CCol>
                     </CRow>
                     <CRow className="m-1 pb-2 mb-2 border-bottom border-light">
                       <CCol xs={4}>Device</CCol>
                       <CCol>
-                        <CFormTextarea
-                          id="device"
-                          rows={1}
-                          style={{ resize: 'none' }}
-                        ></CFormTextarea>
+                        <CFormTextarea disabled id="device" rows={1} style={{ resize: 'none' }}>
+                          {uploadFiles.length > 0 ? uploadFiles[0].device : ''}
+                        </CFormTextarea>
                       </CCol>
                     </CRow>
                     <CRow className="m-1 pb-2 mb-2 border-bottom border-light">
@@ -800,11 +785,6 @@ const Explorer = () => {
             <CCardBody>
               <Calendar onDateRangeSelected={onDateRangeSelected} />
               <CRow className="m-0">
-                <CCol xs={2}>
-                  <CButton>
-                    <CIcon icon={cilIndentIncrease} size="xl" />
-                  </CButton>
-                </CCol>
                 <CFormLabel className="col-sm-3 col-form-label">Search</CFormLabel>
                 <CCol>
                   <CFormInput
@@ -948,7 +928,7 @@ const Explorer = () => {
 
                               <ExperimentCell
                                 data={item}
-                                onClickedCellCB={onClickedCellCallBack}
+                                onClickedCellCallBack={onClickedCellCallBack}
                                 parentRef={commonRef}
                                 toaster={warnThroughToaster}
                               />

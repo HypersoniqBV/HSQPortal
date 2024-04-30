@@ -63,6 +63,15 @@ body {
   transform: translate(-50%, -50%);
 }
 
+.center-right {
+  margin: 0;
+  position: absolute;
+  top: 50%;
+  left: 100%;
+  -ms-transform: translate(-100%, -50%);
+  transform: translate(-100%, -50%);
+}
+
 .sidebar-toggler {
   @include ltr-rtl("margin-left", auto);
 }
@@ -237,6 +246,35 @@ body {
   transition: max-height 1s;
 }
 
+.wave {
+  --size: 20px;
+  --m: 0.5;
+  --b: 2px;
+  --p: calc(var(--m)*var(--size));
+  --R: calc(var(--size)*sqrt(var(--m)*var(--m) + 1) + var(--b)/2);
+
+  //animation: animWave 1s alternate infinite;
+
+  --_g: #0000 calc(99% - var(--b)), #000 calc(101% - var(--b)) 99%, #0000 101%;
+  mask:
+    radial-gradient(var(--R) at left 50% bottom calc(-1 * var(--p)), var(--_g)) 
+     calc(50% - 2*var(--size)) calc(50% - var(--size)/2 - var(--b)/2) / calc(4 * var(--size)) calc(var(--size) + var(--b)) repeat-x,
+    radial-gradient(var(--R) at left 50% top calc(-1*var(--p)),var(--_g)) 
+     50%  calc(50% + var(--size)/2 + var(--b)/2) / calc(4 * var(--size)) calc(var(--size) + var(--b)) repeat-x;
+     
+}
+
+@keyframes animWave {
+  0% {
+    --m: 0;
+  }
+  50% {
+    --m: 0.5;
+  }
+  100% {
+    --m: 1;
+  }
+}
 
 #stars {
   width: 1px;
@@ -322,8 +360,8 @@ body {
 
 .app-tile {
   background-color: #2e3135;
-  width: 130px;
-  height: 130px;
+  width: 80px;
+  height: 80px;
   transition: background-color 0.05s linear;
 }
 

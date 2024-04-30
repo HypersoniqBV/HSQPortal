@@ -358,7 +358,7 @@ function dataSet(values) {
   }
 }
 
-function ExperimentCell({ data, onClickedCellCB, toaster }) {
+function ExperimentCell({ data, onClickedCellCallBack, toaster }) {
   const [cellState, setCellState] = useState({
     height: 0,
     rotation: '90deg',
@@ -459,7 +459,7 @@ function ExperimentCell({ data, onClickedCellCB, toaster }) {
         v-for="item in tableItems"
         onClick={() => {
           onClickedCell()
-          onClickedCellCB(data)
+          onClickedCellCallBack(data)
         }}
         style={{
           cursor: 'pointer',
@@ -591,7 +591,7 @@ function ExperimentCell({ data, onClickedCellCB, toaster }) {
               <CRow className="mt-1 mb-2 p-3 bg-dark rounded-4">
                 <CCol style={{ textAlign: 'center' }}>
                   <CIcon icon={cilFile} className="m-2" size="xxl" xs={2} />
-                  <div style={{ fontSize: 13 }}>{'EXP#0000' + data.id}</div>
+                  <div style={{ fontSize: 13 }}>{'EXP#' + data.id}</div>
                 </CCol>
                 <CCol style={{ textAlign: 'center' }}>
                   <CIcon icon={cilCalendar} className="m-2" size="xxl" xs={2} />
@@ -711,6 +711,14 @@ function ExperimentCell({ data, onClickedCellCB, toaster }) {
                           style={{ resize: 'none' }}
                         >
                           {data.bg_concentration}
+                        </CFormTextarea>
+                      </CCol>
+                    </CRow>
+                    <CRow className="m-1">
+                      <CCol xs={2}>UUID</CCol>
+                      <CCol>
+                        <CFormTextarea disabled rows={1} style={{ resize: 'none' }}>
+                          {data.uuid}
                         </CFormTextarea>
                       </CCol>
                     </CRow>

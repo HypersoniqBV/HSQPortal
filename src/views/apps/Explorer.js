@@ -256,12 +256,15 @@ const Explorer = () => {
       var time2 = date2.getTime() - date2.getTimezoneOffset() * 1000 * 60
 
       //Get the new data
-      fetch('https://10.8.0.1:5000/api/portal?t1=' + time1 + '&t2=' + time2, {
-        method: 'GET',
-        headers: {
-          Authorization: 'Bearer ' + token,
+      fetch(
+        'https://10.8.0.1:5000/api/data/measurements/experiment-meta?t1=' + time1 + '&t2=' + time2,
+        {
+          method: 'GET',
+          headers: {
+            Authorization: 'Bearer ' + token,
+          },
         },
-      })
+      )
         .then((response) => response.json())
         .then((data) => {
           console.log(data)
@@ -921,13 +924,13 @@ const Explorer = () => {
                           </CTableHead>
 
                           <CTableBody>
-                            {table.map((item, index) => (
+                            {table.map((meta, index) => (
                               //
                               // Display a table cell
                               //
 
                               <ExperimentCell
-                                data={item}
+                                meta={meta}
                                 onClickedCellCallBack={onClickedCellCallBack}
                                 parentRef={commonRef}
                                 toaster={warnThroughToaster}

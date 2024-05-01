@@ -246,6 +246,16 @@ body {
   transition: max-height 1s;
 }
 
+.notification-box {
+  background-color: $dark;
+  cursor: pointer;
+}
+
+.notification-box:hover {
+  scale: 1.01;
+  background-color: #52100A;
+}
+
 .wave {
   --size: 20px;
   --m: 0.5;

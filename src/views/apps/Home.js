@@ -114,6 +114,41 @@ const Home = () => {
 
   console.log(sortedNav)
 
+  const testMessages = [
+    {
+      msg: " Maria commented on experiment #12 of project HSQ#0320",
+      time: "8 hours ago"
+    },
+    {
+      msg: " Zahra commented on experiment #12 of project HSQ#0320",
+      time: "8 hours ago"
+    },
+    {
+      msg: " Zahra commented on experiment #12 of project HSQ#0320",
+      time: "8 hours ago"
+    },
+    {
+      msg: " Maria commented on experiment #12 of project HSQ#0320",
+      time: "8 hours ago"
+    },
+    {
+      msg: " Maria commented on experiment #12 of project HSQ#0320",
+      time: "8 hours ago"
+    },
+    {
+      msg: " Maria commented on experiment #12 of project HSQ#0320",
+      time: "8 hours ago"
+    },
+    {
+      msg: " Maria commented on experiment #12 of project HSQ#0320",
+      time: "8 hours ago"
+    },
+    {
+      msg: " Maria commented on experiment #12 of project HSQ#0320",
+      time: "8 hours ago"
+    },
+  ]
+
   return (
     <>
     <CRow className='mb-3'>
@@ -127,9 +162,6 @@ const Home = () => {
       <CCol xs={7}>
         <h1>Welcome, {userMeta.first_name}</h1>
         <p>Last logged in - 30/04/2024</p>
-      </CCol>
-      <CCol className='m-3 mt-0 ml-0 mb-0' style={{position:'relative'}}>
-        <CButton className="center-right" style={{width:"200px", height:"70%" }}color="secondary">+ Add Measurement</CButton>
       </CCol>
     </CRow>
     <CRow>
@@ -153,71 +185,21 @@ const Home = () => {
           <CCardHeader>Notifications</CCardHeader>
           <CCardBody style={{position: 'relative', padding: 0 }}>
             <div style={{ position: 'absolute', overflow: 'scroll', width: '100%', height: '100%' }}>
+              {testMessages.map((item, index) => (
               <CRow className='m-2'>
-                <div className="bg-dark shadow rounded-3 pt-2 pb-2" style={{ height: "70px", verticalAlign: "middle" }}>
-                  <CRow>
-                    <CCol xs={1} style={{ position: 'relative' }}>
-                      <div className='bg-white rounded-circle center' style={{ width: '10px', height: '10px' }} />
-                    </CCol>
-                    <CCol>
-                      <CRow className='fw-bold'>(Upload) Zahra uploaded a new experiment to project HSQ#0321.</CRow>
-                      <CRow style={{fontSize: 2}}>8 hours ago</CRow>
-                    </CCol>
-                  </CRow>
-                </div>
-              </CRow>
-              <CRow className='m-2'>
-                <div className="bg-dark shadow rounded-3 pt-2 pb-2" style={{ height: "70px", verticalAlign: "middle" }}>
-                  <CRow>
-                    <CCol xs={1} style={{ position: 'relative' }}>
-                      <div className='bg-white rounded-circle center' style={{ width: '10px', height: '10px' }} />
-                    </CCol>
-                    <CCol>
-                      <CRow className='fw-bold'>(Create) Zahra created a new project with name HSQ#0321.</CRow>
-                      <CRow style={{fontSize: 2}}>10 hours ago</CRow>
-                    </CCol>
-                  </CRow>
-                </div>
-              </CRow>
-              <CRow className='m-2'>
-                <div className="bg-dark shadow rounded-3 pt-2 pb-2" style={{ height: "70px", verticalAlign: "middle" }}>
-                  <CRow>
-                    <CCol xs={1} style={{ position: 'relative' }}>
-                      <div className='bg-white rounded-circle center' style={{ width: '10px', height: '10px' }} />
-                    </CCol>
-                    <CCol>
-                      <CRow className='fw-bold'>(Create) Maria created a new project with name HSQ#0323.</CRow>
-                      <CRow style={{fontSize: 2}}>11 hours ago</CRow>
-                    </CCol>
-                  </CRow>
-                </div>
-              </CRow>
-              <CRow className='m-2'>
-                <div className="bg-dark shadow rounded-3 pt-2 pb-2" style={{ height: "70px", verticalAlign: "middle" }}>
-                  <CRow>
-                    <CCol xs={1} style={{ position: 'relative' }}>
-                      <div className='bg-white rounded-circle center' style={{ width: '10px', height: '10px' }} />
-                    </CCol>
-                    <CCol>
-                      <CRow className='fw-bold'>(Upload) Maria uploaded a new experiment to project HSQ#0320.</CRow>
-                      <CRow style={{fontSize: 2}}>13 hours ago</CRow>
-                    </CCol>
-                  </CRow>
-                </div>
-              </CRow>
-              <CRow className='m-2'>
-                <div className="bg-dark shadow rounded-3 pt-2 pb-2" style={{ height: "70px", verticalAlign: "middle" }}>
-                  <CRow>
-                    <CCol xs={1} style={{ position: 'relative' }}>
-                      <div className='bg-white rounded-circle center' style={{ width: '10px', height: '10px' }} />
-                    </CCol>
-                    <CCol>
-                      <CRow className='fw-bold'>(Comment) Maria commented on experiment #12 of project HSQ#0320</CRow>
-                      <CRow style={{fontSize: 2}}>15 hours ago</CRow>
-                    </CCol>
-                  </CRow>
-                </div>
-              </CRow>
+              <div className="shadow rounded-3 pt-2 pb-2 notification-box" style={{ height: "70px", verticalAlign: "middle" }}>
+                <CRow>
+                  <CCol xs={1} style={{ position: 'relative' }}>
+                    <div className='bg-white rounded-circle center' style={{ width: '10px', height: '10px' }} />
+                  </CCol>
+                  <CCol>
+                    <CRow className='fw-bold'>{item.msg}</CRow>
+                    <CRow style={{fontSize: 2}}>{item.time}</CRow>
+                  </CCol>
+                </CRow>
+              </div>
+            </CRow>
+              ))}
             </div>
           </CCardBody>
         </CCard>

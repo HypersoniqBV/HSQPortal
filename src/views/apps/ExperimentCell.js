@@ -1,5 +1,5 @@
 /* eslint-disable react/prop-types */
-import { React, useState, useReducer, useEffect, useContext } from 'react'
+import { React, useState, useEffect, useContext } from 'react'
 import {
   CTableRow,
   CTableDataCell,
@@ -12,22 +12,18 @@ import {
   CDropdownToggle,
   CDropdownMenu,
   CDropdownItem,
+  CSpinner,
 } from '@coreui/react'
 import CIcon from '@coreui/icons-react'
 import {
-  cilApplications,
   cilBeaker,
   cilCalendar,
   cilCheck,
   cilClock,
-  cilCloudDownload,
-  cilCommand,
   cilCommentBubble,
   cilDescription,
   cilDrop,
   cilFile,
-  cilGraph,
-  cilInfo,
   cilPencil,
   cilShare,
   cilSquare,
@@ -40,6 +36,7 @@ import { Chart, Scatter } from 'react-chartjs-2'
 import zoomPlugin from 'chartjs-plugin-zoom'
 import { UserContext } from 'src/App'
 
+//#region Graph options
 const nyquist_options = {
   maintainAspectRatio: false,
   plugins: {
@@ -357,8 +354,9 @@ function dataSet(values) {
     ],
   }
 }
+//#endregion
 
-function ExperimentCell({ data, onClickedCellCallBack, toaster }) {
+function ExperimentCell({ meta, onClickedCellCallBack, toaster }) {
   const [cellState, setCellState] = useState({
     height: 0,
     rotation: '90deg',
@@ -368,53 +366,92 @@ function ExperimentCell({ data, onClickedCellCallBack, toaster }) {
 
   const { user, setUser, token, setToken } = useContext(UserContext)
 
+  //If we want to show all the meta data or not
   const [showAll, setShowAll] = useState(false)
   const [showAllRotation, setShowAllRotation] = useState('90deg')
+
+  //Is the current experiment selected?
   const [isSelected, setSelected] = useState(false)
+
+  //Is the current experiment a user favorite?
   const [isFavorite, setFavorite] = useState(false)
+
+  //Are we editing the current measurement or not
   const [isEditModeEnabled, setEditModeEnabled] = useState(false)
+
+  //Which graph is selected at the current moment
   const [graphMode, setGraphMode] = useState('nyquist')
+
+  //Which repetition is shown at the current moment
   const [graphNum, setGraphNum] = useState(0)
+
+  //Did we generate a copy link and are showing the result
   const [isCopied, setIsCopied] = useState(false)
 
-  useEffect(() => {}, [graphMode, isCopied])
+  const [graphData, setGraphData] = useState([
+    { graph_label: [], nyquist_graph: [], bode_graph_gain: [], bode_graph_phase: [] },
+  ])
 
-  const [ignored, forceUpdate] = useReducer((x) => x + 1, 0)
-
-  useEffect(() => {}, [showAll, showAllRotation, isSelected, isFavorite])
+  const [fetchedData, setFetchedData] = useState(false)
+  const [fetchingData, setFetchingData] = useState(false)
 
   useEffect(() => {
-    onClickedCell(true)
-  }, [data])
-
-  function onClickedCell(forceClosed = false) {
-    if (cellState.isOpen || forceClosed) {
-      let newCellState = cellState
-      newCellState.height = 0
-      newCellState.rotation = '90deg'
-      newCellState.isOpen = false
-      newCellState.color = ''
-      setCellState(newCellState)
-      setIsCopied(false)
-    } else {
-      let newCellState = cellState
-      newCellState.height = 300
-      newCellState.rotation = '180deg'
-      newCellState.isOpen = true
-      newCellState.color = 'light'
-      setCellState(newCellState)
+    //Dumb the currently stored data from cell
+    console.log('dumbing data')
+    if (fetchedData) {
+      setFetchedData(false)
     }
-    forceUpdate()
+    closeCell()
+  }, [meta])
+
+  useEffect(() => {}, [
+    graphMode,
+    isCopied,
+    showAll,
+    showAllRotation,
+    isSelected,
+    isFavorite,
+    cellState,
+    setGraphData,
+    graphData,
+    fetchingData,
+    setFetchingData,
+  ])
+
+  function openCell() {
+    if (!fetchedData) {
+      setFetchingData(true)
+      console.log(`Looking for measurement ${meta.uuid}`)
+      fetch(`https://10.8.0.1:5000/api/data/measurements/${meta.uuid}/experiment-data`)
+        .then((res) => res.json())
+        .then((data) => {
+          console.log('I received this: ', data)
+          setGraphData(data)
+          setFetchedData(true)
+          setCellState({ height: 300, rotation: '180deg', isOpen: true, color: 'light' })
+          setFetchingData(false)
+        })
+    } else {
+      setCellState({ height: 300, rotation: '180deg', isOpen: true, color: 'light' })
+    }
   }
 
-  function onSelectMode(mode) {
-    setGraphMode(mode)
+  function closeCell() {
+    setCellState({ height: 0, rotation: '90deg', isOpen: false, color: '' })
+    setIsCopied(false)
   }
 
-  function onSelectGraphNum(mode) {
-    setGraphNum(mode)
+  function onClickedCell() {
+    if (cellState.isOpen) {
+      //Close a currently open experiment cell
+      closeCell()
+    } else {
+      //Open a currently closed experiment cell
+      openCell()
+    }
   }
 
+  //Toggling the meta data information tab
   function toggleMetaData() {
     var newShowAll = !showAll
     setShowAll(newShowAll)
@@ -432,13 +469,13 @@ function ExperimentCell({ data, onClickedCellCallBack, toaster }) {
   }
 
   function shareMeasurement() {
-    navigator.clipboard.writeText('http://localhost:3000/#/home/' + data.id)
+    navigator.clipboard.writeText('http://localhost:3000/#/home/' + meta.id)
     toaster('Copied succesful!', 'A shareable link has been copied to your clipboard.')
     setIsCopied(true)
   }
 
   function deleteItemFromDataset() {
-    var body = { id: data.id }
+    var body = { id: meta.id }
 
     fetch('https://10.8.0.1:5000/api/delete', {
       method: 'POST',
@@ -459,7 +496,7 @@ function ExperimentCell({ data, onClickedCellCallBack, toaster }) {
         v-for="item in tableItems"
         onClick={() => {
           onClickedCell()
-          onClickedCellCallBack(data)
+          onClickedCellCallBack(meta)
         }}
         style={{
           cursor: 'pointer',
@@ -472,16 +509,20 @@ function ExperimentCell({ data, onClickedCellCallBack, toaster }) {
           className="text-center"
           style={{ borderRadius: '25% 0% 0% 25%', borderWidth: 0 }}
         >
-          <CIcon
-            className={cellState.isOpen ? 'triangle-showing' : 'triangle-hiding'}
-            icon={cilTriangle}
-          />
+          {fetchingData ? (
+            <CSpinner size="sm" />
+          ) : (
+            <CIcon
+              className={cellState.isOpen ? 'triangle-showing' : 'triangle-hiding'}
+              icon={cilTriangle}
+            />
+          )}
         </CTableDataCell>
-        <CTableDataCell className="text-center border-0">{data.id}</CTableDataCell>
-        <CTableDataCell className="border-0">{data.date}</CTableDataCell>
-        <CTableDataCell className="border-0">{data.operator}</CTableDataCell>
-        <CTableDataCell className="border-0">{data.sensor_type}</CTableDataCell>
-        <CTableDataCell className="border-0">{data.chip_type}</CTableDataCell>
+        <CTableDataCell className="text-center border-0">{meta.id}</CTableDataCell>
+        <CTableDataCell className="border-0">{meta.date}</CTableDataCell>
+        <CTableDataCell className="border-0">{meta.operator}</CTableDataCell>
+        <CTableDataCell className="border-0">{meta.sensor_type}</CTableDataCell>
+        <CTableDataCell className="border-0">{meta.chip_type}</CTableDataCell>
         <CTableDataCell
           className="border-0"
           style={{ borderRadius: '0% 25% 25% 0%' }}
@@ -546,7 +587,7 @@ function ExperimentCell({ data, onClickedCellCallBack, toaster }) {
                       marginBottom: '5px',
                     }}
                   >
-                    {'http://localhost:3000/#/home/' + data.id}
+                    {'http://localhost:3000/#/home/' + meta.id}
                   </CFormTextarea>
                 ) : (
                   <CButton
@@ -591,27 +632,27 @@ function ExperimentCell({ data, onClickedCellCallBack, toaster }) {
               <CRow className="mt-1 mb-2 p-3 bg-dark rounded-4">
                 <CCol style={{ textAlign: 'center' }}>
                   <CIcon icon={cilFile} className="m-2" size="xxl" xs={2} />
-                  <div style={{ fontSize: 13 }}>{'EXP#' + data.id}</div>
+                  <div style={{ fontSize: 13 }}>{'EXP#' + meta.id}</div>
                 </CCol>
                 <CCol style={{ textAlign: 'center' }}>
                   <CIcon icon={cilCalendar} className="m-2" size="xxl" xs={2} />
-                  <div style={{ fontSize: 13 }}>{data.date}</div>
+                  <div style={{ fontSize: 13 }}>{meta.date}</div>
                 </CCol>
                 <CCol style={{ textAlign: 'center' }}>
                   <CIcon icon={cilClock} className="m-2" size="xxl" xs={4} />
-                  <div style={{ fontSize: 13 }}>{data.start_time}</div>
+                  <div style={{ fontSize: 13 }}>{meta.start_time}</div>
                 </CCol>
                 <CCol style={{ textAlign: 'center' }}>
                   <CIcon icon={cilUser} className="m-2" size="xxl" xs={4} />
-                  <div style={{ fontSize: 13 }}>{data.operator}</div>
+                  <div style={{ fontSize: 13 }}>{meta.operator}</div>
                 </CCol>
                 <CCol style={{ textAlign: 'center' }}>
                   <CIcon icon={cilDrop} className="m-2" size="xxl" xs={4} />
-                  <div style={{ fontSize: 13 }}>{data.bg_concentration}</div>
+                  <div style={{ fontSize: 13 }}>{meta.bg_concentration}</div>
                 </CCol>
                 <CCol style={{ textAlign: 'center' }}>
                   <CIcon icon={cilBeaker} className="m-2" size="xxl" xs={4} />
-                  <div style={{ fontSize: 13 }}>{data.bg_solution}</div>
+                  <div style={{ fontSize: 13 }}>{meta.bg_solution}</div>
                 </CCol>
                 <CCol xs={2} />
               </CRow>
@@ -632,7 +673,7 @@ function ExperimentCell({ data, onClickedCellCallBack, toaster }) {
                           rows={1}
                           style={{ resize: 'none' }}
                         >
-                          {data.sensor_type}
+                          {meta.sensor_type}
                         </CFormTextarea>
                       </CCol>
                     </CRow>
@@ -644,7 +685,7 @@ function ExperimentCell({ data, onClickedCellCallBack, toaster }) {
                           rows={1}
                           style={{ resize: 'none' }}
                         >
-                          {data.chip_type}
+                          {meta.chip_type}
                         </CFormTextarea>
                       </CCol>
                     </CRow>
@@ -658,7 +699,7 @@ function ExperimentCell({ data, onClickedCellCallBack, toaster }) {
                           rows={1}
                           style={{ resize: 'none' }}
                         >
-                          {data.start_time}
+                          {meta.start_time}
                         </CFormTextarea>
                       </CCol>
                     </CRow>
@@ -672,7 +713,7 @@ function ExperimentCell({ data, onClickedCellCallBack, toaster }) {
                           rows={1}
                           style={{ resize: 'none' }}
                         >
-                          {data.finish_time}
+                          {meta.finish_time}
                         </CFormTextarea>
                       </CCol>
                     </CRow>
@@ -684,7 +725,7 @@ function ExperimentCell({ data, onClickedCellCallBack, toaster }) {
                           rows={1}
                           style={{ resize: 'none' }}
                         >
-                          {data.bg_batch}
+                          {meta.bg_batch}
                         </CFormTextarea>
                       </CCol>
                     </CRow>
@@ -696,7 +737,7 @@ function ExperimentCell({ data, onClickedCellCallBack, toaster }) {
                           rows={1}
                           style={{ resize: 'none' }}
                         >
-                          {data.bg_solution}
+                          {meta.bg_solution}
                         </CFormTextarea>
                       </CCol>
                     </CRow>
@@ -710,7 +751,7 @@ function ExperimentCell({ data, onClickedCellCallBack, toaster }) {
                           rows={1}
                           style={{ resize: 'none' }}
                         >
-                          {data.bg_concentration}
+                          {meta.bg_concentration}
                         </CFormTextarea>
                       </CCol>
                     </CRow>
@@ -718,7 +759,7 @@ function ExperimentCell({ data, onClickedCellCallBack, toaster }) {
                       <CCol xs={2}>UUID</CCol>
                       <CCol>
                         <CFormTextarea disabled rows={1} style={{ resize: 'none' }}>
-                          {data.uuid}
+                          {meta.uuid}
                         </CFormTextarea>
                       </CCol>
                     </CRow>
@@ -731,27 +772,39 @@ function ExperimentCell({ data, onClickedCellCallBack, toaster }) {
               <CRow style={{ position: 'relative' }} className="m-1 mt-4">
                 {graphMode === 'nyquist' ? (
                   <CCol xs={12} className="" style={{ height: '600px' }}>
-                    <Scatter
-                      options={nyquist_options}
-                      data={dataSet(data.nyquist_graph[graphNum])}
-                      style={{ marginBottom: '25px' }}
-                    />
+                    {fetchedData ? (
+                      <Scatter
+                        options={nyquist_options}
+                        data={dataSet(graphData[graphNum].nyquist_graph)}
+                        style={{ marginBottom: '25px' }}
+                      />
+                    ) : (
+                      <></>
+                    )}
                   </CCol>
                 ) : (
                   <>
                     <CCol xs={12} className="" style={{ height: '300px' }}>
-                      <Scatter
-                        options={bode_options_gain}
-                        data={dataSet(data.bode_graph_gain[graphNum])}
-                        style={{ marginBottom: '25px' }}
-                      />
+                      {fetchedData ? (
+                        <Scatter
+                          options={bode_options_gain}
+                          data={dataSet(graphData[graphNum].bode_graph_gain)}
+                          style={{ marginBottom: '25px' }}
+                        />
+                      ) : (
+                        <></>
+                      )}
                     </CCol>
                     <CCol xs={12} className="" style={{ height: '300px' }}>
-                      <Scatter
-                        options={bode_options_phase}
-                        data={dataSet(data.bode_graph_phase[graphNum])}
-                        style={{ marginBottom: '25px' }}
-                      />
+                      {fetchedData ? (
+                        <Scatter
+                          options={bode_options_phase}
+                          data={dataSet(graphData[graphNum].bode_graph_phase)}
+                          style={{ marginBottom: '25px' }}
+                        />
+                      ) : (
+                        <></>
+                      )}
                     </CCol>
                   </>
                 )}
@@ -765,13 +818,13 @@ function ExperimentCell({ data, onClickedCellCallBack, toaster }) {
                     </CDropdownToggle>
                     <CDropdownMenu className="w-100 bg-dark" style={{}}>
                       <CDropdownItem
-                        onClick={() => onSelectMode('nyquist')}
+                        onClick={() => setGraphMode('nyquist')}
                         style={{ cursor: 'pointer' }}
                       >
                         Nyquist
                       </CDropdownItem>
                       <CDropdownItem
-                        onClick={() => onSelectMode('bode')}
+                        onClick={() => setGraphMode('bode')}
                         style={{ cursor: 'pointer' }}
                       >
                         Bode
@@ -782,16 +835,16 @@ function ExperimentCell({ data, onClickedCellCallBack, toaster }) {
                 <CCol className="" style={{ padding: 0, paddingLeft: '4px' }}>
                   <CDropdown className="bg-dark w-100 rounded-4" style={{ height: '40px' }}>
                     <CDropdownToggle className="" style={{ textAlign: 'left' }}>
-                      {data.graph_label[graphNum]}
+                      {graphData[graphNum].graph_label}
                     </CDropdownToggle>
                     <CDropdownMenu className="w-100 bg-dark" style={{}}>
-                      {data.graph_label.map((item, index) => (
+                      {graphData.map((item, index) => (
                         // eslint-disable-next-line react/jsx-key
                         <CDropdownItem
-                          onClick={() => onSelectGraphNum(index)}
+                          onClick={() => setGraphNum(index)}
                           style={{ cursor: 'pointer' }}
                         >
-                          {item}
+                          {item.graph_label}
                         </CDropdownItem>
                       ))}
                     </CDropdownMenu>
@@ -807,14 +860,14 @@ function ExperimentCell({ data, onClickedCellCallBack, toaster }) {
                       Comment
                     </CCol>
                   </CRow>
-                  {data.remarks !== '' ? (
+                  {meta.comment !== '' ? (
                     <CRow className="bg-primary rounded-4 m-2 p-2 pb-3">
                       <CRow className="">
-                        <CCol style={{ fontWeight: 'bold' }}>{data.operator}</CCol>
-                        <CCol style={{ textAlign: 'right' }}>{data.date}</CCol>
+                        <CCol style={{ fontWeight: 'bold' }}>{meta.operator}</CCol>
+                        <CCol style={{ textAlign: 'right' }}>{meta.date}</CCol>
                       </CRow>
                       <CRow>
-                        <CCol>{data.remarks}</CCol>
+                        <CCol>{meta.comment}</CCol>
                       </CRow>
                     </CRow>
                   ) : (

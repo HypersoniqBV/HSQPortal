@@ -62,6 +62,7 @@ const Login = () => {
         if (dat['auth'] === 'OK') {
           // The right password was entered
           setUser(true)
+          console.log(dat['meta'])
           setUserMeta(dat['meta'])
           setToken(dat['token'])
           navigate('/home')

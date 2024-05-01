@@ -56,7 +56,7 @@ import {
   LineElement,
   Title,
 } from 'chart.js'
-import { cilAlarm, cilUser } from '@coreui/icons'
+import { cilAlarm, cilUser, cilX } from '@coreui/icons'
 
 import _nav from 'src/_nav'
 import { useNavigate } from 'react-router-dom'
@@ -67,6 +67,9 @@ import { UserContext } from 'src/App'
 const Home = () => {
   const navigate = useNavigate()
   const { userMeta } = useContext(UserContext)
+  const [notifications, setNotifications] = useState([])
+
+  useEffect(() => {}, [notifications, setNotifications])
 
   function appTile(item) {
     console.log('../' + item.href)
@@ -114,7 +117,7 @@ const Home = () => {
 
   console.log(sortedNav)
 
-  const testMessages = [
+  var testMessages = [
     {
       msg: " Maria commented on experiment #12 of project HSQ#0320",
       time: "8 hours ago"
@@ -149,6 +152,21 @@ const Home = () => {
     },
   ]
 
+  if(notifications.length === 0) {
+    setNotifications(testMessages)
+  }
+
+  function removeNotification(item) {
+    let newNotifications = [...notifications]
+    var index = newNotifications.indexOf(item)
+
+    if (index !== -1) {
+      newNotifications.splice(index, 1)
+    }
+
+    setNotifications(newNotifications)
+  }
+
   return (
     <>
     <CRow className='mb-3'>
@@ -161,7 +179,7 @@ const Home = () => {
       </CCol>
       <CCol xs={7}>
         <h1>Welcome, {userMeta.first_name}</h1>
-        <p>Last logged in - 30/04/2024</p>
+        <p>Last logged in - {userMeta.last_login}</p>
       </CCol>
     </CRow>
     <CRow>
@@ -185,7 +203,7 @@ const Home = () => {
           <CCardHeader>Notifications</CCardHeader>
           <CCardBody style={{position: 'relative', padding: 0 }}>
             <div style={{ position: 'absolute', overflow: 'scroll', width: '100%', height: '100%' }}>
-              {testMessages.map((item, index) => (
+              {notifications.map((item, index) => (
               <CRow className='m-2'>
               <div className="shadow rounded-3 pt-2 pb-2 notification-box" style={{ height: "70px", verticalAlign: "middle" }}>
                 <CRow>
@@ -195,6 +213,9 @@ const Home = () => {
                   <CCol>
                     <CRow className='fw-bold'>{item.msg}</CRow>
                     <CRow style={{fontSize: 2}}>{item.time}</CRow>
+                  </CCol>
+                  <CCol xs={1} style={{ position: 'relative' }}>
+                    <CIcon className='center notification-cross' icon={cilX} style={{width: 20, height: 20}} onClick={() => removeNotification(item)}/>
                   </CCol>
                 </CRow>
               </div>

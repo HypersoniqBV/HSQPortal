@@ -33,7 +33,8 @@ import {
   cilUser,
 } from '@coreui/icons'
 import { Chart, Scatter } from 'react-chartjs-2'
-import zoomPlugin from 'chartjs-plugin-zoom'
+import { Chart as ChartJS } from 'chart.js'
+import zoomPlugin, { zoom } from 'chartjs-plugin-zoom'
 import { UserContext } from 'src/App'
 
 //#region Graph options
@@ -364,6 +365,8 @@ function ExperimentCell({ meta, onClickedCellCallBack, toaster }) {
     color: '',
   })
 
+  ChartJS.register(zoomPlugin)
+
   const { user, setUser, token, setToken } = useContext(UserContext)
 
   //If we want to show all the meta data or not
@@ -430,6 +433,11 @@ function ExperimentCell({ meta, onClickedCellCallBack, toaster }) {
           setFetchedData(true)
           setCellState({ height: 300, rotation: '180deg', isOpen: true, color: 'light' })
           setFetchingData(false)
+        })
+        .catch((err) => {
+          setFetchedData(false)
+          setFetchingData(false)
+          toaster('NetworkError', err.toString())
         })
     } else {
       setCellState({ height: 300, rotation: '180deg', isOpen: true, color: 'light' })

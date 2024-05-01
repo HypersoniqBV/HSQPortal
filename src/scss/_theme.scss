@@ -33,6 +33,15 @@ body {
   --cui-sidebar-header-padding-y: 100px;
 }
 
+@keyframes swoop {
+  0%    { margin-left: 0%;}
+  100%  { margin-left: -130%;}
+}
+
+.swoop-notification {
+  animation: swoop 1s;
+}
+
 .sidebar-header {
   .nav-underline-border {
     --cui-nav-underline-border-link-padding-x: 1rem;
@@ -246,14 +255,23 @@ body {
   transition: max-height 1s;
 }
 
+.notification-cross {
+  display: none;
+  cursor: pointer;
+}
+
 .notification-box {
   background-color: $dark;
-  cursor: pointer;
+}
+
+.notification-box:hover .notification-cross {
+  display: block;
 }
 
 .notification-box:hover {
   scale: 1.01;
   background-color: #52100A;
+
 }
 
 .wave {

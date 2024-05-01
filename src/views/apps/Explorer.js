@@ -469,7 +469,7 @@ const Explorer = () => {
 
   return (
     <>
-      <CToaster className="p-3" placement="bottom-start" push={toast} ref={toaster} />
+      <CToaster className="p-3" placement="top-end" push={toast} ref={toaster} />
 
       <CModal
         backdrop="static"

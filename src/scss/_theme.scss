@@ -33,6 +33,15 @@ body {
   --cui-sidebar-header-padding-y: 100px;
 }
 
+.selected-box {
+
+}
+
+.selected-box-pusher {
+  display: inline-block;
+  width: 50;
+}
+
 @keyframes swoop {
   0%    { margin-left: 0%;}
   100%  { margin-left: -130%;}

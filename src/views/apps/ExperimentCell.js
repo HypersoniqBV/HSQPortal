@@ -357,7 +357,7 @@ function dataSet(values) {
 }
 //#endregion
 
-function ExperimentCell({ meta, onClickedCellCallBack, toaster }) {
+function ExperimentCell({ meta, onSelectedItemCallBack, onClickedCellCallBack, toaster }) {
   const [cellState, setCellState] = useState({
     height: 0,
     rotation: '90deg',
@@ -567,8 +567,10 @@ function ExperimentCell({ meta, onClickedCellCallBack, toaster }) {
                   className="rounded-pill"
                   color={isSelected ? 'primary' : 'dark'}
                   style={{ width: '15%', marginRight: '5px', marginBottom: '5px' }}
-                  onClick={() => setSelected(!isSelected)}
-                  disabled
+                  onClick={() => {
+                    onSelectedItemCallBack(meta.uuid)
+                    setSelected(!isSelected)
+                  }}
                 >
                   <CIcon icon={cilSquare} style={{ marginRight: '5px' }} /> Select
                 </CButton>
@@ -750,9 +752,7 @@ function ExperimentCell({ meta, onClickedCellCallBack, toaster }) {
                       </CCol>
                     </CRow>
                     <CRow className="m-1">
-                      <CCol xs={2}>
-                        T<sub>end</sub>
-                      </CCol>
+                      <CCol xs={2}>Concentration</CCol>
                       <CCol>
                         <CFormTextarea
                           disabled={!isEditModeEnabled}
@@ -760,14 +760,6 @@ function ExperimentCell({ meta, onClickedCellCallBack, toaster }) {
                           style={{ resize: 'none' }}
                         >
                           {meta.bg_concentration}
-                        </CFormTextarea>
-                      </CCol>
-                    </CRow>
-                    <CRow className="m-1">
-                      <CCol xs={2}>UUID</CCol>
-                      <CCol>
-                        <CFormTextarea disabled rows={1} style={{ resize: 'none' }}>
-                          {meta.uuid}
                         </CFormTextarea>
                       </CCol>
                     </CRow>

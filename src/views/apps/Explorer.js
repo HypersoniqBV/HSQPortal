@@ -90,6 +90,7 @@ import Calendar from './Calendar'
 import HoverCard from './HoverCard'
 import { Scatter } from 'react-chartjs-2'
 import { UserContext } from 'src/App'
+import SelectedCell from './SelectedCell'
 
 ChartJS.register(LinearScale, PointElement, LogarithmicScale, LineElement, Title)
 
@@ -114,6 +115,7 @@ const Explorer = () => {
   const [waitingUploadingData, setWaitingUploadData] = useState(false)
 
   const [compareWindowVisible, setCompareWindowVisible] = useState(false)
+  const [selectedList, setSelectedList] = useState([])
 
   const [ignored, forceUpdate] = useReducer((x) => x + 1, 0)
 
@@ -397,8 +399,63 @@ const Explorer = () => {
     setUploadFiles(uploadFiles.filter((i) => i !== item))
   }
 
-  function onSelectedItemCallBack(item) {
-    console.log(item)
+  function containsDate(array, date) {
+    for (const arr in selectedList) {
+      var firstElement = selectedList[arr][0]
+
+      if (firstElement.date === date) {
+        return arr
+      }
+    }
+    return false
+  }
+
+  function addSelectedItem(item) {
+    // We get another selected item
+    const date = item.date
+
+    //Either add a new array because the date is new
+    const check = containsDate(selectedList, date)
+
+    if (check !== false) {
+      //
+      var newSelectedList = [...selectedList]
+      newSelectedList[check].push(item)
+      setSelectedList(newSelectedList)
+    } else {
+      //
+      setSelectedList([...selectedList, [item]])
+    }
+  }
+
+  function removeSelectedItem(item) {
+    //
+    const date = item.date
+
+    const id = containsDate(selectedList, date)
+
+    var newSelectedList = [...selectedList]
+    var subArray = newSelectedList[id]
+
+    if (subArray.length > 1) {
+      var index = subArray.indexOf(item)
+
+      subArray.splice(index, 1)
+      newSelectedList[id] = subArray
+      setSelectedList(newSelectedList)
+    } else {
+      var index = subArray.indexOf(item)
+    }
+  }
+
+  function onSelectedItemCallBack(item, isSelected) {
+    console.log(isSelected)
+
+    if (!isSelected) {
+      removeSelectedItem(item)
+    } else {
+      addSelectedItem(item)
+    }
   }
 
   function uploadFilesFinal() {
@@ -783,89 +840,23 @@ const Explorer = () => {
       </CModal>
       <CRow>
         <CCol xs={4}>
-          <CCard className="mb-4">
-            <CCardHeader>
-              <div>
-                <CIcon style={{ marginRight: '10px' }} icon={cilCheck} />
-                Selected
-              </div>
-            </CCardHeader>
-            <CCardBody>
-              <CRow className="p-1 pt-0 pb-1">
-                <CCol xs={1} className="" style={{ position: 'relative' }}>
-                  <div className="center" style={{ rotate: '90deg' }}>
-                    <CIcon className="center" icon={cilTriangle} />
-                  </div>
-                </CCol>
-                <CCol className="fw-bold p-1">
-                  <p
-                    className="bg-black p-3 pt-1 pb-1 m-0 rounded-pill"
-                    style={{ display: 'inline-block' }}
-                  >
-                    2023-12-12
-                  </p>
-                </CCol>
-              </CRow>
-              <CRow style={{ display: 'inline-block' }} className="">
-                <div
-                  className="selected-box-pusher"
-                  style={{ display: 'inline-block', width: 50, height: 40 }}
-                />
-                <div
-                  className="bg-dark rounded-4 border-bottom p-0 mt-0 mb-0 selected-box"
-                  style={{ height: 40, width: 350, display: 'inline-block' }}
-                >
-                  <CRow className="w-100 h-100 m-0 text-center">
-                    <div
-                      className="p-0"
-                      style={{
-                        float: 'left',
-                        width: 0,
-                        height: 40,
-                        position: 'relative',
-                        overflow: 'hidden',
-                      }}
-                    >
-                      <CIcon className="center" icon={cilX} />
-                    </div>
-                    <CCol style={{ position: 'relative' }}>
-                      <div className="center">HSQ#65</div>
-                    </CCol>
-                    <CCol style={{ position: 'relative' }}>
-                      <div className="center">Zahra</div>
-                    </CCol>
-                    <CCol style={{ position: 'relative' }}>
-                      <div className="center">NaCl</div>
-                    </CCol>
-                    <CCol style={{ position: 'relative' }}>
-                      <div className="center">1 mM</div>
-                    </CCol>
-                  </CRow>
+          {selectedList.length > 0 ? (
+            <CCard className="mb-4">
+              <CCardHeader>
+                <div>
+                  <CIcon style={{ marginRight: '10px' }} icon={cilCheck} />
+                  Selected
                 </div>
-              </CRow>
-              <CRow className="p-4 pt-0 pb-1">
-                <div
-                  className="bg-dark rounded-4 border-bottom p-0 m-3 mt-0 mb-0"
-                  style={{ height: 40 }}
-                >
-                  <CRow className="w-100 h-100 m-0 text-center" style={{ position: 'relative' }}>
-                    <CCol style={{ position: 'relative' }}>
-                      <div className="center">HSQ#65</div>
-                    </CCol>
-                    <CCol style={{ position: 'relative' }}>
-                      <div className="center">Zahra</div>
-                    </CCol>
-                    <CCol style={{ position: 'relative' }}>
-                      <div className="center">NaCl</div>
-                    </CCol>
-                    <CCol style={{ position: 'relative' }}>
-                      <div className="center">1 mM</div>
-                    </CCol>
-                  </CRow>
-                </div>
-              </CRow>
-            </CCardBody>
-          </CCard>
+              </CCardHeader>
+              <CCardBody>
+                {selectedList.map((item, index) => (
+                  <SelectedCell selectedList={item} />
+                ))}
+              </CCardBody>
+            </CCard>
+          ) : (
+            <></>
+          )}
           <CCard className="position-sticky" style={{ top: '90px' }}>
             <CCardHeader>
               <div>
@@ -965,40 +956,40 @@ const Explorer = () => {
                               <CTableHeaderCell
                                 style={{
                                   backgroundColor: '#571f1f',
+                                  width: 250,
+                                  margin: 0,
+                                  padding: 0,
+                                }}
+                              >
+                                <CButton
+                                  className="fw-bold"
+                                  style={{ width: '100%', textAlign: 'left' }}
+                                >
+                                  Chip
+                                </CButton>
+                              </CTableHeaderCell>
+                              <CTableHeaderCell
+                                style={{
+                                  backgroundColor: '#571f1f',
+                                  width: 150,
+                                  margin: 0,
+                                  padding: 0,
+                                }}
+                              >
+                                <CButton
+                                  className="fw-bold"
+                                  style={{ width: '100%', textAlign: 'left' }}
+                                >
+                                  Solution
+                                </CButton>
+                              </CTableHeaderCell>
+                              <CTableHeaderCell
+                                style={{
                                   width: 100,
-                                  margin: 0,
-                                  padding: 0,
-                                }}
-                              >
-                                <CButton
-                                  className="fw-bold"
-                                  style={{ width: '100%', textAlign: 'left' }}
-                                >
-                                  Operator
-                                </CButton>
-                              </CTableHeaderCell>
-                              <CTableHeaderCell
-                                style={{
-                                  backgroundColor: '#571f1f',
-                                  width: 120,
-                                  margin: 0,
-                                  padding: 0,
-                                }}
-                              >
-                                <CButton
-                                  className="fw-bold"
-                                  style={{ width: '100%', textAlign: 'left' }}
-                                >
-                                  Sensor
-                                </CButton>
-                              </CTableHeaderCell>
-                              <CTableHeaderCell
-                                style={{
-                                  width: '40%',
                                   backgroundColor: '#571f1f',
                                 }}
                               >
-                                Chip
+                                Concentration
                               </CTableHeaderCell>
                               <CTableHeaderCell
                                 className="justify-content-center"
@@ -1023,6 +1014,7 @@ const Explorer = () => {
                                 onSelectedItemCallBack={onSelectedItemCallBack}
                                 parentRef={commonRef}
                                 toaster={warnThroughToaster}
+                                selectedList={selectedList}
                               />
                             ))}
                           </CTableBody>

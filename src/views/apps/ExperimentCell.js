@@ -357,7 +357,13 @@ function dataSet(values) {
 }
 //#endregion
 
-function ExperimentCell({ meta, onSelectedItemCallBack, onClickedCellCallBack, toaster }) {
+function ExperimentCell({
+  meta,
+  onSelectedItemCallBack,
+  onClickedCellCallBack,
+  toaster,
+  selectedList,
+}) {
   const [cellState, setCellState] = useState({
     height: 0,
     rotation: '90deg',
@@ -398,13 +404,37 @@ function ExperimentCell({ meta, onSelectedItemCallBack, onClickedCellCallBack, t
   const [fetchedData, setFetchedData] = useState(false)
   const [fetchingData, setFetchingData] = useState(false)
 
+  function isCellSelected(meta) {
+    for (const i in selectedList) {
+      //console.log('this is arr ', i)
+      for (const j in selectedList[i]) {
+        const data = selectedList[i][j]
+        console.log(data.id, meta.id)
+        //console.log('this is dat ', data.id)
+        if (data.id === meta.id) {
+          return true
+        }
+      }
+    }
+    return false
+  }
+
   useEffect(() => {
-    //Dumb the currently stored data from cell
-    console.log('dumbing data')
+    console.log(isSelected)
+  }, [setSelected, isSelected])
+
+  useEffect(() => {
     if (fetchedData) {
       setFetchedData(false)
     }
     closeCell()
+
+    if (isCellSelected(meta)) {
+      console.log('Setting ', meta.id, ' to true!')
+      setSelected(true)
+    } else {
+      setSelected(false)
+    }
   }, [meta])
 
   useEffect(() => {}, [
@@ -511,10 +541,10 @@ function ExperimentCell({ meta, onSelectedItemCallBack, onClickedCellCallBack, t
           height: 30,
         }}
         className="noselect"
-        color={cellState.color}
+        color={isSelected ? '' : cellState.color}
       >
         <CTableDataCell
-          className="text-center"
+          className={'text-center' + (isSelected ? ' bg-primary' : '')}
           style={{ borderRadius: '25% 0% 0% 25%', borderWidth: 0 }}
         >
           {fetchingData ? (
@@ -526,13 +556,23 @@ function ExperimentCell({ meta, onSelectedItemCallBack, onClickedCellCallBack, t
             />
           )}
         </CTableDataCell>
-        <CTableDataCell className="text-center border-0">{meta.id}</CTableDataCell>
-        <CTableDataCell className="border-0">{meta.date}</CTableDataCell>
-        <CTableDataCell className="border-0">{meta.operator}</CTableDataCell>
-        <CTableDataCell className="border-0">{meta.sensor_type}</CTableDataCell>
-        <CTableDataCell className="border-0">{meta.chip_type}</CTableDataCell>
+        <CTableDataCell className={'text-center border-0' + (isSelected ? ' bg-primary' : '')}>
+          {meta.id}
+        </CTableDataCell>
+        <CTableDataCell className={'border-0' + (isSelected ? ' bg-primary' : '')}>
+          {meta.date}
+        </CTableDataCell>
+        <CTableDataCell className={'border-0' + (isSelected ? ' bg-primary' : '')}>
+          {meta.chip_type}
+        </CTableDataCell>
+        <CTableDataCell className={'border-0' + (isSelected ? ' bg-primary' : '')}>
+          {meta.bg_solution}
+        </CTableDataCell>
+        <CTableDataCell className={'border-0' + (isSelected ? ' bg-primary' : '')}>
+          {meta.bg_concentration}
+        </CTableDataCell>
         <CTableDataCell
-          className="border-0"
+          className={'border-0' + (isSelected ? ' bg-primary' : '')}
           style={{ borderRadius: '0% 25% 25% 0%' }}
         ></CTableDataCell>
       </CTableRow>
@@ -568,7 +608,7 @@ function ExperimentCell({ meta, onSelectedItemCallBack, onClickedCellCallBack, t
                   color={isSelected ? 'primary' : 'dark'}
                   style={{ width: '15%', marginRight: '5px', marginBottom: '5px' }}
                   onClick={() => {
-                    onSelectedItemCallBack(meta.uuid)
+                    onSelectedItemCallBack(meta, !isSelected)
                     setSelected(!isSelected)
                   }}
                 >

@@ -44,7 +44,7 @@ function Calendar( {onDateRangeSelected}) {
         setDate2(now)
     },[])
 
-    useEffect(() => { },[days, month, monthNum, year])
+    useEffect(() => { },[days, month, monthNum, year, setReachedLimit, reachedLimit])
 
     useEffect(() => {
         if(date1 !== false && date2 !== false) {
@@ -160,15 +160,19 @@ function Calendar( {onDateRangeSelected}) {
     }
 
     function toMonth(date) {
+        
+        console.log(date)
+        const currDate = new Date()
+        console.log(currDate)
 
         if(date === false) 
             return
 
-        if(date === date1 && date.getMonth() !== date1.getMonth()) {
+        if(date === date1 && date.getMonth() !== currDate.getMonth()) {
             setReachedLimit(false)
         }
         
-        if(date === date2 && date.getMonth() !== date2.getMonth()) {
+        if(date === date2 && date.getMonth() === currDate.getMonth()) {
             setReachedLimit(true)
         }
 

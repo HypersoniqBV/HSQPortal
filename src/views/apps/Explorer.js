@@ -209,19 +209,19 @@ const Explorer = () => {
           let k = key.toLowerCase()
 
           if (k === 'sensor') {
-            k = 'sensor_type'
+            k = 'sensor'
           }
 
           if (k === 'chip') {
-            k = 'chip_type'
+            k = 'chip'
           }
 
           if (k === 'solution') {
-            k = 'bg_solution'
+            k = 'background_solution'
           }
 
           if (k === 'concentration') {
-            k = 'bg_concentration'
+            k = 'background_concentration'
           }
 
           for (var idx in value) {
@@ -260,7 +260,10 @@ const Explorer = () => {
 
       //Get the new data
       fetch(
-        'https://10.8.0.1:5000/api/data/measurements/experiment-meta?t1=' + time1 + '&t2=' + time2,
+        'http://api.hypersoniqtech.com/data/measurements/experiment-meta?t1=' +
+          time1 +
+          '&t2=' +
+          time2,
         {
           method: 'GET',
           headers: {
@@ -368,7 +371,7 @@ const Explorer = () => {
 
         // console.log(encodedString)
 
-        await fetch('https://10.8.0.1:5000/api/process', {
+        await fetch('http://api.hypersoniqtech.com/process', {
           method: 'POST',
           body: JSON.stringify(body),
         })
@@ -488,7 +491,7 @@ const Explorer = () => {
       meta: meta_data,
     }
 
-    fetch('https://10.8.0.1:5000/api/submit', {
+    fetch('http://api.hypersoniqtech.com/submit', {
       method: 'POST',
       body: JSON.stringify(body),
     })
@@ -505,7 +508,7 @@ const Explorer = () => {
       session_id: sessionID,
     }
 
-    fetch('https://10.8.0.1:5000/api/empty', {
+    fetch('http://api.hypersoniqtech.com/empty', {
       method: 'POST',
       body: JSON.stringify(body),
     }).then((res) => console.log(res))

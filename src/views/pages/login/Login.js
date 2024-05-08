@@ -50,7 +50,7 @@ const Login = () => {
       password: passwordVal,
     }
 
-    fetch('https://10.8.0.1:5000/api/auth', {
+    fetch('http://api.hypersoniqtech.com/auth', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

@@ -68,6 +68,7 @@ function FilterCell({ cat, onChange, dataset, filter }) {
     let newTogglers = togglers
     let newSelectedFilters = selectedFilters
     newTogglers[i] = !newTogglers[i]
+
     if (newTogglers[i]) {
       newSelectedFilters += 1
     } else {
@@ -95,19 +96,19 @@ function FilterCell({ cat, onChange, dataset, filter }) {
 
     var k = cat
     if (k === 'Solution') {
-      k = 'bg_solution'
+      k = 'background_solution'
     }
 
     if (k === 'Concentration') {
-      k = 'bg_concentration'
+      k = 'background_concentration'
     }
 
     if (k === 'Chip') {
-      k = 'chip_type'
+      k = 'chip'
     }
 
     if (k === 'Sensor') {
-      k = 'sensor_type'
+      k = 'sensor'
     }
 
     var values = dataset.map((a) => a[k.toLowerCase()])
@@ -116,6 +117,7 @@ function FilterCell({ cat, onChange, dataset, filter }) {
 
     setData(unq)
     setVisibleData(unq)
+    console.log('The uniques are ', unq)
     let e = []
 
     unq.forEach(() => e.push(false))

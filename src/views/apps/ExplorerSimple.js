@@ -169,7 +169,7 @@ const ExplorerSimple = () => {
     setIsIdRequest(id !== undefined)
 
     if (id !== undefined) {
-      fetch('https://10.8.0.1:5000/api/portal/id?id=' + id)
+      fetch('http://api.hypersoniqtech.com/portal/id?id=' + id)
         .then((response) => response.json())
         .then((data) => {
           setDataset(data)
@@ -259,7 +259,7 @@ const ExplorerSimple = () => {
       var time2 = date2.getTime() - date2.getTimezoneOffset() * 1000 * 60
 
       //Get the new data
-      fetch('https://10.8.0.1:5000/api/portal?t1=' + time1 + '&t2=' + time2)
+      fetch('http://api.hypersoniqtech.com/portal?t1=' + time1 + '&t2=' + time2)
         .then((response) => response.json())
         .then((data) => {
           setDataset(data)
@@ -353,7 +353,7 @@ const ExplorerSimple = () => {
 
         // console.log(encodedString)
 
-        await fetch('https://10.8.0.1:5000/api/process', {
+        await fetch('http://api.hypersoniqtech.com/process', {
           method: 'POST',
           body: JSON.stringify(body),
         })
@@ -414,7 +414,7 @@ const ExplorerSimple = () => {
       meta: meta_data,
     }
 
-    fetch('https://10.8.0.1:5000/api/submit', {
+    fetch('http://api.hypersoniqtech.com/submit', {
       method: 'POST',
       body: JSON.stringify(body),
     })
@@ -431,7 +431,7 @@ const ExplorerSimple = () => {
       session_id: sessionID,
     }
 
-    fetch('https://10.8.0.1:5000/api/empty', {
+    fetch('http://api.hypersoniqtech.com/empty', {
       method: 'POST',
       body: JSON.stringify(body),
     }).then((res) => console.log(res))

@@ -24,7 +24,7 @@ const Register = () => {
   const [username, setUsername] = useState(null)
   const [email, setEmail] = useState(null)
 
-  fetch('https://10.8.0.1:5000/api/user/fetch?id=' + id)
+  fetch('http://api.hypersoniqtech.com/user/fetch?id=' + id)
     .then((res) => res.json())
     .then((dat) => {
       setUsername(dat.username)
@@ -43,7 +43,7 @@ const Register = () => {
     }
 
     var body = { creation_id: id, password: password }
-    fetch('https://10.8.0.1:5000/api/user/register', {
+    fetch('http://api.hypersoniqtech.com/user/register', {
       method: 'POST',
       body: JSON.stringify(body),
     })

@@ -344,16 +344,21 @@ const bode_options_phase = {
 }
 
 function dataSet(values) {
-  return {
+  const data = {
     datasets: [
-      {
-        data: values,
-        backgroundColor: 'rgba(204, 57, 57, 1)',
-        pointRadius: 2,
-        pointHoverRadius: 2,
-      },
+      ...values.map((item, index) => {
+        return {
+          data: item,
+          backgroundColor: `rgba(${204 - index * 50}, ${57 + index * 10}, 57, 1)`,
+          pointRadius: 2,
+          pointHoverRadius: 2,
+        }
+      }),
     ],
   }
+
+  console.log(data)
+  return data
 }
 //#endregion
 
@@ -455,7 +460,7 @@ function ExperimentCell({
     if (!fetchedData) {
       setFetchingData(true)
       console.log(`Looking for measurement ${meta.uuid}`)
-      fetch(`https://10.8.0.1:5000/api/data/measurements/${meta.uuid}/experiment-data`)
+      fetch(`http://api.hypersoniqtech.com/data/measurements/${meta.uuid}/experiment-data`)
         .then((res) => res.json())
         .then((data) => {
           console.log('I received this: ', data)
@@ -515,7 +520,7 @@ function ExperimentCell({
   function deleteItemFromDataset() {
     var body = { id: meta.id }
 
-    fetch('https://10.8.0.1:5000/api/delete', {
+    fetch('http://api.hypersoniqtech.com/delete', {
       method: 'POST',
       body: JSON.stringify(body),
     })
@@ -563,13 +568,13 @@ function ExperimentCell({
           {meta.date}
         </CTableDataCell>
         <CTableDataCell className={'border-0' + (isSelected ? ' bg-primary' : '')}>
-          {meta.chip_type}
+          {meta.chip}
         </CTableDataCell>
         <CTableDataCell className={'border-0' + (isSelected ? ' bg-primary' : '')}>
-          {meta.bg_solution}
+          {meta.background_solution}
         </CTableDataCell>
         <CTableDataCell className={'border-0' + (isSelected ? ' bg-primary' : '')}>
-          {meta.bg_concentration}
+          {meta.background_concentration}
         </CTableDataCell>
         <CTableDataCell
           className={'border-0' + (isSelected ? ' bg-primary' : '')}
@@ -690,7 +695,7 @@ function ExperimentCell({
                 </CCol>
                 <CCol style={{ textAlign: 'center' }}>
                   <CIcon icon={cilClock} className="m-2" size="xxl" xs={4} />
-                  <div style={{ fontSize: 13 }}>{meta.start_time}</div>
+                  <div style={{ fontSize: 13 }}>{meta.time_start}</div>
                 </CCol>
                 <CCol style={{ textAlign: 'center' }}>
                   <CIcon icon={cilUser} className="m-2" size="xxl" xs={4} />
@@ -698,11 +703,11 @@ function ExperimentCell({
                 </CCol>
                 <CCol style={{ textAlign: 'center' }}>
                   <CIcon icon={cilDrop} className="m-2" size="xxl" xs={4} />
-                  <div style={{ fontSize: 13 }}>{meta.bg_concentration}</div>
+                  <div style={{ fontSize: 13 }}>{meta.background_concentration}</div>
                 </CCol>
                 <CCol style={{ textAlign: 'center' }}>
                   <CIcon icon={cilBeaker} className="m-2" size="xxl" xs={4} />
-                  <div style={{ fontSize: 13 }}>{meta.bg_solution}</div>
+                  <div style={{ fontSize: 13 }}>{meta.background_solution}</div>
                 </CCol>
                 <CCol xs={2} />
               </CRow>
@@ -723,7 +728,7 @@ function ExperimentCell({
                           rows={1}
                           style={{ resize: 'none' }}
                         >
-                          {meta.sensor_type}
+                          {meta.sensor}
                         </CFormTextarea>
                       </CCol>
                     </CRow>
@@ -735,7 +740,7 @@ function ExperimentCell({
                           rows={1}
                           style={{ resize: 'none' }}
                         >
-                          {meta.chip_type}
+                          {meta.chip}
                         </CFormTextarea>
                       </CCol>
                     </CRow>
@@ -749,7 +754,7 @@ function ExperimentCell({
                           rows={1}
                           style={{ resize: 'none' }}
                         >
-                          {meta.start_time}
+                          {meta.time_start}
                         </CFormTextarea>
                       </CCol>
                     </CRow>
@@ -763,7 +768,7 @@ function ExperimentCell({
                           rows={1}
                           style={{ resize: 'none' }}
                         >
-                          {meta.finish_time}
+                          {meta.time_stop}
                         </CFormTextarea>
                       </CCol>
                     </CRow>
@@ -775,7 +780,7 @@ function ExperimentCell({
                           rows={1}
                           style={{ resize: 'none' }}
                         >
-                          {meta.bg_batch}
+                          {meta.background_batch}
                         </CFormTextarea>
                       </CCol>
                     </CRow>
@@ -787,7 +792,7 @@ function ExperimentCell({
                           rows={1}
                           style={{ resize: 'none' }}
                         >
-                          {meta.bg_solution}
+                          {meta.background_solution}
                         </CFormTextarea>
                       </CCol>
                     </CRow>
@@ -799,7 +804,7 @@ function ExperimentCell({
                           rows={1}
                           style={{ resize: 'none' }}
                         >
-                          {meta.bg_concentration}
+                          {meta.background_concentration}
                         </CFormTextarea>
                       </CCol>
                     </CRow>
@@ -815,7 +820,11 @@ function ExperimentCell({
                     {fetchedData ? (
                       <Scatter
                         options={nyquist_options}
-                        data={dataSet(graphData[graphNum].nyquist_graph)}
+                        data={dataSet([
+                          graphData[graphNum].nyquist_graph,
+                          graphData[graphNum + 1].nyquist_graph,
+                          graphData[graphNum + 2].nyquist_graph,
+                        ])}
                         style={{ marginBottom: '25px' }}
                       />
                     ) : (

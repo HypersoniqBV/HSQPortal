@@ -65,7 +65,7 @@ const SelectedCell = ({ selectedList}) => {
                             EXP#{item.id}
                             </p>
                         </CCol>
-                        <CCol>{item.bg_solution}</CCol>
+                        <CCol>{item.background_solution}</CCol>
                         </CRow>                  
                     </>
                 ))}

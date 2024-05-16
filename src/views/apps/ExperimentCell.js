@@ -197,7 +197,7 @@ const bode_options_gain = {
       type: 'logarithmic',
       title: {
         display: true,
-        text: 'Real-Axis',
+        text: 'Frequency',
         color: 'white',
       },
       ticks: {
@@ -214,6 +214,7 @@ const bode_options_gain = {
       },
     },
     y: {
+      position: 'left',
       grid: {
         display: true,
         color: '#444',
@@ -222,7 +223,7 @@ const bode_options_gain = {
       type: 'logarithmic',
       title: {
         display: true,
-        text: 'Imaginary-Axis',
+        text: 'Gain (db)',
         color: 'white',
       },
       ticks: {
@@ -232,6 +233,39 @@ const bode_options_gain = {
             if (Math.log10(value) % 1 === 0) {
               return Math.round(value).toExponential()
             }
+          }
+        },
+      },
+      /*
+      ticks: {
+        callback: (val) => {
+          if (Math.log10(val) % 1 === 0) {
+            return val.toExponential()
+          } else {
+            return ' '
+          }
+        },
+      },
+      */
+    },
+    y2: {
+      position: 'right',
+      grid: {
+        display: true,
+        color: '#444',
+      },
+      beginAtZero: true,
+      type: 'linear',
+      title: {
+        display: true,
+        text: 'Phase',
+        color: 'white',
+      },
+      ticks: {
+        color: '#FFF',
+        callback: function (value) {
+          if (Math.floor(value) === value) {
+            return value.toExponential()
           }
         },
       },
@@ -343,7 +377,7 @@ const bode_options_phase = {
   },
 }
 
-function dataSet(values) {
+function dataSet(values, id) {
   const data = {
     datasets: [
       ...values.map((item, index) => {
@@ -352,6 +386,7 @@ function dataSet(values) {
           backgroundColor: `rgba(${204 - index * 50}, ${57 + index * 10}, 57, 1)`,
           pointRadius: 2,
           pointHoverRadius: 2,
+          yAxisID: id[index],
         }
       }),
     ],
@@ -820,11 +855,7 @@ function ExperimentCell({
                     {fetchedData ? (
                       <Scatter
                         options={nyquist_options}
-                        data={dataSet([
-                          graphData[graphNum].nyquist_graph,
-                          graphData[graphNum + 1].nyquist_graph,
-                          graphData[graphNum + 2].nyquist_graph,
-                        ])}
+                        data={dataSet([graphData[graphNum].nyquist_graph], ['y'])}
                         style={{ marginBottom: '25px' }}
                       />
                     ) : (
@@ -833,22 +864,17 @@ function ExperimentCell({
                   </CCol>
                 ) : (
                   <>
-                    <CCol xs={12} className="" style={{ height: '300px' }}>
+                    <CCol xs={12} className="" style={{ height: '600px' }}>
                       {fetchedData ? (
                         <Scatter
                           options={bode_options_gain}
-                          data={dataSet(graphData[graphNum].bode_graph_gain)}
-                          style={{ marginBottom: '25px' }}
-                        />
-                      ) : (
-                        <></>
-                      )}
-                    </CCol>
-                    <CCol xs={12} className="" style={{ height: '300px' }}>
-                      {fetchedData ? (
-                        <Scatter
-                          options={bode_options_phase}
-                          data={dataSet(graphData[graphNum].bode_graph_phase)}
+                          data={dataSet(
+                            [
+                              graphData[graphNum].bode_graph_gain,
+                              graphData[graphNum].bode_graph_phase,
+                            ],
+                            ['y', 'y2'],
+                          )}
                           style={{ marginBottom: '25px' }}
                         />
                       ) : (

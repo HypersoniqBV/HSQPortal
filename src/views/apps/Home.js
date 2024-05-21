@@ -66,14 +66,12 @@ import { UserContext } from 'src/App'
 
 const Home = () => {
   const navigate = useNavigate()
-  const { userMeta } = useContext(UserContext)
+  const { user, setUser, token, setToken, userMeta, setUserMeta } = useContext(UserContext)
   const [notifications, setNotifications] = useState([])
 
   useEffect(() => {}, [notifications, setNotifications])
 
   function appTile(item) {
-    console.log('../' + item.href)
-
     return (
       <div className="app-tile shadow" 
       onClick={() => navigate('../' + item.href.substring(2))}
@@ -88,6 +86,17 @@ const Home = () => {
       </div>
     )
   }
+  useEffect(() => {
+    if(notifications.length === 0) {
+      fetch("http://api.hypersoniqtech.com/fetch/logs", {
+        headers: {
+        Authorization: 'Bearer ' + token,
+        }}
+      )
+      .then((res) => res.json())
+      .then((data) => setNotifications(data))
+    }
+  })
 
   const sortedNav = {}
   let tempNav = []
@@ -113,47 +122,6 @@ const Home = () => {
   if (tempNav.length > 0) {
     sortedNav[currCategory] = tempNav
     tempNav = []
-  }
-
-  console.log(sortedNav)
-
-  var testMessages = [
-    {
-      msg: " Maria commented on experiment #12 of project HSQ#0320",
-      time: "8 hours ago"
-    },
-    {
-      msg: " Zahra commented on experiment #12 of project HSQ#0320",
-      time: "8 hours ago"
-    },
-    {
-      msg: " Zahra commented on experiment #12 of project HSQ#0320",
-      time: "8 hours ago"
-    },
-    {
-      msg: " Maria commented on experiment #12 of project HSQ#0320",
-      time: "8 hours ago"
-    },
-    {
-      msg: " Maria commented on experiment #12 of project HSQ#0320",
-      time: "8 hours ago"
-    },
-    {
-      msg: " Maria commented on experiment #12 of project HSQ#0320",
-      time: "8 hours ago"
-    },
-    {
-      msg: " Maria commented on experiment #12 of project HSQ#0320",
-      time: "8 hours ago"
-    },
-    {
-      msg: " Maria commented on experiment #12 of project HSQ#0320",
-      time: "8 hours ago"
-    },
-  ]
-
-  if(notifications.length === 0) {
-    setNotifications(testMessages)
   }
 
   function removeNotification(item) {
@@ -205,14 +173,14 @@ const Home = () => {
             <div style={{ position: 'absolute', overflow: 'scroll', width: '100%', height: '100%' }}>
               {notifications.map((item, index) => (
               <CRow className='m-2'>
-              <div className="shadow rounded-3 pt-2 pb-2 notification-box" style={{ height: "70px", verticalAlign: "middle" }}>
+              <div className="shadow rounded-3 pt-2 pb-2 notification-box" style={{ verticalAlign: "middle" }}>
                 <CRow>
                   <CCol xs={1} style={{ position: 'relative' }}>
                     <div className='bg-white rounded-circle center' style={{ width: '10px', height: '10px' }} />
                   </CCol>
                   <CCol>
-                    <CRow className='fw-bold'>{item.msg}</CRow>
-                    <CRow style={{fontSize: 2}}>{item.time}</CRow>
+                    <CRow className=''>{item.msg}</CRow>
+                    <CRow className='fw-bold' style={{fontSize: 2}}>{item.first_name + " " + item.last_name + " - " + item.time}</CRow>
                   </CCol>
                   <CCol xs={1} style={{ position: 'relative' }}>
                     <CIcon className='center notification-cross' icon={cilX} style={{width: 20, height: 20}} onClick={() => removeNotification(item)}/>

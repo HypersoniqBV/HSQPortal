@@ -1,3 +1,4 @@
+/* eslint-disable react/jsx-key */
 /* eslint-disable react/prop-types */
 import { React, useState, useEffect, useContext } from 'react'
 import {
@@ -24,6 +25,7 @@ import {
   cilDescription,
   cilDrop,
   cilFile,
+  cilGrain,
   cilPencil,
   cilShare,
   cilSquare,
@@ -419,6 +421,8 @@ function ExperimentCell({
   const [showAll, setShowAll] = useState(false)
   const [showAllRotation, setShowAllRotation] = useState('90deg')
 
+  const [comments, setComments] = useState([])
+
   //Is the current experiment selected?
   const [isSelected, setSelected] = useState(false)
 
@@ -459,9 +463,7 @@ function ExperimentCell({
     return false
   }
 
-  useEffect(() => {
-    console.log(isSelected)
-  }, [setSelected, isSelected])
+  useEffect(() => {}, [setSelected, isSelected])
 
   useEffect(() => {
     if (fetchedData) {
@@ -495,7 +497,11 @@ function ExperimentCell({
     if (!fetchedData) {
       setFetchingData(true)
       console.log(`Looking for measurement ${meta.uuid}`)
-      fetch(`http://api.hypersoniqtech.com/data/measurements/${meta.uuid}/experiment-data`)
+      fetch(`http://api.hypersoniqtech.com/data/measurements/${meta.uuid}/experiment-data`, {
+        headers: {
+          Authorization: 'Bearer ' + token,
+        },
+      })
         .then((res) => res.json())
         .then((data) => {
           console.log('I received this: ', data)
@@ -509,6 +515,14 @@ function ExperimentCell({
           setFetchingData(false)
           toaster('NetworkError', err.toString())
         })
+
+      fetch(`http://api.hypersoniqtech.com/data/measurements/${meta.uuid}/comment`, {
+        headers: {
+          Authorization: 'Bearer ' + token,
+        },
+      })
+        .then((res) => res.json())
+        .then((data) => setComments(data))
     } else {
       setCellState({ height: 300, rotation: '180deg', isOpen: true, color: 'light' })
     }
@@ -563,6 +577,22 @@ function ExperimentCell({
       .then((dat) => console.log(dat))
   }
 
+  function submitComment(comment) {
+    var body = { msg: comment }
+    fetch('http://api.hypersoniqtech.com/store/comment/' + meta['uuid'], {
+      method: 'POST',
+      body: JSON.stringify(body),
+      headers: {
+        Authorization: 'Bearer ' + token,
+      },
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        setComments([...comments, data])
+        document.getElementById('commentSubmitField').value = ''
+      })
+  }
+
   return (
     <>
       {/*
@@ -596,21 +626,28 @@ function ExperimentCell({
             />
           )}
         </CTableDataCell>
-        <CTableDataCell className={'text-center border-0' + (isSelected ? ' bg-primary' : '')}>
-          {meta.id}
-        </CTableDataCell>
         <CTableDataCell className={'border-0' + (isSelected ? ' bg-primary' : '')}>
           {meta.date}
         </CTableDataCell>
         <CTableDataCell className={'border-0' + (isSelected ? ' bg-primary' : '')}>
-          {meta.chip}
+          {meta.project}
         </CTableDataCell>
         <CTableDataCell className={'border-0' + (isSelected ? ' bg-primary' : '')}>
-          {meta.background_solution}
+          <div
+            style={{
+              width: 200,
+              overflow: 'hidden',
+              whiteSpace: 'nowrap',
+              textOverflow: 'ellipsis',
+            }}
+          >
+            {meta.meta.solution_name}
+          </div>
         </CTableDataCell>
         <CTableDataCell className={'border-0' + (isSelected ? ' bg-primary' : '')}>
-          {meta.background_concentration}
+          {meta.meta.solution_concentration}
         </CTableDataCell>
+        <CTableDataCell className={'border-0' + (isSelected ? ' bg-primary' : '')} />
         <CTableDataCell
           className={'border-0' + (isSelected ? ' bg-primary' : '')}
           style={{ borderRadius: '0% 25% 25% 0%' }}
@@ -721,10 +758,6 @@ function ExperimentCell({
 
               <CRow className="mt-1 mb-2 p-3 bg-dark rounded-4">
                 <CCol style={{ textAlign: 'center' }}>
-                  <CIcon icon={cilFile} className="m-2" size="xxl" xs={2} />
-                  <div style={{ fontSize: 13 }}>{'EXP#' + meta.id}</div>
-                </CCol>
-                <CCol style={{ textAlign: 'center' }}>
                   <CIcon icon={cilCalendar} className="m-2" size="xxl" xs={2} />
                   <div style={{ fontSize: 13 }}>{meta.date}</div>
                 </CCol>
@@ -738,13 +771,16 @@ function ExperimentCell({
                 </CCol>
                 <CCol style={{ textAlign: 'center' }}>
                   <CIcon icon={cilDrop} className="m-2" size="xxl" xs={4} />
-                  <div style={{ fontSize: 13 }}>{meta.background_concentration}</div>
+                  <div style={{ fontSize: 13 }}>{meta.meta.solution_concentration}</div>
                 </CCol>
                 <CCol style={{ textAlign: 'center' }}>
                   <CIcon icon={cilBeaker} className="m-2" size="xxl" xs={4} />
-                  <div style={{ fontSize: 13 }}>{meta.background_solution}</div>
+                  <div style={{ fontSize: 13 }}>{meta.meta.solution_name}</div>
                 </CCol>
-                <CCol xs={2} />
+                <CCol style={{ textAlign: 'center' }}>
+                  <CIcon icon={cilGrain} className="m-2" size="xxl" xs={4} />
+                  <div style={{ fontSize: 13 }}>{meta.device}</div>
+                </CCol>
               </CRow>
 
               {showAll ? (
@@ -910,7 +946,7 @@ function ExperimentCell({
                 <CCol className="" style={{ padding: 0, paddingLeft: '4px' }}>
                   <CDropdown className="bg-dark w-100 rounded-4" style={{ height: '40px' }}>
                     <CDropdownToggle className="" style={{ textAlign: 'left' }}>
-                      {graphData[graphNum].graph_label}
+                      {'Repetition ' + graphData[graphNum].graph_label}
                     </CDropdownToggle>
                     <CDropdownMenu className="w-100 bg-dark" style={{}}>
                       {graphData.map((item, index) => (
@@ -919,7 +955,7 @@ function ExperimentCell({
                           onClick={() => setGraphNum(index)}
                           style={{ cursor: 'pointer' }}
                         >
-                          {item.graph_label}
+                          {'Repetition ' + item.graph_label}
                         </CDropdownItem>
                       ))}
                     </CDropdownMenu>
@@ -935,22 +971,31 @@ function ExperimentCell({
                       Comment
                     </CCol>
                   </CRow>
-                  {meta.comment !== '' ? (
-                    <CRow className="bg-primary rounded-4 m-2 p-2 pb-3">
-                      <CRow className="">
-                        <CCol style={{ fontWeight: 'bold' }}>{meta.operator}</CCol>
-                        <CCol style={{ textAlign: 'right' }}>{meta.date}</CCol>
-                      </CRow>
-                      <CRow>
-                        <CCol>{meta.comment}</CCol>
-                      </CRow>
-                    </CRow>
+                  {comments.length !== 0 ? (
+                    comments.map((item, index) => {
+                      if (item.comment !== '')
+                        return (
+                          <CRow className="bg-primary rounded-4 m-2 p-2 pb-3">
+                            <CRow className="">
+                              <CCol style={{ fontWeight: 'bold' }}>{item.user_id}</CCol>
+                              <CCol style={{ textAlign: 'right' }}>{item.date}</CCol>
+                            </CRow>
+                            <CRow>
+                              <CCol>{item.comment}</CCol>
+                            </CRow>
+                          </CRow>
+                        )
+                    })
                   ) : (
                     <></>
                   )}
                   <CRow className="m-2 p-0 mt-3" style={{ borderRadius: 15 }}>
                     <CForm className="m-0 p-0 mb-1">
-                      <CFormTextarea className="m-0 bg-dark" rows={2}></CFormTextarea>
+                      <CFormTextarea
+                        id="commentSubmitField"
+                        className="m-0 bg-dark"
+                        rows={2}
+                      ></CFormTextarea>
                     </CForm>
                   </CRow>
                   <CRow className="m-2 p-0" style={{ borderRadius: 15 }}>
@@ -962,6 +1007,9 @@ function ExperimentCell({
                       xs={2}
                       className="bg-primary rounded-pill mr-5"
                       style={{ height: 35, position: 'relative', cursor: 'pointer' }}
+                      onClick={() =>
+                        submitComment(document.getElementById('commentSubmitField').value)
+                      }
                     >
                       <div className="center">Submit</div>
                     </CCol>

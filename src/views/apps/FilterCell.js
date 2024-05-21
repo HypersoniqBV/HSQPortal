@@ -32,9 +32,8 @@ function FilterCell({ cat, onChange, dataset, filter }) {
   useEffect(() => {}, [dataset])
 
   useEffect(() => {
-    if (filter !== '') {
+    if (filter === true) {
       onClick(true)
-
       var filteredData = []
       var filteredTogglers = []
       data.forEach((e, i) => {
@@ -95,12 +94,16 @@ function FilterCell({ cat, onChange, dataset, filter }) {
     if (dataset.length === 0) return
 
     var k = cat
+    var l = ''
+
     if (k === 'Solution') {
-      k = 'background_solution'
+      k = 'solution_name'
+      l = 'meta'
     }
 
     if (k === 'Concentration') {
-      k = 'background_concentration'
+      k = 'solution_concentration'
+      l = 'meta'
     }
 
     if (k === 'Chip') {
@@ -111,13 +114,19 @@ function FilterCell({ cat, onChange, dataset, filter }) {
       k = 'sensor'
     }
 
-    var values = dataset.map((a) => a[k.toLowerCase()])
+    console.log(dataset)
+    var values = []
+    if (l === '') {
+      values = dataset.map((a) => a[k.toLowerCase()])
+    } else {
+      values = dataset.map((a) => a['meta'][k.toLowerCase()])
+    }
+    values = values.map((item) => item.toString())
     var sorted = values.sort()
     var unq = sorted.filter(onlyUnique)
 
     setData(unq)
     setVisibleData(unq)
-    console.log('The uniques are ', unq)
     let e = []
 
     unq.forEach(() => e.push(false))
@@ -167,15 +176,17 @@ function FilterCell({ cat, onChange, dataset, filter }) {
           <CCol xs={10} className="mb-2">
             {visibleData !== null && visibleData.length > 0 ? (
               <>
-                {visibleData.map((val, index) => (
-                  // eslint-disable-next-line react/jsx-key
-                  <CFormCheck
-                    label={val.replace(/(^\w{1})|(\s+\w{1})/g, (letter) => letter.toUpperCase())}
-                    onChange={() => onToggle(getIndex(val))}
-                    style={{ cursor: 'pointer' }}
-                    checked={togglers[getIndex(val)]}
-                  />
-                ))}
+                {visibleData.map((entry, index) => {
+                  return (
+                    // eslint-disable-next-line react/jsx-key
+                    <CFormCheck
+                      label={entry}
+                      onChange={() => onToggle(getIndex(entry))}
+                      style={{ cursor: 'pointer' }}
+                      checked={togglers[getIndex(entry)]}
+                    />
+                  )
+                })}
               </>
             ) : (
               <></>

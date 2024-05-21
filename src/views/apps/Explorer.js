@@ -207,6 +207,7 @@ const Explorer = () => {
         if (value.length > 0) {
           let filteredData = []
           let k = key.toLowerCase()
+          var l = ''
 
           if (k === 'sensor') {
             k = 'sensor'
@@ -217,11 +218,13 @@ const Explorer = () => {
           }
 
           if (k === 'solution') {
-            k = 'background_solution'
+            k = 'solution_name'
+            l = 'meta'
           }
 
           if (k === 'concentration') {
-            k = 'background_concentration'
+            k = 'solution_concentration'
+            l = 'meta'
           }
 
           for (var idx in value) {
@@ -230,7 +233,13 @@ const Explorer = () => {
             filteredData.push(
               ...data.filter(
                 // eslint-disable-next-line no-loop-func
-                (item) => item[k] === filterVal,
+                (item) => {
+                  if (l === '') {
+                    console.log(item)
+                    return item[k] === filterVal
+                  }
+                  return item['meta'][k] === filterVal
+                },
               ),
             )
           }
@@ -308,7 +317,6 @@ const Explorer = () => {
 
   function onFiltercallBack(cat, val) {
     const containsItem = filters.some((item) => item.key === cat)
-    console.log(containsItem)
 
     var newFilter = filters
     if (!containsItem) {
@@ -884,7 +892,7 @@ const Explorer = () => {
                 </CCol>
               </CRow>
               <CRow className="col-form-label border-top" />
-              {['Operator', 'Sensor', 'Chip', 'Solution', 'Concentration'].map((item, index) => (
+              {['Operator', 'Device', 'Solution', 'Concentration'].map((item, index) => (
                 <FilterCell
                   cat={item}
                   onChange={onFiltercallBack}
@@ -922,29 +930,13 @@ const Explorer = () => {
                                 style={{
                                   borderRadius: '25% 0% 0% 25%',
                                   backgroundColor: '#571f1f',
-                                  width: 50,
+                                  width: '5%',
                                 }}
                               />
                               <CTableHeaderCell
-                                className="text-center"
                                 style={{
                                   backgroundColor: '#571f1f',
-                                  width: 50,
-                                  margin: 0,
-                                  padding: 0,
-                                }}
-                              >
-                                <CButton
-                                  className="fw-bold"
-                                  style={{ width: '100%', textAlign: 'center' }}
-                                >
-                                  #
-                                </CButton>
-                              </CTableHeaderCell>
-                              <CTableHeaderCell
-                                style={{
-                                  backgroundColor: '#571f1f',
-                                  width: 120,
+                                  width: '10%',
                                   padding: 0,
                                   margin: 0,
                                 }}
@@ -959,7 +951,7 @@ const Explorer = () => {
                               <CTableHeaderCell
                                 style={{
                                   backgroundColor: '#571f1f',
-                                  width: 250,
+                                  width: '20%',
                                   margin: 0,
                                   padding: 0,
                                 }}
@@ -968,13 +960,13 @@ const Explorer = () => {
                                   className="fw-bold"
                                   style={{ width: '100%', textAlign: 'left' }}
                                 >
-                                  Chip
+                                  Project
                                 </CButton>
                               </CTableHeaderCell>
                               <CTableHeaderCell
                                 style={{
                                   backgroundColor: '#571f1f',
-                                  width: 150,
+                                  width: '10%',
                                   margin: 0,
                                   padding: 0,
                                 }}
@@ -988,18 +980,24 @@ const Explorer = () => {
                               </CTableHeaderCell>
                               <CTableHeaderCell
                                 style={{
-                                  width: 100,
+                                  width: '10%',
                                   backgroundColor: '#571f1f',
                                 }}
                               >
                                 Concentration
                               </CTableHeaderCell>
                               <CTableHeaderCell
+                                style={{
+                                  width: '1%',
+                                  backgroundColor: '#571f1f',
+                                }}
+                              />
+                              <CTableHeaderCell
                                 className="justify-content-center"
                                 style={{
                                   borderRadius: '0% 25% 25% 0%',
                                   backgroundColor: '#571f1f',
-                                  width: 50,
+                                  width: '5%',
                                 }}
                               />
                             </CTableRow>

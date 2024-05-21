@@ -32,7 +32,7 @@ function FilterCell({ cat, onChange, dataset, filter }) {
   useEffect(() => {}, [dataset])
 
   useEffect(() => {
-    if (filter === true) {
+    if (filter !== '' && filter.charAt(0) !== '!') {
       onClick(true)
       var filteredData = []
       var filteredTogglers = []

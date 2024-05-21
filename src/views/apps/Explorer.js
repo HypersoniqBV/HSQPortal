@@ -91,6 +91,7 @@ import HoverCard from './HoverCard'
 import { Scatter } from 'react-chartjs-2'
 import { UserContext } from 'src/App'
 import SelectedCell from './SelectedCell'
+import { hide } from '@popperjs/core'
 
 ChartJS.register(LinearScale, PointElement, LogarithmicScale, LineElement, Title)
 
@@ -255,6 +256,7 @@ const Explorer = () => {
   }, [dataset, filters, updateFilters])
 
   useEffect(() => {}, [hasData, isLoading, networkError])
+  useEffect(() => {}, [filterInput])
 
   function onDateRangeSelected(date1, date2) {
     if (!isIdRequest) {
@@ -884,12 +886,67 @@ const Explorer = () => {
                     style={{ paddingLeft: 40 }}
                     className="border border-primary rounded-5 search"
                     placeholder=""
-                    onChange={(value) => setFilterInput(value.target.value)}
+                    onChange={(value) => {
+                      console.log(value.target.value)
+                      setFilterInput(value.target.value)
+                    }}
                   />
                   <CCol xs={1} style={{ position: 'absolute', marginTop: -30, marginLeft: 10 }}>
                     <CIcon icon={cilMagnifyingGlass} size={'lg'} />
                   </CCol>
                 </CCol>
+              </CRow>
+              <CRow>
+                <div className="p-2" style={{ display: 'flex', overflow: 'hidden' }}>
+                  <div
+                    className="bg-primary rounded-pill m-1 p-2 pt-0 pb-0 pr-0"
+                    style={{ textAlign: 'center', display: 'flex' }}
+                  >
+                    <div
+                      style={{
+                        overflow: 'hidden',
+                        whiteSpace: 'nowrap',
+                        textOverflow: 'ellipsis',
+                        maxWidth: 100,
+                      }}
+                    >
+                      Vopak
+                    </div>
+                    <CIcon className="m-1 pt-0 pb-0" icon={cilX} />
+                  </div>
+                  <div
+                    className="bg-primary rounded-pill m-1 p-2 pt-0 pb-0 pr-0"
+                    style={{ textAlign: 'center', display: 'flex' }}
+                  >
+                    <div
+                      style={{
+                        overflow: 'hidden',
+                        whiteSpace: 'nowrap',
+                        textOverflow: 'ellipsis',
+                        maxWidth: 100,
+                      }}
+                    >
+                      Standard Test
+                    </div>
+                    <CIcon className="m-1 pt-0 pb-0" icon={cilX} />
+                  </div>
+                  <div
+                    className="bg-primary rounded-pill m-1 p-2 pt-0 pb-0 pr-0"
+                    style={{ textAlign: 'center', display: 'flex' }}
+                  >
+                    <div
+                      style={{
+                        overflow: 'hidden',
+                        whiteSpace: 'nowrap',
+                        textOverflow: 'ellipsis',
+                        maxWidth: 100,
+                      }}
+                    >
+                      93f8c2e5-a158-4eec-968a-4c90b828015f
+                    </div>
+                    <CIcon className="m-1 pt-0 pb-0" icon={cilX} />
+                  </div>
+                </div>
               </CRow>
               <CRow className="col-form-label border-top" />
               {['Operator', 'Device', 'Solution', 'Concentration'].map((item, index) => (

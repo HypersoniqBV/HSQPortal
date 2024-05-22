@@ -104,13 +104,14 @@ const Home = () => {
 
   for( let i = 0; i < _nav.length; i++ ) {
     const obj = _nav[i]
-    if(obj.component.render.displayName === "CNavItem") {
+  
+    if(obj.component.displayName === "CNavItem") {
       if(obj.name !== "Dashboard") {
         tempNav.push(obj)
       }
     }
-    
-    if(obj.component.render.displayName === "CNavTitle") {
+
+    if(obj.component.displayName === "CNavTitle") {
       if (tempNav.length > 0) {
         sortedNav[currCategory] = tempNav
         tempNav = []
@@ -131,7 +132,6 @@ const Home = () => {
     if (index !== -1) {
       newNotifications.splice(index, 1)
     }
-
     setNotifications(newNotifications)
   }
 

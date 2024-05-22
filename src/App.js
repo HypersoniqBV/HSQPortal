@@ -99,7 +99,6 @@ const App = () => {
 
 // eslint-disable-next-line react/prop-types
 const ProtectedRoute = ({ user, children }) => {
-  console.log(user)
   if (!user) {
     return <Navigate to="/login" replace />
   }

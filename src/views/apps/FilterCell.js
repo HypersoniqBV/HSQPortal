@@ -114,7 +114,6 @@ function FilterCell({ cat, onChange, dataset, filter }) {
       k = 'sensor'
     }
 
-    console.log(dataset)
     var values = []
     if (l === '') {
       values = dataset.map((a) => a[k.toLowerCase()])

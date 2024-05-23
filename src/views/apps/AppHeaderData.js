@@ -4,7 +4,7 @@ import { CButton } from '@coreui/react'
 import { publish } from 'src/event'
 import CIcon from '@coreui/icons-react'
 
-import { cilCloudUpload } from '@coreui/icons'
+import { cilCloudUpload, cilReload } from '@coreui/icons'
 
 function AppHeaderData() {
   return (
@@ -67,6 +67,15 @@ function AppHeaderData() {
         }}
       >
         Delete
+      </CButton>
+      <CButton
+        style={{
+          paddingLeft: '30px',
+          paddingRight: '30px',
+          marginRight: '0px',
+        }}
+      >
+        <CIcon icon={cilReload} />
       </CButton>
     </>
   )

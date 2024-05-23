@@ -668,6 +668,7 @@ function ExperimentCell({
               boxShadow: 'none',
               overflow: 'hidden',
               maxHeight: 0,
+              maxWidth: 300,
             }}
             colSpan={7}
           >
@@ -890,6 +891,10 @@ function ExperimentCell({
                   <CCol xs={12} className="" style={{ height: '600px' }}>
                     {fetchedData ? (
                       <Scatter
+                        onContextMenu={(e) => {
+                          e.preventDefault()
+                          console.log('test!!!')
+                        }}
                         options={nyquist_options}
                         data={dataSet([graphData[graphNum].nyquist_graph], ['y'])}
                         style={{ marginBottom: '25px' }}
@@ -903,6 +908,10 @@ function ExperimentCell({
                     <CCol xs={12} className="" style={{ height: '600px' }}>
                       {fetchedData ? (
                         <Scatter
+                          onContextMenu={(e) => {
+                            e.preventDefault()
+                            console.log('test!!!')
+                          }}
                           options={bode_options_gain}
                           data={dataSet(
                             [
